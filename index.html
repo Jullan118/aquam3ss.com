@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aquam3ss</title>
+<style>
+  :root{
+    --bg: #ffffff;
+    --grey: #a3a3a3;
+    --card-bg: #1c1c1e;
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: #111;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- persistent nav overlay: about (top-left) + project list, contact (top-right) --- */
+  .nav{
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    mix-blend-mode: difference;
+  }
+  .nav a{
+    color: #fff;
+    text-decoration: none;
+    pointer-events: auto;
+  }
+  .nav-about{
+    position: absolute;
+    top: 24px;
+    left: 32px;
+  }
+  .nav-contact{
+    position: absolute;
+    top: 24px;
+    right: 32px;
+  }
+  .nav-projects{
+    position: absolute;
+    top: 64px;
+    left: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* --- the pinned scroll-stack section --- */
+  .hero-scroll{
+    position: relative;
+    height: 300vh; /* (n cards + 1) * 100vh */
+  }
+  .hero-sticky{
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-text{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-text span{
+    font-size: clamp(48px, 12vw, 180px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--grey);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .hero-text span.visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .card{
+    position: absolute;
+    inset: 0; /* full-bleed: fills the entire pinned viewport, edge to edge */
+    overflow: hidden;
+    will-change: transform;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .scroll-hint{
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: #fff;
+    mix-blend-mode: difference;
+    z-index: 40;
+    transition: opacity 0.4s ease;
+  }
+
+  /* filler section so the pinned hero has somewhere to release into */
+  .filler{
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: rgba(0,0,0,0.35);
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav">
+    <a class="nav-about" href="#">about</a>
+    <a class="nav-contact" href="#">contact</a>
+    <nav class="nav-projects">
+      <a href="#">out in the woods</a>
+      <a href="#">wickedproblems</a>
+      <a href="#">stuckholm</a>
+    </nav>
+  </div>
+
+  <section class="hero-scroll" id="heroScroll">
+    <div class="hero-sticky">
+
+      <div class="hero-text">
+        <span id="heroText">@aquam3ss</span>
+      </div>
+
+      <div class="card" data-card>
+        <img src="photo-1.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="photo-2.jpg" alt="">
+      </div>
+
+    </div>
+  </section>
+
+  <div class="scroll-hint" id="scrollHint">scrolla ner ↓</div>
+
+  <div class="filler">mer innehåll kommer här</div>
+
+<script>
+(function(){
+  const wrapper   = document.getElementById('heroScroll');
+  const cards     = Array.from(document.querySelectorAll('[data-card]'));
+  const heroText  = document.getElementById('heroText');
+  const scrollHint= document.getElementById('scrollHint');
+  const n         = cards.length;
+
+  cards.forEach((card, i) => {
+    card.style.zIndex = n - i;
+  });
+
+  const EXIT_DISTANCE = 105; // vh the card travels while exiting
+
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+  function update(){
+    const rect = wrapper.getBoundingClientRect();
+    const scrollable = wrapper.offsetHeight - window.innerHeight;
+    const scrolled = clamp(-rect.top, 0, scrollable);
+    const overall = scrollable > 0 ? scrolled / scrollable : 0;
+
+    const segment = 1 / n;
+
+    cards.forEach((card, i) => {
+      const raw = (overall - i * segment) / segment;
+      const p = clamp(raw, 0, 1);
+
+      const translateY = -p * EXIT_DISTANCE;
+
+      card.style.transform = `translateY(${translateY}vh)`;
+      card.style.opacity = p >= 1 ? 0 : 1;
+    });
+
+    const lastCardProgress = clamp((overall - (n - 1) * segment) / segment, 0, 1);
+    heroText.classList.toggle('visible', lastCardProgress >= 0.98);
+
+    scrollHint.style.opacity = overall > 0.03 ? '0' : '1';
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking){
+      requestAnimationFrame(() => { update(); ticking = false; });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+
+</body>
+</html>
