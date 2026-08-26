@@ -20,7 +20,7 @@
   }
 
   /* --- persistent nav overlay: about (top-left) + project list, contact (top-right) --- */
-  .nav{
+  .nav-invert{
     position: fixed;
     inset: 0;
     z-index: 50;
@@ -28,10 +28,9 @@
     font-size: 13px;
     letter-spacing: 0.08em;
     text-transform: lowercase;
-    mix-blend-mode: difference;
   }
-  .nav a{
-    color: #fff;
+  .nav-invert a{
+    color: #ff0000;
     text-decoration: none;
     pointer-events: auto;
   }
@@ -46,18 +45,26 @@
     right: 32px;
   }
   .nav-projects{
-    position: absolute;
+    position: fixed;
     top: 64px;
     left: 32px;
+    z-index: 50;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+  .nav-projects a{
+    color: #ff0000;
+    text-decoration: none;
   }
 
   /* --- the pinned scroll-stack section --- */
   .hero-scroll{
     position: relative;
-    height: 300vh; /* (n cards + 1) * 100vh */
+    height: 980vh; /* 100vh release buffer + 16 cards * 55vh each */
   }
   .hero-sticky{
     position: sticky;
@@ -123,30 +130,19 @@
     transition: opacity 0.4s ease;
   }
 
-  /* filler section so the pinned hero has somewhere to release into */
-  .filler{
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
-    color: rgba(0,0,0,0.35);
-  }
 </style>
 </head>
 <body>
 
-  <div class="nav">
+  <div class="nav-invert">
     <a class="nav-about" href="#">about</a>
     <a class="nav-contact" href="#">contact</a>
-    <nav class="nav-projects">
-      <a href="#">out in the woods</a>
-      <a href="#">wickedproblems</a>
-      <a href="#">stuckholm</a>
-    </nav>
   </div>
+  <nav class="nav-projects">
+    <a href="#">out in the woods</a>
+    <a href="#">wickedproblems</a>
+    <a href="https://stuckholm.se" target="_blank" rel="noopener">stuckholm</a>
+  </nav>
 
   <section class="hero-scroll" id="heroScroll">
     <div class="hero-sticky">
@@ -156,18 +152,58 @@
       </div>
 
       <div class="card" data-card>
-        <img src="photo-1.jpg" alt="">
+        <img src="hero-01.jpg" alt="">
       </div>
       <div class="card" data-card>
-        <img src="photo-2.jpg" alt="">
+        <img src="hero-02.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-03.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-04.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-05.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-06.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-07.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-08.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-09.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-10.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-11.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-12.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-13.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-14.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-15.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-16.jpg" alt="">
       </div>
 
     </div>
   </section>
 
   <div class="scroll-hint" id="scrollHint">scrolla ner ↓</div>
-
-  <div class="filler">mer innehåll kommer här</div>
 
 <script>
 (function(){
