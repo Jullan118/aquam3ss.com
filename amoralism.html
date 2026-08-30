@@ -59,7 +59,7 @@
 <a class="home-link" href="index.html">&larr; aquam3ss</a>
 
 <canvas id="scene" tabindex="0"></canvas>
-<div class="hint" id="hint">dra för att titta runt &middot; piltangenter / wasd för att gå</div>
+<div class="hint" id="hint">dra i sidled eller scrolla upp/ner för att titta runt &middot; piltangenter / wasd för att gå</div>
 
 <script src="three.min.js"></script>
 <script>
@@ -136,12 +136,12 @@
   // one painting per wall — back, left, right — each with its own spotlight.
   // aspect = real width/height of the photographed canvas, so it hangs undistorted.
   const paintingDefs = [
-    { src: 'tavla1_standing.jpg', aspect: 0.695, wall: 'back',
-      title: '[titel 1]', size: '[mått]', technique: '[teknik]' },
-    { src: 'tavla2_fallen_wide.jpg', aspect: 0.799, wall: 'left',
-      title: '[titel 2]', size: '[mått]', technique: '[teknik]' },
-    { src: 'tavla3_fallen_close.jpg', aspect: 0.793, wall: 'right',
-      title: '[titel 3]', size: '[mått]', technique: '[teknik]' },
+    { src: 'amoralism-1.jpg', aspect: 0.696, wall: 'left',
+      title: 'Rumtom', artist: 'Julia Elsa', size: '70 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
+    { src: 'amoralism-2.jpg', aspect: 0.803, wall: 'back',
+      title: 'Öppnandet', artist: 'Julia Elsa', size: '80 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
+    { src: 'amoralism-3.jpg', aspect: 0.799, wall: 'right',
+      title: 'Förtydligandet', artist: 'Julia Elsa', size: '80 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
   ];
 
   const PAINTING_H = 1.9; // fixed display height; width is derived per-painting from its own aspect ratio
@@ -182,21 +182,28 @@
     };
   }
 
-  // draws a small white wall-label plaque (title / mått / teknik) onto a canvas texture
-  function makeLabelTexture(title, size, technique){
+  // draws a small white wall-label plaque (title / artist / teknik · år / mått) onto a canvas texture
+  function makeLabelTexture(title, artist, size, technique, year){
     const c = document.createElement('canvas');
-    c.width = 512; c.height = 300;
+    c.width = 512; c.height = 340;
     const ctx = c.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, c.width, c.height);
     ctx.fillStyle = '#111111';
     ctx.textBaseline = 'top';
-    ctx.font = '600 34px "Helvetica Neue", Arial, sans-serif';
-    ctx.fillText(title, 30, 36);
+    let titleSize = 34;
+    const maxTitleWidth = c.width - 60;
+    ctx.font = `600 ${titleSize}px "Helvetica Neue", Arial, sans-serif`;
+    while (ctx.measureText(title).width > maxTitleWidth && titleSize > 16){
+      titleSize -= 2;
+      ctx.font = `600 ${titleSize}px "Helvetica Neue", Arial, sans-serif`;
+    }
+    ctx.fillText(title, 30, 30);
     ctx.fillStyle = '#555555';
     ctx.font = '26px "Helvetica Neue", Arial, sans-serif';
-    ctx.fillText(size, 30, 108);
-    ctx.fillText(technique, 30, 150);
+    ctx.fillText(artist, 30, 96);
+    ctx.fillText(`${technique}, ${year}`, 30, 138);
+    ctx.fillText(size, 30, 180);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
@@ -231,11 +238,13 @@
     scene.add(spot);
     scene.add(spot.target);
 
-    // small white wall-label plaque to the right of the painting — title / mått / teknik
-    const LABEL_W = 0.4;
-    const LABEL_H = 0.4 * (300 / 512);
-    const labelTex = makeLabelTexture(def.title, def.size, def.technique);
-    const labelMat = new THREE.MeshBasicMaterial({ map: labelTex }); // unlit, always reads as a clean white plaque
+    // small white wall-label plaque to the right of the painting — title / artist / teknik · år / mått
+    const LABEL_W = 0.22;
+    const LABEL_H = 0.22 * (340 / 512);
+    const labelTex = makeLabelTexture(def.title, def.artist, def.size, def.technique, def.year);
+    // lit (not unlit) so it picks up the room's dim ambient light like everything else,
+    // instead of glowing full-bright white against the dark room
+    const labelMat = new THREE.MeshStandardMaterial({ map: labelTex, roughness: 0.9 });
     const label = new THREE.Mesh(new THREE.PlaneGeometry(LABEL_W, LABEL_H), labelMat);
     const labelPos = place.paintingPos.clone()
       .addScaledVector(place.sideVec, w / 2 + 0.18 + LABEL_W / 2);
@@ -279,6 +288,17 @@
   canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); pointerDown(e.clientX, e.clientY); });
   canvas.addEventListener('pointermove', (e) => pointerMove(e.clientX, e.clientY));
   window.addEventListener('pointerup', pointerUp);
+
+  // --- vertical look via scroll/trackpad: two-finger swipe up/down tilts the view,
+  // since click-dragging precisely in a straight vertical line is fiddly on a trackpad ---
+  const WHEEL_PITCH_SPEED = 0.0022;
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    hint.classList.add('hidden');
+    pitch -= e.deltaY * WHEEL_PITCH_SPEED;
+    pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch));
+    camera.rotation.x = pitch;
+  }, { passive: false });
 
   // --- walk controls: WASD / arrow keys move through the room, drag still just looks around ---
   const keys = new Set();
