@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mördare — aquam3ss</title>
+<title>about — aquam3ss</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -60,51 +60,34 @@
     text-decoration: none;
   }
 
-  /* --- product-style layout: image block, then text below --- */
-  .work{
-    max-width: 760px;
+  /* --- about layout --- */
+  .about{
+    max-width: 620px;
     margin: 0 auto;
-    padding: 140px 32px 120px;
+    padding: 180px 32px 120px;
   }
-  .work-image{
-    background: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 480px;
-    padding: 40px;
+  .about-name{
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 40px;
   }
-  .work-image img{
-    display: block;
-    max-width: 100%;
-    max-height: 60vh;
-    height: auto;
-  }
-  .work-image .placeholder{
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
-    color: #999;
-  }
-  .work-text{
-    margin-top: 56px;
+  .about-text{
     font-size: 14px;
     line-height: 1.7;
   }
-  .work-title{
-    font-style: italic;
+  .about-text p{
+    margin: 0 0 20px;
   }
-  .work-gap{
-    height: 20px;
+  .about-meta{
+    margin-top: 40px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #555;
   }
-  .work-price{
-    margin-top: 20px;
-  }
-  .work-cart{
-    display: inline-block;
-    margin-top: 4px;
-    color: #111;
-    text-decoration: underline;
+  .about-meta a{
+    color: #555;
+    text-decoration: none;
   }
 </style>
 </head>
@@ -121,20 +104,20 @@
     <a href="mordare.html">mördare</a>
   </nav>
 
-  <section class="work">
-    <div class="work-image">
-      <img src="mordare-vas.png" alt="">
+  <section class="about">
+    <div class="about-name">Julia Elsa Blomberg</div>
+
+    <div class="about-text">
+      <p>What does it mean to create something, not just to produce it, but to create it? That question has followed me for a long time. Engineering taught me how to make things work, but not what it means for them to exist. That gap has become the site of my work.</p>
+
+      <p>As a result, my practice is genuinely interdisciplinary, spanning painting, ceramics, computational fabrication, prototyping, modelling, and writing. While they are all unique forms, I combine them in my effort to bridge the technical and artistic aspects of creating.</p>
+
+      <p>I'm currently pursuing an MSc in Integrated Product Design at TU Delft, following a BSc in Mechanical Engineering with a specialization in Product Design from KTH Royal Institute of Technology in Stockholm.</p>
     </div>
 
-    <div class="work-text">
-      <div class="work-title">killer1</div>
-      <div>Keramik</div>
-      <div>2026</div>
-
-      <div class="work-gap"></div>
-
-      <div class="work-price">750 kr</div>
-      <a class="work-cart" href="#">Add to Cart</a>
+    <div class="about-meta">
+      Based between Delft and Stockholm.<br>
+      <a href="mailto:julia.blombergg@gmail.com">julia.blombergg@gmail.com</a>
     </div>
   </section>
 
