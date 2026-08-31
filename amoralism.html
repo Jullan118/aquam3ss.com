@@ -9,9 +9,13 @@
   html, body{
     margin: 0;
     padding: 0;
-    overflow: hidden;
     background: #000;
     font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .room{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
   }
   #scene{
     display: block;
@@ -25,7 +29,7 @@
     cursor: grabbing;
   }
   .hint{
-    position: fixed;
+    position: absolute;
     bottom: 28px;
     left: 50%;
     transform: translateX(-50%);
@@ -52,14 +56,145 @@
     z-index: 20;
   }
 
+  /* --- black buffer space between the room and the white info section --- */
+  .black-space{
+    background: #000;
+    height: 100vh;
+  }
+
+  /* --- info section below the room: text + carousel about the exhibition --- */
+  .info{
+    background: #000000;
+    padding: 100px 32px 120px;
+    min-height: 100vh;
+  }
+  .info-inner{
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 64px;
+    align-items: flex-start;
+  }
+  .carousel-frame{
+    flex: 0 0 460px;
+    width: 460px;
+  }
+  .carousel-viewport{
+    width: 100%;
+    display: block;
+  }
+  .carousel-viewport img{
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .carousel-controls{
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .carousel-arrow{
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .carousel-dots{
+    display: flex;
+    gap: 8px;
+  }
+  .carousel-dots span{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #555;
+    display: block;
+  }
+  .carousel-dots span.active{
+    background: #ffffff;
+  }
+  .carousel-caption{
+    margin-top: 10px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    line-height: 1.6;
+  }
+  .carousel-caption .title{
+    font-weight: 600;
+    text-transform: none;
+    color: #fff;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .info-text{
+    flex: 1 1 380px;
+    min-width: 280px;
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .info-title{
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    letter-spacing: -0.01em;
+  }
+  .info-text p{
+    margin: 0 0 14px;
+  }
+  .info-text p:last-child{
+    margin-bottom: 0;
+  }
+
 </style>
 </head>
 <body>
 
 <a class="home-link" href="index.html">&larr; aquam3ss</a>
 
-<canvas id="scene" tabindex="0"></canvas>
-<div class="hint" id="hint">dra i sidled eller scrolla upp/ner för att titta runt &middot; piltangenter / wasd för att gå</div>
+<div class="room">
+  <canvas id="scene" tabindex="0"></canvas>
+  <div class="hint" id="hint">dra för att titta runt &middot; piltangenter / wasd för att gå &middot; skrolla ner för mer</div>
+</div>
+
+<div class="black-space"></div>
+
+<section class="info">
+  <div class="info-inner">
+    <div class="info-text">
+      <h2 class="info-title">The Red Forest</h2>
+      <p>The forest.<br>It grows, it dies, it takes over.<br>It is taken over.</p>
+      <p>Trees grow, trees fall. Roots stay, roots disappear. Moss covers what is left.</p>
+      <p>We like to separate things.<br>Living from dead.<br>Growth from decay.<br>Nature from us.</p>
+      <p>But what are these distinctions when everything keeps changing?<br>Like us.</p>
+      <p>We cut the forest down. We take from it. Wood, food, energy. We turn what was alive into something useful.</p>
+      <p>We decide what stays.<br>We decide what goes.<br>Is this what we call power?</p>
+      <p>We make rules, follow them, break them.<br>We build meaning around things that disappear.</p>
+      <p>So what remains when everything dies?<br>The tree.<br>The forest.<br>Us.</p>
+      <p>It does not separate death from life.<br>The dead becomes the living.<br>The living becomes the dead.<br>The forest holds the whole.</p>
+    </div>
+    <div class="carousel-frame">
+      <div id="carousel">
+        <div class="carousel-viewport">
+          <img id="carouselImg" src="" alt="">
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-arrow" id="prevBtn" aria-label="föregående">&lsaquo;</button>
+          <div class="carousel-dots" id="carouselDots"></div>
+          <button class="carousel-arrow" id="nextBtn" aria-label="nästa">&rsaquo;</button>
+        </div>
+        <div class="carousel-caption" id="carouselCaption"></div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <script src="three.min.js"></script>
 <script>
@@ -137,11 +272,11 @@
   // aspect = real width/height of the photographed canvas, so it hangs undistorted.
   const paintingDefs = [
     { src: 'amoralism-1.jpg', aspect: 0.696, wall: 'left',
-      title: 'Rumtom', artist: 'Julia Elsa', size: '70 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
+      title: 'Amoralism', artist: 'Julia elsa', size: '70 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
     { src: 'amoralism-2.jpg', aspect: 0.803, wall: 'back',
-      title: 'Öppnandet', artist: 'Julia Elsa', size: '80 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
+      title: 'Utopia', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
     { src: 'amoralism-3.jpg', aspect: 0.799, wall: 'right',
-      title: 'Förtydligandet', artist: 'Julia Elsa', size: '80 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
+      title: 'Guru', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'Akryl på kanvas', year: '2026' },
   ];
 
   const PAINTING_H = 1.9; // fixed display height; width is derived per-painting from its own aspect ratio
@@ -289,17 +424,6 @@
   canvas.addEventListener('pointermove', (e) => pointerMove(e.clientX, e.clientY));
   window.addEventListener('pointerup', pointerUp);
 
-  // --- vertical look via scroll/trackpad: two-finger swipe up/down tilts the view,
-  // since click-dragging precisely in a straight vertical line is fiddly on a trackpad ---
-  const WHEEL_PITCH_SPEED = 0.0022;
-  canvas.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    hint.classList.add('hidden');
-    pitch -= e.deltaY * WHEEL_PITCH_SPEED;
-    pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch));
-    camera.rotation.x = pitch;
-  }, { passive: false });
-
   // --- walk controls: WASD / arrow keys move through the room, drag still just looks around ---
   const keys = new Set();
   const KEY_MAP = {
@@ -357,6 +481,48 @@
     renderer.render(scene, camera);
   }
   animate();
+
+  // --- carousel below the room: same paintings, click through with prev/next ---
+  // NOTE: she plans to send a 4th, smaller "descriptive" painting to go first in this
+  // list — just prepend a { src, title } entry above once that image is in the folder.
+  const carouselItems = paintingDefs.map((def) => ({
+    src: def.src, title: def.title, artist: def.artist,
+    size: def.size, technique: def.technique, year: def.year,
+  }));
+  const carouselImg = document.getElementById('carouselImg');
+  const carouselCaption = document.getElementById('carouselCaption');
+  const carouselDots = document.getElementById('carouselDots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  carouselItems.forEach(() => {
+    const dot = document.createElement('span');
+    carouselDots.appendChild(dot);
+  });
+
+  let carouselIndex = 0;
+  function renderCarousel(){
+    const item = carouselItems[carouselIndex];
+    carouselImg.src = item.src;
+    carouselImg.alt = item.title;
+    carouselCaption.innerHTML =
+      `<span class="title">${item.title}</span>` +
+      `${item.artist}<br>` +
+      `${item.technique}, ${item.year}<br>` +
+      `${item.size}`;
+    Array.from(carouselDots.children).forEach((dot, i) => {
+      dot.classList.toggle('active', i === carouselIndex);
+    });
+  }
+  prevBtn.addEventListener('click', () => {
+    carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
+    renderCarousel();
+  });
+  nextBtn.addEventListener('click', () => {
+    carouselIndex = (carouselIndex + 1) % carouselItems.length;
+    renderCarousel();
+  });
+  renderCarousel();
 })();
 </script>
 
