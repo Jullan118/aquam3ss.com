@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhythm — aquam3ss</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing: border-box; }
+  html, body{
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    color: #111;
+    font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- persistent nav overlay, same as the rest of the site --- */
+  .nav-invert{
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+  .nav-invert a{
+    color: #ff0000;
+    text-decoration: none;
+    pointer-events: auto;
+  }
+  .nav-about{
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    text-transform: none;
+  }
+  .nav-contact{
+    position: absolute;
+    top: 24px;
+    right: 32px;
+  }
+  .nav-projects{
+    position: fixed;
+    top: 64px;
+    left: 32px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: none;
+  }
+  .nav-projects a{
+    color: #ff0000;
+    text-decoration: none;
+  }
+
+  /* --- page layout --- */
+  .work{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 160px 32px 140px;
+  }
+  .work-header{
+    margin-bottom: 48px;
+  }
+  .work-title{
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .work-meta{
+    font-size: 13px;
+    color: #777;
+    letter-spacing: 0.02em;
+  }
+
+  .work-image{
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .work-image img{
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .work-text{
+    margin-top: 48px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .work-text p{
+    margin: 0 0 20px;
+  }
+  .work-text p:last-child{
+    margin-bottom: 0;
+  }
+
+  /* --- street-photo carousel --- */
+  .street{
+    margin-top: 80px;
+  }
+  .street-label{
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: #999;
+    margin-bottom: 16px;
+  }
+  .carousel-viewport{
+    width: 100%;
+    display: block;
+    background: #f0f0f0;
+  }
+  .carousel-viewport img{
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .carousel-controls{
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .carousel-arrow{
+    background: none;
+    border: none;
+    color: #111;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .carousel-dots{
+    display: flex;
+    gap: 8px;
+  }
+  .carousel-dots span{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ccc;
+    display: block;
+  }
+  .carousel-dots span.active{
+    background: #111;
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav-invert">
+    <a class="nav-about" href="about.html">About</a>
+    <a class="nav-contact" href="mailto:julia.blombergg@gmail.com">contact</a>
+  </div>
+  <nav class="nav-projects">
+    <a href="amoralism.html">The red forest</a>
+    <a href="#">Wickedproblems</a>
+    <a href="https://stuckholm.se" target="_blank" rel="noopener">Stuckholm</a>
+    <a href="mordare.html">Mördare</a>
+    <a href="rhythm.html">Rhythm</a>
+  </nav>
+
+  <section class="work">
+    <div class="work-header">
+      <div class="work-title">Rhythm</div>
+      <div class="work-meta">October 2025 &middot; Oil on canvas, 1 &times; 1 m &middot; Shown at an open exhibition during ADE, Amsterdam</div>
+    </div>
+
+    <div class="work-image">
+      <img src="rhythm-1.jpg" alt="Rhythm — oil on canvas, two faces in profile, screaming">
+    </div>
+
+    <div class="work-text">
+      <p>Some bonds don't arrive every day. And when they do, they come with full force, two souls caught in each other's gravity, unable to release. Stress, anger, tenderness, circling, returning, deepening.</p>
+      <p>What poisons you is the same thing that makes you feel most alive.</p>
+      <p>Rhythm arrived in a single surge, colours bought on impulse, done three hours later. That is how it always comes. When it is true, it doesn't ask permission.</p>
+    </div>
+
+    <div class="street">
+      <div class="street-label">photographed around amsterdam with people from town</div>
+      <div id="carousel">
+        <div class="carousel-viewport">
+          <img id="carouselImg" src="" alt="">
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-arrow" id="prevBtn" aria-label="föregående">&lsaquo;</button>
+          <div class="carousel-dots" id="carouselDots"></div>
+          <button class="carousel-arrow" id="nextBtn" aria-label="nästa">&rsaquo;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+(function(){
+  const items = ['rhythm-street-1.jpg', 'rhythm-street-2.jpg'];
+  let index = 0;
+
+  const img = document.getElementById('carouselImg');
+  const dotsWrap = document.getElementById('carouselDots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  items.forEach((_, i) => {
+    const dot = document.createElement('span');
+    dot.addEventListener('click', () => { index = i; render(); });
+    dotsWrap.appendChild(dot);
+  });
+
+  function render(){
+    img.src = items[index];
+    img.alt = `Rhythm photographed around Amsterdam, photo ${index + 1} of ${items.length}`;
+    Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+
+  prevBtn.addEventListener('click', () => { index = (index - 1 + items.length) % items.length; render(); });
+  nextBtn.addEventListener('click', () => { index = (index + 1) % items.length; render(); });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
