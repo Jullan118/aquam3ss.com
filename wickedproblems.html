@@ -6,11 +6,11 @@
 <title>wickedproblems — aquam3ss</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg: #ffffff;
-    --shop-bg: #ffffff;
+    --pink: #EDBDD3;
     --grey: #a3a3a3;
   }
   *{ box-sizing: border-box; }
@@ -18,7 +18,7 @@
     margin:0; padding:0;
     background: var(--bg);
     color: #111;
-    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -108,36 +108,41 @@
 
   /* --- shop section --- */
   .shop{
-    background: var(--shop-bg);
-    padding: 90px 0 0;
-    border-top: 1px solid rgba(0,0,0,0.08);
+    background: var(--pink);
+    padding: 90px 32px 120px;
   }
   .shop-intro{
     max-width: 640px;
     margin: 0 auto 64px;
-    padding: 0 32px;
     text-align: center;
     font-size: 14px;
     line-height: 1.6;
     color: #111;
   }
-  .shop-grid{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+  .shop-row{
+    max-width: 1200px;
+    margin: 0 auto 56px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 28px;
   }
   .product{
+    width: 200px;
     cursor: pointer;
     transition: opacity 0.35s ease;
-    border-right: 1px solid rgba(0,0,0,0.08);
-    border-bottom: 1px solid rgba(0,0,0,0.08);
   }
-  .shop-grid.dimmed .product:not(.hovered){
+  .shop-row.dimmed .product:not(.hovered){
     opacity: 0.35;
   }
   .product-photo{
     width: 100%;
-    aspect-ratio: 4/5;
-    background: #fafafa;
+    aspect-ratio: 3/4;
+    background: #f6e4ec;
+    border: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
   }
   .product-photo img{
@@ -154,27 +159,16 @@
     text-align: center;
     padding: 0 12px;
   }
-  .product-caption{
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 18px 18px;
-  }
   .product-name{
+    margin-top: 12px;
     font-size: 13px;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
     text-transform: lowercase;
-    color: #111;
   }
   .product-price{
     font-size: 13px;
-    color: #999;
-    white-space: nowrap;
-  }
-
-  @media (max-width: 900px){
-    .shop-grid{ grid-template-columns: repeat(2, 1fr); }
+    color: #6e4655;
+    margin-top: 2px;
   }
 
   /* --- product overlay / lightbox --- */
@@ -299,58 +293,47 @@
 
   <section class="shop" id="shop">
     <div class="shop-intro">
-      Handmade ceramics, crafted in Sweden and the Netherlands. A selection of pieces is available directly from limited stock.
+      handgjord keramik — ljushållare och koppar, formade en i taget.
     </div>
 
-    <div class="shop-grid" id="shopGrid">
-      <div class="product" data-name="Large candleholder" data-price="95€" data-imgs="wp-triple-3.jpg,wp-triple-2.jpg,wp-triple-4.jpg,wp-triple-1.jpg">
-        <div class="product-photo"><img src="wp-triple-3.jpg" alt="Large candleholder"></div>
-        <div class="product-caption">
-          <span class="product-name">large candleholder</span>
-          <span class="product-price">95€</span>
-        </div>
+    <div class="shop-row" id="rowHolders">
+      <div class="product" data-name="Double candleholder" data-price="70€" data-imgs="wp-double-1.jpg,wp-double-2.jpg,wp-double-3.jpg,wp-double-4.jpg">
+        <div class="product-photo"><img src="wp-double-1.jpg" alt="Double candleholder"></div>
+        <div class="product-name">double candleholder</div>
+        <div class="product-price">70€</div>
       </div>
-      <div class="product" data-name="Medium candleholder" data-price="70€" data-imgs="wp-double-2.jpg,wp-double-1.jpg,wp-double-4.jpg">
-        <div class="product-photo"><img src="wp-double-2.jpg" alt="Medium candleholder"></div>
-        <div class="product-caption">
-          <span class="product-name">medium candleholder</span>
-          <span class="product-price">70€</span>
-        </div>
+      <div class="product" data-name="Triple candleholder" data-price="95€" data-imgs="wp-triple-1.jpg,wp-triple-2.jpg,wp-triple-3.jpg,wp-triple-4.jpg">
+        <div class="product-photo"><img src="wp-triple-1.jpg" alt="Triple candleholder"></div>
+        <div class="product-name">triple candleholder</div>
+        <div class="product-price">95€</div>
       </div>
-      <div class="product" data-name="Small candleholder" data-price="40€" data-imgs="wp-single1-1.jpg,wp-single1-2.jpg,wp-singles-group-3.jpg">
-        <div class="product-photo"><img src="wp-single1-1.jpg" alt="Small candleholder "></div>
-        <div class="product-caption">
-          <span class="product-name">small candleholder</span>
-          <span class="product-price">40€</span>
-        </div>
+      <div class="product" data-name="Single candleholder 1" data-price="40€" data-imgs="wp-single1-1.jpg,wp-single1-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
+        <div class="product-photo"><img src="wp-single1-1.jpg" alt="Single candleholder 1"></div>
+        <div class="product-name">single candleholder 1</div>
+        <div class="product-price">40€</div>
       </div>
-      <div class="product" data-name="Small candleholder" data-price="40€" data-imgs="wp-single2-2.jpg,wp-single2-1.jpg">
-        <div class="product-photo"><img src="wp-single2-2.jpg" alt="Small candleholder"></div>
-        <div class="product-caption">
-          <span class="product-name">small candleholder</span>
-          <span class="product-price">40€</span>
-        </div>
+      <div class="product" data-name="Single candleholder 2" data-price="40€" data-imgs="wp-single2-1.jpg,wp-single2-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
+        <div class="product-photo"><img src="wp-single2-1.jpg" alt="Single candleholder 2"></div>
+        <div class="product-name">single candleholder 2</div>
+        <div class="product-price">40€</div>
       </div>
-      <div class="product" data-name="Small candleholder" data-price="40€" data-imgs="wp-single3-2.jpg,wp-single3-1.jpg,wp-singles-group-3.jpg">
-        <div class="product-photo"><img src="wp-single3-2.jpg" alt="Small candleholder"></div>
-        <div class="product-caption">
-          <span class="product-name">small candleholder</span>
-          <span class="product-price">40€</span>
-        </div>
+      <div class="product" data-name="Single candleholder 3" data-price="40€" data-imgs="wp-single3-1.jpg,wp-single3-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
+        <div class="product-photo"><img src="wp-single3-1.jpg" alt="Single candleholder 3"></div>
+        <div class="product-name">single candleholder 3</div>
+        <div class="product-price">40€</div>
       </div>
+    </div>
+
+    <div class="shop-row" id="rowCups">
       <div class="product" data-name="Big cup" data-price="32€" data-imgs="wp-bigcup-1.jpg,wp-bigcup-2.jpg,wp-bigcup-3.jpg">
         <div class="product-photo"><img src="wp-bigcup-1.jpg" alt="Big cup"></div>
-        <div class="product-caption">
-          <span class="product-name">Big cup</span>
-          <span class="product-price">32€</span>
-        </div>
+        <div class="product-name">big cup</div>
+        <div class="product-price">32€</div>
       </div>
-      <div class="product" data-name="Small cup" data-price="28€" data-imgs="wp-smallcup-1.jpg,wp-smallcup-2.jpg">
+      <div class="product" data-name="Small cup" data-price="28€" data-imgs="wp-smallcup-1.jpg,wp-smallcup-2.jpg,wp-smallcup-3.jpg">
         <div class="product-photo"><img src="wp-smallcup-1.jpg" alt="Small cup"></div>
-        <div class="product-caption">
-          <span class="product-name">Small cup</span>
-          <span class="product-price">28€</span>
-        </div>
+        <div class="product-name">small cup</div>
+        <div class="product-price">28€</div>
       </div>
     </div>
   </section>
@@ -374,17 +357,17 @@
 
 <script>
 (function(){
-  const shopGrid = document.getElementById('shopGrid');
+  const rows = document.querySelectorAll('.shop-row');
   const products = document.querySelectorAll('.product');
 
   products.forEach(p => {
     p.addEventListener('mouseenter', () => {
       p.classList.add('hovered');
-      shopGrid.classList.add('dimmed');
+      p.closest('.shop-row').classList.add('dimmed');
     });
     p.addEventListener('mouseleave', () => {
       p.classList.remove('hovered');
-      shopGrid.classList.remove('dimmed');
+      p.closest('.shop-row').classList.remove('dimmed');
     });
     p.addEventListener('click', () => openOverlay(p));
   });
