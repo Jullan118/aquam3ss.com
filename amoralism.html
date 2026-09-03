@@ -115,6 +115,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 16px;
+  }
+  .carousel-arrow{
+    background: none;
+    border: none;
+    color: #d8d8d6;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
   }
   .carousel-dots{
     display: flex;
@@ -154,9 +164,11 @@
     flex: 1 1 380px;
     min-width: 280px;
     color: #d8d8d6;
-    font-size: 13px;
-    line-height: 1.35;
-    text-align: left;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    font-style: italic;
+    font-weight: 300;
   }
   .info-title{
     color: #d8d8d6;
@@ -166,10 +178,15 @@
     letter-spacing: -0.01em;
   }
   .info-text p{
-    margin: 0 0 10px;
+    margin: 0 0 20px;
   }
   .info-text p:last-child{
     margin-bottom: 0;
+  }
+  .info-text p.punch{
+    font-style: normal;
+    font-weight: 600;
+    color: #ffffff;
   }
 
 </style>
@@ -194,14 +211,22 @@
           <img id="carouselImg" src="" alt="">
         </div>
         <div class="carousel-controls">
+          <button class="carousel-arrow" id="prevBtn" aria-label="previous">&lsaquo;</button>
           <div class="carousel-dots" id="carouselDots"></div>
+          <button class="carousel-arrow" id="nextBtn" aria-label="next">&rsaquo;</button>
         </div>
         <div class="carousel-caption" id="carouselCaption"></div>
       </div>
     </div>
     <div class="info-text">
-      <p>The forest.<br>It grows, it dies, it takes over.</p>
-      <p>It is taken over. Trees fall. Roots remain. Moss covers what is left.<br>We like to separate things. Living from dead. Growth from decay. Nature from us. But what are these distinctions when everything keeps changing? Like us.<br>We take from the forest; wood, food, energy. We decide what stays and what goes. Is this the so called power?<br>We build meaning around things that disappear. So what remains when everything dies?<br>The tree. The forest. Us.<br>The dead becomes the living. The living becomes the dead. The forest holds the whole.</p>
+      <p class="punch">The forest.</p>
+      <p>It grows, it dies, it takes over.</p>
+      <p>It is taken over. Trees fall. Roots remain. Moss covers what is left.</p>
+      <p>We like to separate things. Living from dead. Growth from decay. Nature from us. But what are these distinctions when everything keeps changing? Like us.</p>
+      <p>We take from the forest; wood, food, energy. We decide what stays and what goes. Is this the so called power?</p>
+      <p>We build meaning around things that disappear. So what remains when everything dies?</p>
+      <p class="punch">The tree. The forest. Us.</p>
+      <p>The dead becomes the living. The living becomes the dead. The forest holds the whole.</p>
     </div>
   </div>
 </section>
@@ -515,6 +540,8 @@
   const carouselImg = document.getElementById('carouselImg');
   const carouselCaption = document.getElementById('carouselCaption');
   const carouselDots = document.getElementById('carouselDots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
 
   carouselItems.forEach((_, i) => {
     const dot = document.createElement('span');
@@ -538,6 +565,14 @@
       dot.classList.toggle('active', i === carouselIndex);
     });
   }
+  prevBtn.addEventListener('click', () => {
+    carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
+    renderCarousel();
+  });
+  nextBtn.addEventListener('click', () => {
+    carouselIndex = (carouselIndex + 1) % carouselItems.length;
+    renderCarousel();
+  });
   renderCarousel();
 })();
 </script>
