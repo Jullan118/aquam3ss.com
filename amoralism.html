@@ -6,13 +6,13 @@
 <title>amoralism — aquam3ss</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   *{ box-sizing: border-box; }
   html, body{
     margin: 0;
     padding: 0;
-    background: #000;
+    background: #08080a;
     font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
   }
   .room{
@@ -77,16 +77,16 @@
     opacity: 0;
   }
 
-  /* --- black buffer space between the room and the white info section --- */
+  /* --- black buffer space between the room and the info section --- */
   .black-space{
-    background: #000;
+    background: #08080a;
     height: 150vh;
   }
 
   /* --- info section below the room: text + carousel about the exhibition --- */
   .info{
-    background: #000000;
-    padding: 100px 32px 120px 140px;
+    background: #08080a;
+    padding: 100px 32px 120px 220px;
     min-height: 100vh;
   }
   .info-inner{
@@ -114,16 +114,7 @@
     margin-top: 14px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-  }
-  .carousel-arrow{
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 12px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 4px 8px;
+    justify-content: center;
   }
   .carousel-dots{
     display: flex;
@@ -135,41 +126,47 @@
     border-radius: 50%;
     background: #555;
     display: block;
+    cursor: pointer;
   }
   .carousel-dots span.active{
-    background: #ffffff;
+    background: #d8d8d6;
   }
   .carousel-caption{
     margin-top: 10px;
     font-size: 10px;
     letter-spacing: 0.04em;
-    color: #ffffff;
+    color: #d8d8d6;
     line-height: 1.6;
     text-align: center;
   }
   .carousel-caption .title{
-    font-weight: 600;
+    font-style: italic;
+    font-weight: 400;
     text-transform: none;
-    color: #fff;
+    color: #d8d8d6;
     display: block;
     margin-bottom: 2px;
+  }
+  .carousel-caption .year{
+    font-weight: 300;
   }
   .info-text{
     flex: 1 1 380px;
     min-width: 280px;
-    color: #ffffff;
-    font-size: 14px;
-    line-height: 1.2;
+    color: #d8d8d6;
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: left;
   }
   .info-title{
-    color: #ffffff;
+    color: #d8d8d6;
     font-size: 16px;
     font-weight: 500;
     margin: 0 0 20px;
     letter-spacing: -0.01em;
   }
   .info-text p{
-    margin: 0 0 14px;
+    margin: 0 0 10px;
   }
   .info-text p:last-child{
     margin-bottom: 0;
@@ -197,17 +194,14 @@
           <img id="carouselImg" src="" alt="">
         </div>
         <div class="carousel-controls">
-          <button class="carousel-arrow" id="prevBtn" aria-label="föregående">&lsaquo;</button>
           <div class="carousel-dots" id="carouselDots"></div>
-          <button class="carousel-arrow" id="nextBtn" aria-label="nästa">&rsaquo;</button>
         </div>
         <div class="carousel-caption" id="carouselCaption"></div>
       </div>
     </div>
     <div class="info-text">
-      <h2 class="info-title">The Red Forest</h2>
-      <p>The forest.<br>It grows,<br>it dies,<br>it takes over.</p>
-      <p>It is taken over.<br>Trees fall. Roots remain. Moss covers what is left.<br>We like to separate things.<br>Living from dead.<br>Growth from decay.<br>Nature from us.<br>But what are these distinctions when everything keeps changing?<br>Like us.<br>We take from the forest; wood, food, energy.<br>We decide what stays and what goes.<br>Is this the so called power?<br>We build meaning around things that disappear.<br>So what remains when everything dies?<br>The tree.<br>The forest.<br>Us.<br>The dead becomes the living.<br>The living becomes the dead.<br>The forest holds the whole.</p>
+      <p>The forest.<br>It grows, it dies, it takes over.</p>
+      <p>It is taken over. Trees fall. Roots remain. Moss covers what is left.<br>We like to separate things. Living from dead. Growth from decay. Nature from us. But what are these distinctions when everything keeps changing? Like us.<br>We take from the forest; wood, food, energy. We decide what stays and what goes. Is this the so called power?<br>We build meaning around things that disappear. So what remains when everything dies?<br>The tree. The forest. Us.<br>The dead becomes the living. The living becomes the dead. The forest holds the whole.</p>
     </div>
   </div>
 </section>
@@ -289,11 +283,11 @@
   // aspect = real width/height of the photographed canvas, so it hangs undistorted.
   const paintingDefs = [
     { src: 'amoralism-1.jpg', aspect: 0.696, wall: 'left',
-      title: 'Amoralism', artist: 'Julia elsa', size: '70 × 100 cm', technique: 'acrylic on canvas', year: '2026' },
+      title: 'Amoralism', artist: 'Julia elsa', size: '70 × 100 cm', technique: 'Acrylic on linen', year: '2026' },
     { src: 'amoralism-2.jpg', aspect: 0.803, wall: 'back',
-      title: 'Utopia', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'acrylic on canvas', year: '2026' },
+      title: 'Utopia', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'Acrylic on linen', year: '2026' },
     { src: 'amoralism-3.jpg', aspect: 0.799, wall: 'right',
-      title: 'Guru', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'acrylic on canvas', year: '2026' },
+      title: 'Guru', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'Acrylic on linen', year: '2026' },
   ];
 
   const PAINTING_H = 1.9; // fixed display height; width is derived per-painting from its own aspect ratio
@@ -521,11 +515,13 @@
   const carouselImg = document.getElementById('carouselImg');
   const carouselCaption = document.getElementById('carouselCaption');
   const carouselDots = document.getElementById('carouselDots');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
 
-  carouselItems.forEach(() => {
+  carouselItems.forEach((_, i) => {
     const dot = document.createElement('span');
+    dot.addEventListener('click', () => {
+      carouselIndex = i;
+      renderCarousel();
+    });
     carouselDots.appendChild(dot);
   });
 
@@ -536,21 +532,12 @@
     carouselImg.alt = item.title;
     carouselCaption.innerHTML =
       `<span class="title">${item.title}</span>` +
-      `${item.artist}<br>` +
-      `${item.technique}, ${item.year}<br>` +
+      `<span class="year">${item.year}</span>, ${item.technique}<br>` +
       `${item.size}`;
     Array.from(carouselDots.children).forEach((dot, i) => {
       dot.classList.toggle('active', i === carouselIndex);
     });
   }
-  prevBtn.addEventListener('click', () => {
-    carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
-    renderCarousel();
-  });
-  nextBtn.addEventListener('click', () => {
-    carouselIndex = (carouselIndex + 1) % carouselItems.length;
-    renderCarousel();
-  });
   renderCarousel();
 })();
 </script>
