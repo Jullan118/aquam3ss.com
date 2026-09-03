@@ -70,6 +70,11 @@
     text-transform: lowercase;
     margin: 0;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+  }
+  .room-title.hidden{
+    opacity: 0;
   }
 
   /* --- black buffer space between the room and the white info section --- */
@@ -202,17 +207,7 @@
     <div class="info-text">
       <h2 class="info-title">The Red Forest</h2>
       <p>The forest.<br>It grows,<br>it dies,<br>it takes over.</p>
-      <p>It is taken over.</p>
-      <p>Trees fall. Roots remain. Moss covers what is left.</p>
-      <p>We like to separate things.<br>Living from dead.<br>Growth from decay.<br>Nature from us.</p>
-      <p>But what are these distinctions when everything keeps changing?<br>Like us.</p>
-      <p>We take from the forest; wood, food, energy.<br>We decide what stays and what goes.</p>
-      <p>Is this the so called power? </p>
-      <p>We build meaning around things that disappear.</p>
-      <p>So what remains when everything dies?</p>
-      <p>The tree.<br>The forest.<br>Us.</p>
-      <p>The dead becomes the living.<br>The living becomes the dead.</p>
-      <p>The forest holds the whole.</p>
+      <p>It is taken over.<br>Trees fall. Roots remain. Moss covers what is left.<br>We like to separate things.<br>Living from dead.<br>Growth from decay.<br>Nature from us.<br>But what are these distinctions when everything keeps changing?<br>Like us.<br>We take from the forest; wood, food, energy.<br>We decide what stays and what goes.<br>Is this the so called power?<br>We build meaning around things that disappear.<br>So what remains when everything dies?<br>The tree.<br>The forest.<br>Us.<br>The dead becomes the living.<br>The living becomes the dead.<br>The forest holds the whole.</p>
     </div>
   </div>
 </section>
@@ -222,6 +217,7 @@
 (function(){
   const canvas = document.getElementById('scene');
   const hint = document.getElementById('hint');
+  const roomTitle = document.querySelector('.room-title');
 
   // --- basic scene setup ---
   const scene = new THREE.Scene();
@@ -435,6 +431,7 @@
     lastX = x; lastY = y;
     canvas.classList.add('dragging');
     hint.classList.add('hidden');
+    roomTitle.classList.add('hidden');
   }
   function pointerMove(x, y){
     if (!dragging) return;
@@ -466,7 +463,7 @@
   };
   window.addEventListener('keydown', (e) => {
     const action = KEY_MAP[e.code];
-    if (action){ keys.add(action); hint.classList.add('hidden'); e.preventDefault(); }
+    if (action){ keys.add(action); hint.classList.add('hidden'); roomTitle.classList.add('hidden'); e.preventDefault(); }
   });
   window.addEventListener('keyup', (e) => {
     const action = KEY_MAP[e.code];

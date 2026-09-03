@@ -109,41 +109,35 @@
   /* --- shop section --- */
   .shop{
     background: var(--shop-bg);
-    padding: 90px 32px 120px;
+    padding: 90px 0 0;
     border-top: 1px solid rgba(0,0,0,0.08);
   }
   .shop-intro{
     max-width: 640px;
     margin: 0 auto 64px;
+    padding: 0 32px;
     text-align: center;
     font-size: 14px;
     line-height: 1.6;
     color: #111;
   }
-  .shop-row{
-    max-width: 1200px;
-    margin: 0 auto 56px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 28px;
+  .shop-grid{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
   }
   .product{
-    width: 200px;
     cursor: pointer;
     transition: opacity 0.35s ease;
+    border-right: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
   }
-  .shop-row.dimmed .product:not(.hovered){
+  .shop-grid.dimmed .product:not(.hovered){
     opacity: 0.35;
   }
   .product-photo{
     width: 100%;
-    aspect-ratio: 3/4;
+    aspect-ratio: 4/5;
     background: #fafafa;
-    border: 1px solid rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
   }
   .product-photo img{
@@ -160,16 +154,27 @@
     text-align: center;
     padding: 0 12px;
   }
+  .product-caption{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px 18px;
+  }
   .product-name{
-    margin-top: 12px;
     font-size: 13px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     text-transform: lowercase;
+    color: #111;
   }
   .product-price{
     font-size: 13px;
-    color: #6e4655;
-    margin-top: 2px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px){
+    .shop-grid{ grid-template-columns: repeat(2, 1fr); }
   }
 
   /* --- product overlay / lightbox --- */
@@ -294,48 +299,58 @@
 
   <section class="shop" id="shop">
     <div class="shop-intro">
-     Handmade ceramics, crafted in Sweden and the Netherlands. A selection of pieces is available directly from limited stock. 
-
+      handgjord keramik — ljushållare och koppar, formade en i taget.
     </div>
 
-    <div class="shop-row" id="rowHolders">
-      <div class="product" data-name="Medium candleholder" data-price="70€" data-imgs="wp-double-2.jpg,wp-double-1.jpg,wp-double-4.jpg,wp-double-3.jpg">
-        <div class="product-photo"><img src="wp-double-2.jpg" alt="Medium candleholder"></div>
-        <div class="product-name">medium candleholder</div>
-        <div class="product-price">70€</div>
-      </div>
+    <div class="shop-grid" id="shopGrid">
       <div class="product" data-name="Large candleholder" data-price="95€" data-imgs="wp-triple-3.jpg,wp-triple-2.jpg,wp-triple-4.jpg,wp-triple-1.jpg">
         <div class="product-photo"><img src="wp-triple-3.jpg" alt="Large candleholder"></div>
-        <div class="product-name">large candleholder</div>
-        <div class="product-price">95€</div>
+        <div class="product-caption">
+          <span class="product-name">large candleholder</span>
+          <span class="product-price">95€</span>
+        </div>
+      </div>
+      <div class="product" data-name="Medium candleholder" data-price="70€" data-imgs="wp-double-2.jpg,wp-double-1.jpg,wp-double-4.jpg,wp-double-3.jpg">
+        <div class="product-photo"><img src="wp-double-2.jpg" alt="Medium candleholder"></div>
+        <div class="product-caption">
+          <span class="product-name">medium candleholder</span>
+          <span class="product-price">70€</span>
+        </div>
       </div>
       <div class="product" data-name="Small candleholder 1" data-price="40€" data-imgs="wp-single1-1.jpg,wp-single1-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
         <div class="product-photo"><img src="wp-single1-1.jpg" alt="Small candleholder 1"></div>
-        <div class="product-name">small candleholder 1</div>
-        <div class="product-price">40€</div>
+        <div class="product-caption">
+          <span class="product-name">small candleholder 1</span>
+          <span class="product-price">40€</span>
+        </div>
       </div>
       <div class="product" data-name="Small candleholder 2" data-price="40€" data-imgs="wp-single2-2.jpg,wp-single2-1.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
         <div class="product-photo"><img src="wp-single2-2.jpg" alt="Small candleholder 2"></div>
-        <div class="product-name">small candleholder 2</div>
-        <div class="product-price">40€</div>
+        <div class="product-caption">
+          <span class="product-name">small candleholder 2</span>
+          <span class="product-price">40€</span>
+        </div>
       </div>
       <div class="product" data-name="Small candleholder 3" data-price="40€" data-imgs="wp-single3-2.jpg,wp-single3-1.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
         <div class="product-photo"><img src="wp-single3-2.jpg" alt="Small candleholder 3"></div>
-        <div class="product-name">small candleholder 3</div>
-        <div class="product-price">40€</div>
+        <div class="product-caption">
+          <span class="product-name">small candleholder 3</span>
+          <span class="product-price">40€</span>
+        </div>
       </div>
-    </div>
-
-    <div class="shop-row" id="rowCups">
       <div class="product" data-name="Big cup" data-price="32€" data-imgs="wp-bigcup-1.jpg,wp-bigcup-2.jpg,wp-bigcup-3.jpg">
         <div class="product-photo"><img src="wp-bigcup-1.jpg" alt="Big cup"></div>
-        <div class="product-name">big cup</div>
-        <div class="product-price">32€</div>
+        <div class="product-caption">
+          <span class="product-name">big cup</span>
+          <span class="product-price">32€</span>
+        </div>
       </div>
       <div class="product" data-name="Small cup" data-price="28€" data-imgs="wp-smallcup-1.jpg,wp-smallcup-2.jpg,wp-smallcup-3.jpg">
         <div class="product-photo"><img src="wp-smallcup-1.jpg" alt="Small cup"></div>
-        <div class="product-name">small cup</div>
-        <div class="product-price">28€</div>
+        <div class="product-caption">
+          <span class="product-name">small cup</span>
+          <span class="product-price">28€</span>
+        </div>
       </div>
     </div>
   </section>
@@ -359,17 +374,17 @@
 
 <script>
 (function(){
-  const rows = document.querySelectorAll('.shop-row');
+  const shopGrid = document.getElementById('shopGrid');
   const products = document.querySelectorAll('.product');
 
   products.forEach(p => {
     p.addEventListener('mouseenter', () => {
       p.classList.add('hovered');
-      p.closest('.shop-row').classList.add('dimmed');
+      shopGrid.classList.add('dimmed');
     });
     p.addEventListener('mouseleave', () => {
       p.classList.remove('hovered');
-      p.closest('.shop-row').classList.remove('dimmed');
+      shopGrid.classList.remove('dimmed');
     });
     p.addEventListener('click', () => openOverlay(p));
   });
