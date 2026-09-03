@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wickedproblems — aquam3ss</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #ffffff;
+    --pink: #EDBDD3;
+    --grey: #a3a3a3;
+  }
+  *{ box-sizing: border-box; }
+  html, body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: #111;
+    font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- persistent nav overlay: about (top-left) + project list, contact (top-right) --- */
+  .nav-invert{
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+  .nav-invert a{
+    color: #ff0000;
+    text-decoration: none;
+    pointer-events: auto;
+  }
+  .nav-about{
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    text-transform: none;
+  }
+  .nav-contact{
+    position: absolute;
+    top: 24px;
+    right: 32px;
+  }
+  .nav-projects{
+    position: fixed;
+    top: 64px;
+    left: 32px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: none;
+  }
+  .nav-projects a{
+    color: #ff0000;
+    text-decoration: none;
+  }
+  .nav-projects a.current{
+    text-decoration: underline;
+  }
+
+  /* --- full-bleed entry hero (afterimage.html-style: one dramatic image, no animation) --- */
+  .wp-hero{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .wp-hero img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .wp-hero-title{
+    position: absolute;
+    left: 32px;
+    bottom: 40px;
+    z-index: 5;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ff0000;
+    text-transform: lowercase;
+    margin: 0;
+  }
+  .scroll-hint{
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: #fff;
+    mix-blend-mode: difference;
+    z-index: 5;
+  }
+
+  /* --- shop section --- */
+  .shop{
+    background: var(--pink);
+    padding: 90px 32px 120px;
+  }
+  .shop-intro{
+    max-width: 640px;
+    margin: 0 auto 64px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #111;
+  }
+  .shop-row{
+    max-width: 1200px;
+    margin: 0 auto 56px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 28px;
+  }
+  .product{
+    width: 200px;
+    cursor: pointer;
+    transition: opacity 0.35s ease;
+  }
+  .shop-row.dimmed .product:not(.hovered){
+    opacity: 0.35;
+  }
+  .product-photo{
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #f6e4ec;
+    border: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .product-photo img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .product-photo .ph-label{
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: #b98096;
+    text-transform: lowercase;
+    text-align: center;
+    padding: 0 12px;
+  }
+  .product-name{
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+  }
+  .product-price{
+    font-size: 13px;
+    color: #6e4655;
+    margin-top: 2px;
+  }
+
+  /* --- product overlay / lightbox --- */
+  .overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(17,17,17,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .overlay.open{
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .overlay-inner{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90vw;
+  }
+  .overlay-carousel{
+    position: relative;
+    width: min(70vw, 520px);
+    aspect-ratio: 3/4;
+    background: #1c1c1e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay-carousel img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .overlay-carousel .ph-label{
+    color: #999;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
+  }
+  .overlay-arrow{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 12px;
+    opacity: 0.7;
+  }
+  .overlay-arrow:hover{ opacity: 1; }
+  .overlay-arrow.prev{ left: -8px; }
+  .overlay-arrow.next{ right: -8px; }
+  .overlay-caption{
+    margin-top: 18px;
+    text-align: center;
+    color: #fff;
+  }
+  .overlay-caption .name{
+    font-size: 15px;
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+  }
+  .overlay-caption .price{
+    font-size: 13px;
+    color: #ccc;
+    margin-top: 4px;
+  }
+  .overlay-close{
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    cursor: pointer;
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="nav-invert">
+    <a class="nav-about" href="about.html">About</a>
+    <a class="nav-contact" href="mailto:julia.blombergg@gmail.com">contact</a>
+  </div>
+  <nav class="nav-projects">
+    <a href="amoralism.html">The red forest</a>
+    <a href="wickedproblems.html" class="current">Wickedproblems</a>
+    <a href="https://stuckholm.se" target="_blank" rel="noopener">Stuckholm</a>
+  </nav>
+
+  <section class="wp-hero">
+    <img src="wickedproblems-hero.jpg" alt="wicked problems">
+    <h1 class="wp-hero-title">wicked problems</h1>
+    <div class="scroll-hint">scrolla ner ↓</div>
+  </section>
+
+  <section class="shop" id="shop">
+    <div class="shop-intro">
+      handgjord keramik — ljushållare och koppar, formade en i taget.
+    </div>
+
+    <div class="shop-row" id="rowHolders">
+      <div class="product" data-name="Double candleholder" data-price="70€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">double candleholder</div>
+        <div class="product-price">70€</div>
+      </div>
+      <div class="product" data-name="Triple candleholder" data-price="95€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">triple candleholder</div>
+        <div class="product-price">95€</div>
+      </div>
+      <div class="product" data-name="Single candleholder 1" data-price="40€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">single candleholder 1</div>
+        <div class="product-price">40€</div>
+      </div>
+      <div class="product" data-name="Single candleholder 2" data-price="40€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">single candleholder 2</div>
+        <div class="product-price">40€</div>
+      </div>
+      <div class="product" data-name="Single candleholder 3" data-price="40€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">single candleholder 3</div>
+        <div class="product-price">40€</div>
+      </div>
+    </div>
+
+    <div class="shop-row" id="rowCups">
+      <div class="product" data-name="Big cup" data-price="32€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">big cup</div>
+        <div class="product-price">32€</div>
+      </div>
+      <div class="product" data-name="Small cup" data-price="28€">
+        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+        <div class="product-name">small cup</div>
+        <div class="product-price">28€</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-inner">
+      <div class="overlay-carousel">
+        <button class="overlay-arrow prev" id="ovPrev">&#8249;</button>
+        <span class="ph-label">bilder kommer</span>
+        <button class="overlay-arrow next" id="ovNext">&#8250;</button>
+      </div>
+      <div class="overlay-caption">
+        <div class="name" id="ovName"></div>
+        <div class="price" id="ovPrice"></div>
+      </div>
+    </div>
+    <button class="overlay-close" id="ovClose">stäng ✕</button>
+  </div>
+
+<script>
+(function(){
+  const rows = document.querySelectorAll('.shop-row');
+  const products = document.querySelectorAll('.product');
+
+  products.forEach(p => {
+    p.addEventListener('mouseenter', () => {
+      p.classList.add('hovered');
+      p.closest('.shop-row').classList.add('dimmed');
+    });
+    p.addEventListener('mouseleave', () => {
+      p.classList.remove('hovered');
+      p.closest('.shop-row').classList.remove('dimmed');
+    });
+    p.addEventListener('click', () => openOverlay(p));
+  });
+
+  const overlay = document.getElementById('overlay');
+  const ovName  = document.getElementById('ovName');
+  const ovPrice = document.getElementById('ovPrice');
+
+  function openOverlay(p){
+    ovName.textContent = p.dataset.name.toLowerCase();
+    ovPrice.textContent = p.dataset.price;
+    overlay.classList.add('open');
+  }
+  function closeOverlay(){
+    overlay.classList.remove('open');
+  }
+
+  document.getElementById('ovClose').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
+
+  // prev/next are wired up ready for when each product has multiple real photos
+  document.getElementById('ovPrev').addEventListener('click', () => {});
+  document.getElementById('ovNext').addEventListener('click', () => {});
+})();
+</script>
+
+</body>
+</html>
