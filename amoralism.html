@@ -6,14 +6,14 @@
 <title>amoralism — aquam3ss</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{ box-sizing: border-box; }
   html, body{
     margin: 0;
     padding: 0;
     background: #000;
-    font-family: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
   }
   .room{
     position: relative;
@@ -58,6 +58,19 @@
     text-decoration: none;
     z-index: 20;
   }
+  .room-title{
+    position: absolute;
+    left: 32px;
+    bottom: 40px;
+    z-index: 15;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ff0000;
+    text-transform: lowercase;
+    margin: 0;
+    pointer-events: none;
+  }
 
   /* --- black buffer space between the room and the white info section --- */
   .black-space{
@@ -68,7 +81,7 @@
   /* --- info section below the room: text + carousel about the exhibition --- */
   .info{
     background: #000000;
-    padding: 100px 32px 120px;
+    padding: 100px 32px 120px 140px;
     min-height: 100vh;
   }
   .info-inner{
@@ -127,6 +140,7 @@
     letter-spacing: 0.04em;
     color: #ffffff;
     line-height: 1.6;
+    text-align: center;
   }
   .carousel-caption .title{
     font-weight: 600;
@@ -164,6 +178,7 @@
 
 <div class="room">
   <canvas id="scene" tabindex="0"></canvas>
+  <h1 class="room-title">the red forest</h1>
   <div class="hint" id="hint">dra för att titta runt &middot; piltangenter / wasd för att gå &middot; skrolla ner för mer</div>
 </div>
 
@@ -171,18 +186,6 @@
 
 <section class="info">
   <div class="info-inner">
-    <div class="info-text">
-      <h2 class="info-title">The Red Forest</h2>
-      <p>The forest.<br>It grows, it dies, it takes over.<br>It is taken over.</p>
-      <p>Trees grow, trees fall. Roots stay, roots disappear. Moss covers what is left.</p>
-      <p>We like to separate things.<br>Living from dead.<br>Growth from decay.<br>Nature from us.</p>
-      <p>But what are these distinctions when everything keeps changing?<br>Like us.</p>
-      <p>We cut the forest down. We take from it. Wood, food, energy. We turn what was alive into something useful.</p>
-      <p>We decide what stays.<br>We decide what goes.<br>Is this what we call power?</p>
-      <p>We make rules, follow them, break them.<br>We build meaning around things that disappear.</p>
-      <p>So what remains when everything dies?<br>The tree.<br>The forest.<br>Us.</p>
-      <p>It does not separate death from life.<br>The dead becomes the living.<br>The living becomes the dead.<br>The forest holds the whole.</p>
-    </div>
     <div class="carousel-frame">
       <div id="carousel">
         <div class="carousel-viewport">
@@ -195,6 +198,11 @@
         </div>
         <div class="carousel-caption" id="carouselCaption"></div>
       </div>
+    </div>
+    <div class="info-text">
+      <h2 class="info-title">The Red Forest</h2>
+      <p>The forest.<br>It grows,<br>it dies,<br>it takes over.</p>
+      <p>It is taken over.<br>Trees fall. Roots remain. Moss covers what is left.<br>We like to separate things.<br>Living from dead.<br>Growth from decay.<br>Nature from us.<br>But what are these distinctions when everything keeps changing?<br>Like us.<br>We take from the forest; wood, food, energy.<br>We decide what stays and what goes.<br>Is this the so called power?<br>We build meaning around things that disappear.<br>So what remains when everything dies?<br>The tree.<br>The forest.<br>Us.<br>The dead becomes the living.<br>The living becomes the dead.<br>The forest holds the whole.</p>
     </div>
   </div>
 </section>
@@ -331,14 +339,14 @@
     ctx.textBaseline = 'top';
     let titleSize = 34;
     const maxTitleWidth = c.width - 60;
-    ctx.font = `600 ${titleSize}px "Manrope", "Helvetica Neue", Arial, sans-serif`;
+    ctx.font = `600 ${titleSize}px "Archivo", "Helvetica Neue", Arial, sans-serif`;
     while (ctx.measureText(title).width > maxTitleWidth && titleSize > 16){
       titleSize -= 2;
-      ctx.font = `600 ${titleSize}px "Manrope", "Helvetica Neue", Arial, sans-serif`;
+      ctx.font = `600 ${titleSize}px "Archivo", "Helvetica Neue", Arial, sans-serif`;
     }
     ctx.fillText(title, 30, 30);
     ctx.fillStyle = '#555555';
-    ctx.font = '26px "Manrope", "Helvetica Neue", Arial, sans-serif';
+    ctx.font = '26px "Archivo", "Helvetica Neue", Arial, sans-serif';
     ctx.fillText(artist, 30, 96);
     ctx.fillText(`${technique}, ${year}`, 30, 138);
     ctx.fillText(size, 30, 180);
@@ -347,13 +355,13 @@
     return tex;
   }
 
-  // wait for the Manrope webfont to be ready before drawing the canvas-texture labels,
+  // wait for the Archivo webfont to be ready before drawing the canvas-texture labels,
   // so their text doesn't render in a fallback font while the webfont is still downloading
   const paintingsReady = (async () => {
     try {
       await Promise.all([
-        document.fonts.load('600 34px Manrope'),
-        document.fonts.load('26px Manrope'),
+        document.fonts.load('600 34px Archivo'),
+        document.fonts.load('26px Archivo'),
       ]);
     } catch (e) { /* fall back silently to system font if webfont loading fails */ }
 
