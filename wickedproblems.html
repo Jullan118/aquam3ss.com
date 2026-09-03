@@ -229,6 +229,20 @@
   .overlay-arrow:hover{ opacity: 1; }
   .overlay-arrow.prev{ left: -8px; }
   .overlay-arrow.next{ right: -8px; }
+  .overlay-dots{
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .overlay-dots span{
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.35);
+  }
+  .overlay-dots span.active{
+    background: #fff;
+  }
   .overlay-caption{
     margin-top: 18px;
     text-align: center;
@@ -283,41 +297,41 @@
     </div>
 
     <div class="shop-row" id="rowHolders">
-      <div class="product" data-name="Double candleholder" data-price="70€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Double candleholder" data-price="70€" data-imgs="wp-double-1.jpg,wp-double-2.jpg,wp-double-3.jpg,wp-double-4.jpg">
+        <div class="product-photo"><img src="wp-double-1.jpg" alt="Double candleholder"></div>
         <div class="product-name">double candleholder</div>
         <div class="product-price">70€</div>
       </div>
-      <div class="product" data-name="Triple candleholder" data-price="95€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Triple candleholder" data-price="95€" data-imgs="wp-triple-1.jpg,wp-triple-2.jpg,wp-triple-3.jpg,wp-triple-4.jpg">
+        <div class="product-photo"><img src="wp-triple-1.jpg" alt="Triple candleholder"></div>
         <div class="product-name">triple candleholder</div>
         <div class="product-price">95€</div>
       </div>
-      <div class="product" data-name="Single candleholder 1" data-price="40€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Single candleholder 1" data-price="40€" data-imgs="wp-single1-1.jpg,wp-single1-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
+        <div class="product-photo"><img src="wp-single1-1.jpg" alt="Single candleholder 1"></div>
         <div class="product-name">single candleholder 1</div>
         <div class="product-price">40€</div>
       </div>
-      <div class="product" data-name="Single candleholder 2" data-price="40€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Single candleholder 2" data-price="40€" data-imgs="wp-single2-1.jpg,wp-single2-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
+        <div class="product-photo"><img src="wp-single2-1.jpg" alt="Single candleholder 2"></div>
         <div class="product-name">single candleholder 2</div>
         <div class="product-price">40€</div>
       </div>
-      <div class="product" data-name="Single candleholder 3" data-price="40€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Single candleholder 3" data-price="40€" data-imgs="wp-single3-1.jpg,wp-single3-2.jpg,wp-singles-group-1.jpg,wp-singles-group-2.jpg,wp-singles-group-3.jpg">
+        <div class="product-photo"><img src="wp-single3-1.jpg" alt="Single candleholder 3"></div>
         <div class="product-name">single candleholder 3</div>
         <div class="product-price">40€</div>
       </div>
     </div>
 
     <div class="shop-row" id="rowCups">
-      <div class="product" data-name="Big cup" data-price="32€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Big cup" data-price="32€" data-imgs="wp-bigcup-1.jpg,wp-bigcup-2.jpg,wp-bigcup-3.jpg">
+        <div class="product-photo"><img src="wp-bigcup-1.jpg" alt="Big cup"></div>
         <div class="product-name">big cup</div>
         <div class="product-price">32€</div>
       </div>
-      <div class="product" data-name="Small cup" data-price="28€">
-        <div class="product-photo"><span class="ph-label">bild kommer</span></div>
+      <div class="product" data-name="Small cup" data-price="28€" data-imgs="wp-smallcup-1.jpg,wp-smallcup-2.jpg,wp-smallcup-3.jpg">
+        <div class="product-photo"><img src="wp-smallcup-1.jpg" alt="Small cup"></div>
         <div class="product-name">small cup</div>
         <div class="product-price">28€</div>
       </div>
@@ -326,11 +340,13 @@
 
   <div class="overlay" id="overlay">
     <div class="overlay-inner">
-      <div class="overlay-carousel">
+      <div class="overlay-carousel" id="ovCarousel">
         <button class="overlay-arrow prev" id="ovPrev">&#8249;</button>
-        <span class="ph-label">bilder kommer</span>
+        <span class="ph-label" id="ovPlaceholder">bilder kommer</span>
+        <img id="ovImg" style="display:none;">
         <button class="overlay-arrow next" id="ovNext">&#8250;</button>
       </div>
+      <div class="overlay-dots" id="ovDots"></div>
       <div class="overlay-caption">
         <div class="name" id="ovName"></div>
         <div class="price" id="ovPrice"></div>
@@ -356,13 +372,44 @@
     p.addEventListener('click', () => openOverlay(p));
   });
 
-  const overlay = document.getElementById('overlay');
-  const ovName  = document.getElementById('ovName');
-  const ovPrice = document.getElementById('ovPrice');
+  const overlay       = document.getElementById('overlay');
+  const ovName        = document.getElementById('ovName');
+  const ovPrice       = document.getElementById('ovPrice');
+  const ovImg         = document.getElementById('ovImg');
+  const ovPlaceholder = document.getElementById('ovPlaceholder');
+  const ovDots        = document.getElementById('ovDots');
+  const ovPrevBtn     = document.getElementById('ovPrev');
+  const ovNextBtn     = document.getElementById('ovNext');
+
+  let currentImgs = [];
+  let currentIndex = 0;
+
+  function renderSlide(){
+    if (currentImgs.length){
+      ovImg.src = currentImgs[currentIndex];
+      ovImg.style.display = 'block';
+      ovPlaceholder.style.display = 'none';
+    } else {
+      ovImg.style.display = 'none';
+      ovPlaceholder.style.display = 'block';
+    }
+    ovDots.innerHTML = '';
+    currentImgs.forEach((_, i) => {
+      const dot = document.createElement('span');
+      if (i === currentIndex) dot.classList.add('active');
+      ovDots.appendChild(dot);
+    });
+    const multi = currentImgs.length > 1;
+    ovPrevBtn.style.display = multi ? 'block' : 'none';
+    ovNextBtn.style.display = multi ? 'block' : 'none';
+  }
 
   function openOverlay(p){
     ovName.textContent = p.dataset.name.toLowerCase();
     ovPrice.textContent = p.dataset.price;
+    currentImgs = p.dataset.imgs ? p.dataset.imgs.split(',') : [];
+    currentIndex = 0;
+    renderSlide();
     overlay.classList.add('open');
   }
   function closeOverlay(){
@@ -371,11 +418,23 @@
 
   document.getElementById('ovClose').addEventListener('click', closeOverlay);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeOverlay();
+    if (!overlay.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') ovPrevBtn.click();
+    if (e.key === 'ArrowRight') ovNextBtn.click();
+  });
 
-  // prev/next are wired up ready for when each product has multiple real photos
-  document.getElementById('ovPrev').addEventListener('click', () => {});
-  document.getElementById('ovNext').addEventListener('click', () => {});
+  ovPrevBtn.addEventListener('click', () => {
+    if (!currentImgs.length) return;
+    currentIndex = (currentIndex - 1 + currentImgs.length) % currentImgs.length;
+    renderSlide();
+  });
+  ovNextBtn.addEventListener('click', () => {
+    if (!currentImgs.length) return;
+    currentIndex = (currentIndex + 1) % currentImgs.length;
+    renderSlide();
+  });
 })();
 </script>
 
