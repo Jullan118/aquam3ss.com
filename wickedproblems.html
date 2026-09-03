@@ -22,50 +22,20 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* --- persistent nav overlay: about (top-left) + project list, contact (top-right) --- */
-  .nav-invert{
+  /* --- project page: single back link, no full nav overlay --- */
+  .home-link{
     position: fixed;
-    inset: 0;
+    top: 24px;
+    left: 32px;
     z-index: 50;
-    pointer-events: none;
     font-size: 13px;
     letter-spacing: 0.08em;
     text-transform: lowercase;
-  }
-  .nav-invert a{
     color: #ff0000;
     text-decoration: none;
-    pointer-events: auto;
-  }
-  .nav-about{
-    position: absolute;
-    top: 24px;
-    left: 32px;
-    text-transform: none;
-  }
-  .nav-contact{
-    position: absolute;
-    top: 24px;
-    right: 32px;
-  }
-  .nav-projects{
-    position: fixed;
-    top: 64px;
-    left: 32px;
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: none;
-  }
-  .nav-projects a{
-    color: #ff0000;
-    text-decoration: none;
-  }
-  .nav-projects a.current{
-    text-decoration: underline;
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
   }
 
   /* --- full-bleed entry hero (afterimage.html-style: one dramatic image, no animation) --- */
@@ -92,18 +62,6 @@
     color: #ff0000;
     text-transform: lowercase;
     margin: 0;
-  }
-  .scroll-hint{
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: lowercase;
-    color: #fff;
-    mix-blend-mode: difference;
-    z-index: 5;
   }
 
   /* --- shop section --- */
@@ -287,20 +245,11 @@
 </head>
 <body>
 
-  <div class="nav-invert">
-    <a class="nav-about" href="about.html">About</a>
-    <a class="nav-contact" href="mailto:julia.blombergg@gmail.com">contact</a>
-  </div>
-  <nav class="nav-projects">
-    <a href="amoralism.html">The red forest</a>
-    <a href="wickedproblems.html" class="current">Wickedproblems</a>
-    <a href="https://stuckholm.se" target="_blank" rel="noopener">Stuckholm</a>
-  </nav>
+  <a class="home-link" href="index.html">&larr; aquam3ss</a>
 
   <section class="wp-hero">
     <img src="wickedproblems-hero.jpg" alt="wicked problems">
     <h1 class="wp-hero-title">wicked problems</h1>
-    <div class="scroll-hint">scrolla ner ↓</div>
   </section>
 
   <section class="shop" id="shop">
