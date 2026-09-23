@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>the red forest — aquam3ss</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing: border-box; }
+  html, body{
+    margin: 0;
+    padding: 0;
+    background: #08080a;
+    font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  }
+  .room{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  #scene{
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    cursor: grab;
+    touch-action: none;
+    outline: none;
+  }
+  #scene.dragging{
+    cursor: grabbing;
+  }
+  .hint{
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: rgba(255,255,255,0.5);
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    z-index: 10;
+  }
+  .hint.hidden{
+    opacity: 0;
+  }
+  .home-link{
+    position: fixed;
+    top: 24px;
+    left: 32px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: #ff0000;
+    text-decoration: none;
+    z-index: 20;
+  }
+
+  /* --- black buffer space between the room and the info section --- */
+  .black-space{
+    background: #08080a;
+    height: 150vh;
+  }
+
+  /* --- info section below the room: text + carousel about the exhibition --- */
+  .info{
+    background: #08080a;
+    padding: 100px 32px 120px 220px;
+    min-height: 100vh;
+  }
+  .info-inner{
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 64px;
+    align-items: flex-start;
+  }
+  .carousel-frame{
+    flex: 0 0 460px;
+    width: 460px;
+  }
+  .carousel-viewport{
+    width: 100%;
+    display: block;
+  }
+  .carousel-viewport img{
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .carousel-controls{
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .carousel-arrow{
+    background: none;
+    border: none;
+    color: #d8d8d6;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+  .carousel-dots{
+    display: flex;
+    gap: 8px;
+  }
+  .carousel-dots span{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #555;
+    display: block;
+    cursor: pointer;
+  }
+  .carousel-dots span.active{
+    background: #d8d8d6;
+  }
+  .carousel-caption{
+    margin-top: 10px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: #d8d8d6;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .carousel-caption .title{
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    color: #d8d8d6;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .carousel-caption .year{
+    font-weight: 300;
+  }
+  .info-text{
+    flex: 1 1 380px;
+    min-width: 280px;
+    margin-top:200px;
+    color: #d8d8d6;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+    font-style: italic;
+    font-weight: 300;
+  }
+  .info-title{
+    color: #d8d8d6;
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 20px;
+    letter-spacing: -0.01em;
+  }
+  .info-text p{
+    margin: 0 0 20px;
+  }
+  .info-text p:last-child{
+    margin-bottom: 0;
+  }
+  .info-text p.punch{
+    font-style: normal;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+</style>
+</head>
+<body>
+
+<a class="home-link" href="index.html">&larr; aquam3ss</a>
+
+<div class="room">
+  <canvas id="scene" tabindex="0"></canvas>
+  <div class="hint" id="hint">drag to look around &middot; arrow keys / wasd to walk &middot; scroll down for more</div>
+</div>
+
+<div class="black-space"></div>
+
+<section class="info">
+  <div class="info-inner">
+    <div class="carousel-frame">
+      <div id="carousel">
+        <div class="carousel-viewport">
+          <img id="carouselImg" src="" alt="">
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-arrow" id="prevBtn" aria-label="previous">&lsaquo;</button>
+          <div class="carousel-dots" id="carouselDots"></div>
+          <button class="carousel-arrow" id="nextBtn" aria-label="next">&rsaquo;</button>
+        </div>
+        <div class="carousel-caption" id="carouselCaption"></div>
+      </div>
+    </div>
+    <div class="info-text">
+      <p class="punch">The forest.</p>
+      <p>It grows, it dies, it takes over.</p>
+     <p>It is taken over.</p>
+      
+    </div>
+  </div>
+</section>
+
+<script src="three.min.js"></script>
+<script>
+(function(){
+  const canvas = document.getElementById('scene');
+  const hint = document.getElementById('hint');
+
+  // --- basic scene setup ---
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.rotation.order = 'YXZ'; // yaw then pitch, avoids gimbal roll for look-around controls
+  camera.position.set(0, 1.6, 2.0); // closer to the back wall so the painting reads larger on arrival
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  // --- room dimensions ---
+  const ROOM_W = 10;
+  const ROOM_D = 10;
+  const ROOM_H = 4;
+
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x0e0e12, roughness: 0.95, metalness: 0 });
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.85, metalness: 0 });
+  const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x070707, roughness: 1, metalness: 0 });
+
+  // floor
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = 0;
+  scene.add(floor);
+
+  // ceiling
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), ceilingMat);
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.y = ROOM_H;
+  scene.add(ceiling);
+
+  // back wall (the gallery wall the paintings hang on) — at -Z, camera looks toward it initially
+  const backWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+  backWall.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+  scene.add(backWall);
+
+  // front wall
+  const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+  frontWall.position.set(0, ROOM_H / 2, ROOM_D / 2);
+  frontWall.rotation.y = Math.PI;
+  scene.add(frontWall);
+
+  // left wall
+  const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  leftWall.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
+  leftWall.rotation.y = Math.PI / 2;
+  scene.add(leftWall);
+
+  // right wall
+  const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  rightWall.position.set(ROOM_W / 2, ROOM_H / 2, 0);
+  rightWall.rotation.y = -Math.PI / 2;
+  scene.add(rightWall);
+
+  // --- lighting: dark room, bright focused pools of light only on the paintings ---
+  scene.add(new THREE.AmbientLight(0xffffff, 0.22)); // keeps the room legible without losing the black-box feel
+
+  const dimFill = new THREE.DirectionalLight(0xaab4c0, 0.22);
+  dimFill.position.set(-2, ROOM_H - 0.5, 2);
+  scene.add(dimFill);
+
+  // one spotlight per painting, added after painting positions are known below
+
+  // one painting per wall — back, left, right — each with its own spotlight.
+  // aspect = real width/height of the photographed canvas, so it hangs undistorted.
+  const paintingDefs = [
+    { src: 'theredforest-1.jpg', aspect: 0.696, wall: 'left',
+      title: 'Amoralism', artist: 'Julia elsa', size: '70 × 100 cm', technique: 'Acrylic on linen', year: '2026' },
+    { src: 'theredforest-2.jpg', aspect: 0.803, wall: 'back',
+      title: 'Utopia', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'Acrylic on linen', year: '2026' },
+    { src: 'theredforest-3.jpg', aspect: 0.799, wall: 'right',
+      title: 'Guru', artist: 'Julia elsa', size: '80 × 100 cm', technique: 'Acrylic on linen', year: '2026' },
+  ];
+
+  const PAINTING_H = 1.9; // fixed display height; width is derived per-painting from its own aspect ratio
+  const PAINTING_Y = 1.7;
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0x1c1c1e, roughness: 0.6 });
+  const textureLoader = new THREE.TextureLoader();
+
+  // for each wall: where the painting sits (position + rotation.y so its front
+  // face points into the room), where the ceiling spotlight + its aim point go,
+  // and sideVec — the direction a viewer facing the painting would call "their right",
+  // used to place the little wall-label plaque beside it
+  function wallPlacement(wall){
+    if (wall === 'back'){
+      return {
+        paintingPos: new THREE.Vector3(0, PAINTING_Y, -ROOM_D / 2 + 0.03),
+        framePos:    new THREE.Vector3(0, PAINTING_Y, -ROOM_D / 2 + 0.02),
+        rotationY: 0,
+        lightPos: new THREE.Vector3(0, ROOM_H - 0.3, -ROOM_D / 2 + 2.4),
+        sideVec: new THREE.Vector3(1, 0, 0),
+      };
+    }
+    if (wall === 'left'){
+      return {
+        paintingPos: new THREE.Vector3(-ROOM_W / 2 + 0.03, PAINTING_Y, 0),
+        framePos:    new THREE.Vector3(-ROOM_W / 2 + 0.02, PAINTING_Y, 0),
+        rotationY: Math.PI / 2,
+        lightPos: new THREE.Vector3(-ROOM_W / 2 + 2.4, ROOM_H - 0.3, 0),
+        sideVec: new THREE.Vector3(0, 0, 1),
+      };
+    }
+    // right
+    return {
+      paintingPos: new THREE.Vector3(ROOM_W / 2 - 0.03, PAINTING_Y, 0),
+      framePos:    new THREE.Vector3(ROOM_W / 2 - 0.02, PAINTING_Y, 0),
+      rotationY: -Math.PI / 2,
+      lightPos: new THREE.Vector3(ROOM_W / 2 - 2.4, ROOM_H - 0.3, 0),
+      sideVec: new THREE.Vector3(0, 0, -1),
+    };
+  }
+
+  // draws a small white wall-label plaque (title / artist / teknik · år / mått) onto a canvas texture
+  function makeLabelTexture(title, artist, size, technique, year){
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 340;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = '#111111';
+    ctx.textBaseline = 'top';
+    let titleSize = 34;
+    const maxTitleWidth = c.width - 60;
+    ctx.font = `600 ${titleSize}px "Archivo", "Helvetica Neue", Arial, sans-serif`;
+    while (ctx.measureText(title).width > maxTitleWidth && titleSize > 16){
+      titleSize -= 2;
+      ctx.font = `600 ${titleSize}px "Archivo", "Helvetica Neue", Arial, sans-serif`;
+    }
+    ctx.fillText(title, 30, 30);
+    ctx.fillStyle = '#555555';
+    ctx.font = '26px "Archivo", "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(artist, 30, 96);
+    ctx.fillText(`${technique}, ${year}`, 30, 138);
+    ctx.fillText(size, 30, 180);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  // wait for the Archivo webfont to be ready before drawing the canvas-texture labels,
+  // so their text doesn't render in a fallback font while the webfont is still downloading
+  const paintingsReady = (async () => {
+    try {
+      await Promise.all([
+        document.fonts.load('600 34px Archivo'),
+        document.fonts.load('26px Archivo'),
+      ]);
+    } catch (e) { /* fall back silently to system font if webfont loading fails */ }
+
+    paintingDefs.forEach((def) => {
+      const place = wallPlacement(def.wall);
+      const w = PAINTING_H * def.aspect;
+
+      // frame (slightly larger dark plane, sits just behind the canvas against the wall)
+      const frame = new THREE.Mesh(
+        new THREE.PlaneGeometry(w + 0.14, PAINTING_H + 0.14),
+        frameMat
+      );
+      frame.position.copy(place.framePos);
+      frame.rotation.y = place.rotationY;
+      scene.add(frame);
+
+      // the actual artwork photo
+      const tex = textureLoader.load(def.src);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const canvasMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85 });
+      const painting = new THREE.Mesh(new THREE.PlaneGeometry(w, PAINTING_H), canvasMat);
+      painting.position.copy(place.paintingPos);
+      painting.rotation.y = place.rotationY;
+      scene.add(painting);
+
+      // focused ceiling spotlight aimed at this painting — the only real light source
+      const spot = new THREE.SpotLight(0xfff2df, 26, 11, 0.5, 0.65, 1.3);
+      spot.position.copy(place.lightPos);
+      spot.target.position.copy(place.paintingPos);
+      scene.add(spot);
+      scene.add(spot.target);
+
+      // small white wall-label plaque to the right of the painting — title / artist / teknik · år / mått
+      const LABEL_W = 0.22;
+      const LABEL_H = 0.22 * (340 / 512);
+      const labelTex = makeLabelTexture(def.title, def.artist, def.size, def.technique, def.year);
+      // lit (not unlit) so it picks up the room's dim ambient light like everything else,
+      // instead of glowing full-bright white against the dark room
+      const labelMat = new THREE.MeshStandardMaterial({ map: labelTex, roughness: 0.9 });
+      const label = new THREE.Mesh(new THREE.PlaneGeometry(LABEL_W, LABEL_H), labelMat);
+      const labelPos = place.paintingPos.clone()
+        .addScaledVector(place.sideVec, w / 2 + 0.18 + LABEL_W / 2);
+      labelPos.y = PAINTING_Y - PAINTING_H / 2 + 0.18; // lower than the painting, roughly eye/waist height
+      label.position.copy(labelPos);
+      label.rotation.y = place.rotationY;
+      scene.add(label);
+    });
+  })();
+
+  // --- look-around controls: drag rotates the camera in place (no movement) ---
+  let dragging = false;
+  let lastX = 0, lastY = 0;
+  let yaw = 0;   // radians, camera already faces -Z (toward the paintings) by default
+  let pitch = 0;
+
+  const ROTATE_SPEED = 0.0035;
+  const PITCH_LIMIT = Math.PI / 2 - 0.15;
+
+  function pointerDown(x, y){
+    dragging = true;
+    lastX = x; lastY = y;
+    canvas.classList.add('dragging');
+    hint.classList.add('hidden');
+  }
+  function pointerMove(x, y){
+    if (!dragging) return;
+    const dx = x - lastX;
+    const dy = y - lastY;
+    lastX = x; lastY = y;
+    yaw -= dx * ROTATE_SPEED;
+    pitch -= dy * ROTATE_SPEED;
+    pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, pitch));
+    camera.rotation.y = yaw;
+    camera.rotation.x = pitch;
+  }
+  function pointerUp(){
+    dragging = false;
+    canvas.classList.remove('dragging');
+  }
+
+  canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); pointerDown(e.clientX, e.clientY); });
+  canvas.addEventListener('pointermove', (e) => pointerMove(e.clientX, e.clientY));
+  window.addEventListener('pointerup', pointerUp);
+
+  // --- walk controls: WASD / arrow keys move through the room, drag still just looks around ---
+  const keys = new Set();
+  const KEY_MAP = {
+    'KeyW': 'forward', 'ArrowUp': 'forward',
+    'KeyS': 'backward', 'ArrowDown': 'backward',
+    'KeyA': 'left', 'ArrowLeft': 'left',
+    'KeyD': 'right', 'ArrowRight': 'right',
+  };
+  window.addEventListener('keydown', (e) => {
+    const action = KEY_MAP[e.code];
+    if (action){ keys.add(action); hint.classList.add('hidden'); e.preventDefault(); }
+  });
+  window.addEventListener('keyup', (e) => {
+    const action = KEY_MAP[e.code];
+    if (action) keys.delete(action);
+  });
+
+  const MOVE_SPEED = 2.4; // units per second
+  const WALL_MARGIN = 0.3; // how close the camera may get to a wall/painting before stopping
+
+  function updateMovement(dt){
+    if (keys.size === 0) return;
+    // forward/right vectors from yaw only, so looking up/down doesn't tip movement into the floor or ceiling
+    const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+    const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+
+    const move = new THREE.Vector3();
+    if (keys.has('forward')) move.add(forward);
+    if (keys.has('backward')) move.sub(forward);
+    if (keys.has('right')) move.add(right);
+    if (keys.has('left')) move.sub(right);
+
+    if (move.lengthSq() > 0){
+      move.normalize().multiplyScalar(MOVE_SPEED * dt);
+      camera.position.add(move);
+      const half = { x: ROOM_W / 2 - WALL_MARGIN, z: ROOM_D / 2 - WALL_MARGIN };
+      camera.position.x = Math.max(-half.x, Math.min(half.x, camera.position.x));
+      camera.position.z = Math.max(-half.z, Math.min(half.z, camera.position.z));
+    }
+  }
+
+  // --- resize ---
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // --- render loop ---
+  const clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.1); // clamp to avoid big jumps after a tab is backgrounded
+    updateMovement(dt);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // --- carousel below the room: same paintings, click through with prev/next ---
+  // NOTE: she plans to send a 4th, smaller "descriptive" painting to go first in this
+  // list — just prepend a { src, title } entry above once that image is in the folder.
+  const carouselItems = paintingDefs.map((def) => ({
+    src: def.src, title: def.title, artist: def.artist,
+    size: def.size, technique: def.technique, year: def.year,
+  }));
+  const carouselImg = document.getElementById('carouselImg');
+  const carouselCaption = document.getElementById('carouselCaption');
+  const carouselDots = document.getElementById('carouselDots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  carouselItems.forEach((_, i) => {
+    const dot = document.createElement('span');
+    dot.addEventListener('click', () => {
+      carouselIndex = i;
+      renderCarousel();
+    });
+    carouselDots.appendChild(dot);
+  });
+
+  let carouselIndex = 0;
+  function renderCarousel(){
+    const item = carouselItems[carouselIndex];
+    carouselImg.src = item.src;
+    carouselImg.alt = item.title;
+    carouselCaption.innerHTML =
+      `<span class="title">${item.title}</span>` +
+      `<span class="year">${item.year}</span>, ${item.technique}<br>` +
+      `${item.size}`;
+    Array.from(carouselDots.children).forEach((dot, i) => {
+      dot.classList.toggle('active', i === carouselIndex);
+    });
+  }
+  prevBtn.addEventListener('click', () => {
+    carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
+    renderCarousel();
+  });
+  nextBtn.addEventListener('click', () => {
+    carouselIndex = (carouselIndex + 1) % carouselItems.length;
+    renderCarousel();
+  });
+  renderCarousel();
+})();
+</script>
+
+</body>
+</html>
