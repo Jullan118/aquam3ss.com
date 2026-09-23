@@ -99,9 +99,10 @@
   .esc-sec{ position:relative; background:var(--paper); }
   .esc-pin{
     position:sticky; top:0; height:100vh; overflow:hidden;
-    perspective:900px; perspective-origin:50% 8%;
+    perspective:900px; perspective-origin:50% 0%;
   }
-  .esc-world{ position:absolute; left:50%; bottom:0; width:0; height:0; transform-style:preserve-3d; }
+  .esc-world{ position:absolute; left:50%; top:0; width:0; height:0; transform-style:preserve-3d;
+    transform:rotateX(-35deg); transform-origin:0 70vh; }   /* tilt the view: you look down the stairs */
   .st{ position:absolute; left:0; top:0; transform-style:preserve-3d; will-change:transform; }
   .st .riser{
     position:absolute; left:0; bottom:0; width:100%;
@@ -112,7 +113,10 @@
   .st .tread{
     position:absolute; left:0; width:100%; transform-origin:50% 100%;
     background:repeating-linear-gradient(90deg, #2a2a2a 0 3px, #111 3px 10px);
+    border-bottom:4px solid #ffd400; border-left:4px solid #ffd400; border-right:4px solid #ffd400;
+    display:flex; align-items:flex-start; justify-content:center; overflow:hidden; padding-top:6%;
   }
+  .st .riser{ display:none; }
   .st .word{ font-family:"Skrap",sans-serif; color:var(--red); line-height:0.8; white-space:nowrap; }
   .st .side{ position:absolute; top:0; background:#111; transform-origin:0 0; }
   .st .rail{ position:absolute; top:0; background:var(--ink); transform-origin:0 0; border-radius:4px; }
@@ -288,7 +292,7 @@
 
 <!-- ESCALATOR - her own text goes in data-text below; each word gets its own step -->
 <section class="esc-sec" id="escSec"
-  data-text="skriv din egen text här, ord för ord. varje ord åker upp för rulltrappan när man scrollar.">
+  data-text="skriv din egen text här, ord för ord. varje ord åker ned för rulltrappan när man scrollar.">
   <div class="esc-pin" id="escPin">
     <div class="esc-world" id="escWorld"></div>
     <div class="esc-label">scrolla <svg class="arr" viewBox="0 0 10 12" aria-hidden="true"><path d="M5 1v9.5M1 7l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></div>
@@ -661,45 +665,45 @@ c-49 -24 -92 -78 -92 -116 0 -18 -9 -43 -20 -57 -11 -14 -20 -36 -20 -50 0
   band.innerHTML = once + once + once + once;
 
 
-  /* ---------- escalator, front view: one word per step, the steps come down toward you ---------- */
+  /* ---------- escalator: you ride DOWN — standing at the top, looking down the stairs;
+     each word lies on a step and slides away and down as you scroll ---------- */
   (function(){
     const sec = document.getElementById('escSec');
-    const pin = document.getElementById('escPin');
     const world = document.getElementById('escWorld');
     const words = sec.dataset.text.trim().split(/\s+/);
     const STY = [[900,0],[100,0],[700,1],[400,0],[900,1],[500,0],[100,1],[700,0],[500,1],[400,1]];
     const steps = words.map((w, i) => {
       const el = document.createElement('div'); el.className = 'st';
       const [wt, it] = STY[i % STY.length];
-      el.innerHTML = `<div class="tread"></div><div class="riser"><span class="word sk${it ? ' it' : ''}" style="font-weight:${wt}">${w}</span></div>`
+      el.innerHTML = `<div class="tread"><span class="word sk${it ? ' it' : ''}" style="font-weight:${wt}">${w}</span></div>`
         + `<div class="side l"></div><div class="side r"></div>`;
       world.appendChild(el); return el;
     });
-    let W, H, rise, run, railH;
+    let W, H, rise, run, railH, y0;
     function layout(){
       const vw = window.innerWidth; H = window.innerHeight;
-      W = Math.min(vw * 0.62, 820); rise = H * 0.15; run = rise * 1.5; railH = rise * 1.6;
+      W = Math.min(vw * 0.62, 820); rise = H * 0.13; run = rise * 1.7; railH = rise * 1.3;
+      y0 = H * 0.88;                                   // the step at your feet
       sec.style.height = (words.length * 30 + 120) + 'vh';
       steps.forEach(el => {
         el.style.width = W + 'px';
-        const riser = el.querySelector('.riser'), tread = el.querySelector('.tread'), word = el.querySelector('.word');
-        riser.style.height = rise + 'px';
-        tread.style.height = run + 'px'; tread.style.bottom = rise + 'px';
+        const tread = el.querySelector('.tread'), word = el.querySelector('.word');
+        tread.style.height = run + 'px'; tread.style.bottom = '0px';
         tread.style.transform = 'rotateX(90deg)';
-        word.style.fontSize = (rise * 0.72) + 'px'; word.style.transform = 'none';
+        word.style.fontSize = (run * 0.5) + 'px'; word.style.transform = 'none';
         const ww = word.getBoundingClientRect().width;
-        if (ww > W * 0.9) word.style.transform = `scale(${W * 0.9 / ww})`;
-        // balustrade: one slanted panel per step on each side; together they read as one continuous incline
+        if (ww > W * 0.85) word.style.transform = `scale(${W * 0.85 / ww})`;
+        // balustrade: a slanted panel per step on each side, sloping down away from you
         el.querySelectorAll('.side').forEach(sd => {
           const right = sd.classList.contains('r');
           const h = railH + rise * 3;
           sd.style.width = run + 'px'; sd.style.height = h + 'px';
-          sd.style.top = (-railH - rise) + 'px';
+          sd.style.top = (-railH) + 'px';
           sd.style.left = (right ? W : 0) + 'px';
           sd.style.transform = 'rotateY(90deg)';
           const f = (rise / h * 100).toFixed(2);
-          sd.style.clipPath = `polygon(0 ${f}%, 100% 0, 100% 100%, 0 100%)`;
-          sd.style.background = `linear-gradient(to bottom, #111 0, #111 ${(rise*0.18/h*100).toFixed(2)}%, #d8d5cc 0)`;
+          sd.style.clipPath = `polygon(0 0, 100% ${f}%, 100% 100%, 0 100%)`;
+          sd.style.background = `linear-gradient(to bottom, #111 0, #111 ${(rise*0.2/h*100).toFixed(2)}%, #d8d5cc 0)`;
         });
       });
       update();
@@ -707,12 +711,12 @@ c-49 -24 -92 -78 -92 -116 0 -18 -9 -43 -20 -57 -11 -14 -20 -36 -20 -50 0
     function update(){
       const r = sec.getBoundingClientRect(), total = sec.offsetHeight - H;
       const p = Math.min(1, Math.max(0, -r.top / total));
-      const shift = -12 + p * (words.length + 14);   // at the start every word is far up the stairs
+      const shift = -1 + p * (words.length + 14);
       steps.forEach((el, i) => {
-        const k = i - shift;                          // 0 = the step at your feet, bigger = further up
-        if (k < -1.2 || k > 16) { el.style.visibility = 'hidden'; return; }
+        const k = shift - i;                          // 0 = at your feet, bigger = further down the stairs
+        if (k < -0.6 || k > 16) { el.style.visibility = 'hidden'; return; }
         el.style.visibility = 'visible';
-        el.style.transform = `translate3d(${-W / 2}px, ${-k * rise - rise}px, ${-k * run}px)`;
+        el.style.transform = `translate3d(${-W / 2}px, ${y0 + k * rise}px, ${-k * run}px)`;
         el.style.opacity = k > 11 ? Math.max(0, 1 - (k - 11) / 5) : 1;
       });
     }
