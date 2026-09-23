@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>skarp — aquam3ss</title>
+<title>SKARP — arkiv 001</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500&display=swap" rel="stylesheet">
 <link rel="preload" href="skarp-superbold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="skarp-regular.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   /* ---------- Skarp: one family, weights 100/400/500/700/900 + italics ---------- */
   @font-face{ font-family:"Skarp"; src:url("skarp-thin.woff2") format("woff2"); font-weight:100; font-style:normal; font-display:swap; }
@@ -28,280 +29,283 @@
   @font-face{ font-family:"Skarp"; src:url("skarp-superbold.woff2") format("woff2"); font-weight:900; font-style:normal; font-display:swap; }
   @font-face{ font-family:"Skarp"; src:url("skarp-superbold-italic.woff2") format("woff2"); font-weight:900; font-style:italic; font-display:swap; }
 
+
   :root{
-    --red:#ff0000;
-    --ink:#111;
-    --paper:#ecebe6;
-    --grey:#9a9a9a;
+    /* two values only — everything on the page is one or the other */
+    --bg:#0D0D0D;
+    --fg:#E8E6DF;
   }
   *{ box-sizing:border-box; }
+  ::selection{ background:var(--fg); color:var(--bg); }
+  html{ scroll-behavior:smooth; }
   html,body{
-    margin:0; padding:0;
-    background:#fff; color:var(--ink);
-    font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+    margin:0; padding:0; background:var(--bg); color:var(--fg);
+    font-family:"Skarp","Archivo",sans-serif; font-weight:400;
     -webkit-font-smoothing:antialiased;
     overflow-x:clip; /* not 'hidden' — that would break the sticky escalator */
   }
+  body.gated{ overflow:hidden; }
+  a{ color:inherit; text-decoration:none; }
   .sk{ font-family:"Skarp","Archivo",sans-serif; letter-spacing:-0.02em; }
-  /* the italics are drawn with very open spacing — tighten them on the page */
   .sk.it, .sk .it, .it.sk{ font-style:italic; letter-spacing:-0.1em; word-spacing:0.15em; }
 
-  /* ---------- back link, same as the other project pages ---------- */
-  .home-link{
-    position:fixed; top:24px; left:32px; z-index:50;
-    font-size:13px; letter-spacing:0.08em; text-transform:lowercase;
-    color:var(--red); text-decoration:none;
-    transform:translateZ(0); will-change:transform; backface-visibility:hidden;
-    mix-blend-mode:normal;
-  }
-  body.on-red .home-link{ color:#fff; }
+  /* small archive text — Skarp itself, spaced out */
+  .meta{ font-family:"Skarp",sans-serif; font-weight:400; font-size:12px; line-height:1.9; letter-spacing:0.14em; text-transform:uppercase; }
 
-  /* ---------- 1. hero ---------- */
-  .hero{
-    position:relative; height:100vh; width:100vw; overflow:hidden;
-    background:var(--red); color:#fff; cursor:crosshair;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .hero-word{
-    display:block; white-space:nowrap; line-height:0.8;
-    text-transform:uppercase;
-    font-weight:900; user-select:none;
-    transition:none;
-  }
-  .hero-meta{
-    position:absolute; left:32px; bottom:40px;
-    font-size:clamp(28px,5vw,56px); font-weight:700; letter-spacing:-0.01em;
-    text-transform:lowercase; margin:0;
-  }
-  .hero-hint{
-    position:absolute; right:32px; bottom:44px;
-    font-size:12px; letter-spacing:0.08em; text-transform:lowercase; opacity:0.85;
-    text-align:right; line-height:1.6;
-  }
-  .hero-hint b{ font-weight:500; }
+  /* ---- drawn glyphs Skarp doesn't have: /  «  » ---- */
+  .sl{ display:inline-block; position:relative; width:0.36em; height:0.585em; margin:0 0.01em; vertical-align:baseline; --stem:0.098em; }
+  .sl::before{ content:""; position:absolute; left:50%; bottom:0; width:var(--stem); height:100%; background:currentColor; transform:translateX(-50%) skewX(-24deg); }
+  .w900 .sl, [style*="font-weight:900"] .sl{ --stem:0.134em; }
+  .w700 .sl, [style*="font-weight:700"] .sl{ --stem:0.106em; }
+  .w100 .sl, [style*="font-weight:100"] .sl{ --stem:0.082em; }
+  .meta .sl{ --stem:1.4px; }
+  .it .sl::before{ transform:translateX(-50%) skewX(-34deg); }
+  .gq{ display:inline-block; width:0.5em; height:0.46em; vertical-align:0.03em; margin:0 0.12em; overflow:visible; }
 
-  /* ---------- 2. tilted ticker band ---------- */
-  .band-wrap{ height:150px; overflow:hidden; position:relative; background:#fff; display:flex; align-items:center; }
-  .band{
-    width:120%; margin-left:-10%;
-    background:var(--ink); color:var(--red);
-    transform:rotate(-3deg); overflow:hidden; padding:12px 0;
-  }
-  .band-track{
-    display:flex; width:max-content; white-space:nowrap;
-    animation:marquee 22s linear infinite;
-    font-size:clamp(34px,5vw,64px); font-weight:900; font-style:italic; letter-spacing:-0.1em; word-spacing:0.15em;
-    text-transform:uppercase; line-height:1;
-  }
-  .band-track span{ padding-right:0.9em; }
+  /* ---- ornaments ---- */
+  .chev{ display:flex; height:22px; }
+  .chev i{ flex:1; }
+  .chev i:first-child{ background:repeating-linear-gradient(115deg, var(--fg) 0 8px, transparent 8px 19px); }
+  .chev i:last-child{ background:repeating-linear-gradient(65deg, var(--fg) 0 8px, transparent 8px 19px); }
+  .chev .notch{ flex:0 0 auto; padding:0 18px; display:flex; align-items:center; background:var(--bg); }
+  .chev.fine{ height:10px; }
+  .chev.fine i:first-child{ background:repeating-linear-gradient(115deg, var(--fg) 0 2px, transparent 2px 7px); }
+  .chev.fine i:last-child{ background:repeating-linear-gradient(65deg, var(--fg) 0 2px, transparent 2px 7px); }
+  .cross{ display:inline-block; width:15px; height:15px; background:
+      linear-gradient(var(--fg),var(--fg)) center/1px 100% no-repeat,
+      linear-gradient(var(--fg),var(--fg)) center/100% 1px no-repeat; }
+  .checker{ display:block; width:100%; height:100%; }
+  .flip{ transform:scaleX(-1); }
+  hr.rule{ border:0; border-top:1px solid var(--fg); margin:0; }
+
+  /* octagon frame: outer fg, inner bg inset 1px, same cut */
+  .frame{ --cut:34px; position:relative; padding:1px; background:var(--fg);
+    clip-path:polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
+  .frame > .in{ background:var(--bg); padding:14px;
+    clip-path:polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
+  .frame img{ display:block; width:100%; height:auto; image-rendering:pixelated; }
+
+  /* ---------- 0. gate ---------- */
+  .gate{ position:fixed; inset:0; z-index:200; background:var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:9vh 0 16vh; }
+  .gate.off{ display:none; }
+  .gate.cut{ opacity:0; }
+  .gate-index{ text-align:center; font-size:14px; line-height:1.9; }
+  .gate-index > span{ display:block; }
+  .gate-index .off{ opacity:1; cursor:default; }
+  .gate-enter{ display:flex; flex-direction:column; align-items:center; gap:36px; cursor:pointer; background:none; border:0; color:inherit; font:inherit; }
+  .gate-enter svg{ width:150px; height:190px; overflow:visible; }
+  .gate-enter .meta{ font-size:15px; letter-spacing:0.22em; }
+  .gate-enter:hover .meta{ background:var(--fg); color:var(--bg); padding:0 6px; }
+
+  /* ---------- fixed chrome ---------- */
+  .home-link{ position:fixed; top:22px; left:28px; z-index:60; background:var(--bg); padding:2px 8px; font-family:"Archivo",sans-serif; font-size:13px; letter-spacing:0.08em; text-transform:lowercase; }
+  .corner-id{ position:fixed; top:20px; right:28px; z-index:60; background:var(--bg); padding:0 8px; }
+
+  /* ---------- 1. flyer header ---------- */
+  .flyer{ position:relative; height:100vh; min-height:600px; display:grid; grid-template-rows:auto 1fr auto; }
+  .flyer-mid{ display:grid; grid-template-columns:11vw 1fr 11vw; min-height:0; }
+  .flyer-side{ position:relative; overflow:hidden; }
+  .flyer-center{ min-width:0; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:26px; cursor:crosshair; position:relative; }
+  .flyer-center .crossrow{ display:flex; gap:40px; align-items:center; }
+  .hero-word{ display:block; white-space:nowrap; line-height:0.8; font-weight:900; user-select:none; }
+  .hero-word.cut{ opacity:0; }
+  .flyer .side-label{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-90deg); white-space:nowrap; background:var(--bg); padding:2px 10px; }
+
+  /* ---------- 2. register ---------- */
+  .register{ padding:16vh 20px 18vh; text-align:center; }
+  .register h2{ margin:0 0 7vh; font-weight:400; font-size:16px; letter-spacing:0.16em; }
+  .register ol{ list-style:none; margin:0; padding:0; font-size:16px; line-height:2.15; letter-spacing:0.16em; text-transform:uppercase; }
+  .register a{ padding:1px 6px; }
+  .register a:hover{ background:var(--fg); color:var(--bg); }
+
+  /* ---------- framed plates ---------- */
+  .plate{ display:grid; grid-template-columns:9vw 1fr 9vw; gap:2.5vw; align-items:stretch; padding:0 2vw; }
+  .plate-side{ position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:30px 0; }
+  .plate-side .checker{ position:absolute; inset:0; }
+  .plate-head{ display:flex; justify-content:space-between; align-items:center; padding:0 calc(var(--cut, 34px) + 10px) 8px; }
+  .plate-cap{ text-align:center; padding:34px 0 0; font-size:15px; letter-spacing:0.16em; text-transform:uppercase; }
+  .plate.portrait .frame{ max-width:540px; margin:0 auto; width:100%; }
+  section.block{ padding:14vh 0; }
+
+  /* ---------- band ---------- */
+  .band{ overflow:hidden; border-top:1px solid var(--fg); border-bottom:1px solid var(--fg); padding:10px 0; }
+  .band-track{ display:flex; width:max-content; white-space:nowrap; animation:marquee 70s steps(280) infinite;
+    font-size:clamp(30px,4.4vw,56px); font-weight:900; text-transform:uppercase; line-height:1; }
+  .band-track > span{ padding:0 0.6em; }
   @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
-
-  /* ---------- escalator: scroll = the stairs ride up, one word per step ---------- */
-  .esc-sec{ position:relative; background:var(--paper); }
+  /* ---------- escalator (1-bit) ---------- */
+  .esc-sec{ position:relative; }
   .esc-pin{ position:sticky; top:0; height:100vh; overflow:hidden; }
-  .esc-rail{
-    position:absolute; left:0; top:0; height:14px; border-radius:7px;
-    background:var(--ink); transform-origin:0 50%;
-  }
-  .esc-rail.lo{ height:4px; background:rgba(0,0,0,0.25); }
+  .esc-rail{ position:absolute; left:0; top:0; height:8px; transform-origin:0 50%;
+    background:repeating-linear-gradient(90deg, var(--fg) 0 14px, transparent 14px 20px); }
+  .esc-rail.lo{ height:1px; background:var(--fg); }
   .step{ position:absolute; left:0; top:0; will-change:transform; }
-  .step .tread{
-    position:absolute; left:0; right:0; bottom:0; height:16%;
-    background:
-      repeating-linear-gradient(90deg, #2a2a2a 0 3px, #111 3px 9px);
-    border-top:3px solid #ffd400;
-  }
-  .step .riser{
-    position:absolute; left:0; right:0; top:100%; height:900%;
-    background:repeating-linear-gradient(90deg, #1b1b1b 0 3px, #0c0c0c 3px 9px);
-  }
-  .step .word{
-    position:absolute; left:4%; bottom:16%;
-    font-family:"Skarp","Archivo",sans-serif; line-height:0.8; white-space:nowrap;
-    color:var(--red); transform-origin:0 100%;
-  }
-  .esc-label{ position:absolute; right:32px; top:28px; z-index:3; font-size:12px; letter-spacing:0.08em; text-transform:lowercase; color:var(--grey); }
+  .step .tread{ position:absolute; left:0; right:0; bottom:0; height:16%; border-top:1px solid var(--fg);
+    background:repeating-linear-gradient(90deg, var(--fg) 0 1px, var(--bg) 1px 6px); }
+  .step .riser{ position:absolute; left:0; right:0; top:100%; height:900%; border-left:1px solid var(--fg);
+    background:repeating-linear-gradient(0deg, var(--fg) 0 1px, var(--bg) 1px 7px); }
+  .step .word{ position:absolute; left:4%; bottom:16%; line-height:0.8; white-space:nowrap; transform-origin:0 100%; }
+  .esc-label{ position:absolute; left:50%; top:26px; transform:translateX(-50%); z-index:3; text-align:center; background:var(--bg); padding:0 10px; }
 
-  /* ---------- section labels ---------- */
-  .label{
-    font-size:12px; letter-spacing:0.08em; text-transform:lowercase; color:var(--grey);
-    display:flex; justify-content:space-between; gap:16px;
-    border-top:1px solid rgba(0,0,0,0.1); padding:12px 32px 0;
-  }
-
-  /* ---------- 3. type tester ---------- */
-  .tester{ padding:80px 0 40px; }
-  .controls{
-    display:flex; flex-wrap:wrap; align-items:center; gap:10px 24px;
-    padding:22px 32px 0;
-    font-size:13px; letter-spacing:0.04em; text-transform:lowercase;
-  }
-  .pills{ display:flex; flex-wrap:wrap; gap:6px; }
-  .pill{
-    font:inherit; letter-spacing:inherit; text-transform:inherit;
-    background:none; border:1px solid var(--ink); color:var(--ink);
-    border-radius:999px; padding:5px 12px; cursor:pointer;
-  }
-  .pill.on{ background:var(--red); border-color:var(--red); color:#fff; }
+  /* ---------- tester ---------- */
+  .tester{ text-align:center; }
+  .controls{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:12px 22px; padding:26px 20px 0; }
+  .pills{ display:flex; flex-wrap:wrap; justify-content:center; }
+  .pill{ font:inherit; letter-spacing:inherit; text-transform:inherit; background:none; border:1px solid var(--fg); color:var(--fg); margin-right:-1px; padding:4px 11px; cursor:pointer; border-radius:0; }
+  .pill.on, .pill:hover{ background:var(--fg); color:var(--bg); }
   .size{ display:flex; align-items:center; gap:10px; }
-  .size input{ accent-color:var(--red); width:160px; }
-  .size output{ width:48px; color:var(--grey); }
-  .swatches{ display:flex; gap:6px; }
-  .sw{ width:22px; height:22px; border-radius:50%; border:1px solid rgba(0,0,0,0.25); cursor:pointer; padding:0; }
-  .sw.on{ outline:2px solid var(--ink); outline-offset:2px; }
-  .stage{
-    margin:24px 0 0; padding:40px 32px;
-    transition:background .25s, color .25s;
-  }
-  .stage textarea{
-    width:100%; resize:none; border:0; outline:0; background:transparent; color:inherit;
-    font-family:"Skarp","Archivo",sans-serif; line-height:0.95; text-transform:none;
-    overflow:hidden; padding:0; margin:0;
-  }
-  .chars-note{ padding:10px 32px 0; font-size:12px; color:var(--grey); letter-spacing:0.04em; }
-  .chars-note .sk{ color:var(--ink); font-weight:500; font-size:14px; letter-spacing:0.02em; }
+  .size input{ accent-color:var(--fg); width:150px; }
+  .swatches{ display:flex; gap:8px; }
+  .sw{ width:16px; height:16px; border:1px solid var(--fg); cursor:pointer; padding:0; border-radius:0; }
+  .sw.on{ outline:1px solid var(--fg); outline-offset:3px; }
+  .stage{ margin:34px 0 0; padding:40px 4vw; }
+  .stage textarea{ width:100%; resize:none; border:0; outline:0; background:transparent; color:inherit; text-align:center;
+    font-family:"Skarp","Archivo",sans-serif; line-height:0.95; overflow:hidden; padding:0; margin:0; caret-color:var(--fg); }
+  .chars-note{ padding:8px 20px 0; }
+  .waterfall{ padding:60px 0 0; }
+  .wf-row{ padding:16px 20px 18px; border-top:1px solid var(--fg); cursor:pointer; text-align:center; }
+  .wf-row:last-child{ border-bottom:1px solid var(--fg); }
+  .wf-row:hover{ background:var(--fg); color:var(--bg); }
+  .wf-name{ display:block; margin-bottom:6px; }
+  .wf-text{ display:block; font-size:clamp(28px,4.2vw,58px); line-height:1; white-space:nowrap; overflow:hidden; }
 
-  /* waterfall: every style, mirroring what you typed */
-  .waterfall{ padding:40px 0 0; }
-  .wf-row{
-    display:grid; grid-template-columns:180px 1fr; align-items:baseline; gap:16px;
-    padding:14px 32px; border-top:1px solid rgba(0,0,0,0.08);
-    cursor:pointer; transition:background .2s;
-  }
-  .wf-row:hover{ background:#fafafa; }
-  .wf-row:hover .wf-name{ color:var(--red); }
-  .wf-name{ font-size:12px; letter-spacing:0.08em; text-transform:lowercase; color:var(--grey); }
-  .wf-text{ font-size:clamp(28px,4.2vw,58px); line-height:1; white-space:nowrap; overflow:hidden; text-overflow:clip; }
-
-  /* ---------- 4. giant glyphs ---------- */
-  .giants{ display:grid; grid-template-columns:repeat(3,1fr); margin-top:100px; }
-  .giant{
-    position:relative; aspect-ratio:3/4; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-  }
+  /* ---------- 0 0 1 ---------- */
+  .giants{ display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--fg); border-bottom:1px solid var(--fg); }
+  .giant{ position:relative; aspect-ratio:3/4; overflow:hidden; display:flex; align-items:center; justify-content:center; border-right:1px solid var(--fg); }
+  .giant:last-child{ border-right:0; }
   .giant .g{ font-size:34vw; line-height:0.8; }
-  .giant small{
-    position:absolute; left:16px; top:14px; font-size:12px; letter-spacing:0.08em; text-transform:lowercase;
-  }
-  .giant:nth-child(1){ background:var(--red); color:#fff; }
-  .giant:nth-child(2){ background:var(--ink); color:#fff; }
-  .giant:nth-child(3){ background:var(--paper); color:var(--red); }
-  .giant .g{ transition:transform .5s cubic-bezier(.2,.8,.2,1); }
-  .giant:hover .g{ transform:scale(1.35) rotate(-4deg); }
+  .giant .meta{ position:absolute; left:0; right:0; top:14px; text-align:center; }
+  .giant:nth-child(2){ background:var(--fg); color:var(--bg); }
+  .giant:hover .g{ font-weight:100 !important; }
 
-  /* ---------- 5. poster wall ---------- */
-  .wall-sec{ padding:110px 0 120px; background:#fff; }
-  .wall{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:28px;
-    padding:48px 48px 0;
-  }
-  .poster{
-    position:relative; aspect-ratio:3/4; overflow:hidden;
-    display:flex; flex-direction:column; justify-content:space-between;
-    padding:16px; box-shadow:0 2px 0 rgba(0,0,0,0.05), 0 12px 30px rgba(0,0,0,0.08);
-    transform:rotate(var(--r,0deg));
-    transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s;
-  }
-  .poster:hover{ transform:rotate(0deg) translateY(-8px) scale(1.03); box-shadow:0 20px 50px rgba(0,0,0,0.18); z-index:2; }
-  .poster .p-top, .poster .p-bot{
-    font-size:11px; letter-spacing:0.08em; text-transform:lowercase; display:flex; justify-content:space-between;
-  }
+  /* ---------- sheets ---------- */
+  .wall{ display:grid; grid-template-columns:repeat(4,1fr); gap:28px; padding:48px 5vw 0; }
+  .poster{ position:relative; aspect-ratio:3/4; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between;
+    padding:16px; transform:rotate(var(--r,0deg)); transition:transform .3s steps(3); text-align:center; }
+  .poster:hover{ transform:rotate(0deg); z-index:2; }
+  .poster .p-top, .poster .p-bot{ font-size:10px; letter-spacing:0.14em; text-transform:uppercase; display:flex; justify-content:space-between; }
   .poster .p-word{ line-height:0.85; word-break:break-word; }
-  /* a strip of "tape" on top of each poster */
-  .poster::before{
-    content:""; position:absolute; top:-6px; left:50%; width:70px; height:22px;
-    transform:translateX(-50%) rotate(-2deg); background:rgba(255,255,255,0.55);
-    box-shadow:0 1px 2px rgba(0,0,0,0.08);
-  }
-  .c-red{ background:var(--red); color:#fff; }
-  .c-ink{ background:var(--ink); color:#fff; }
-  .c-ink-red{ background:var(--ink); color:var(--red); }
-  .c-paper{ background:var(--paper); color:var(--ink); }
-  .c-white{ background:#fff; color:var(--red); border:1px solid rgba(0,0,0,0.08); }
+  .poster::before{ content:""; position:absolute; top:-6px; left:50%; width:70px; height:22px; transform:translateX(-50%) rotate(-2deg);
+    background:repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 4px); opacity:.6; }
+  .c-ink{ background:var(--bg); color:var(--fg); outline:1px solid var(--fg); outline-offset:-1px; }
+  .c-paper{ background:var(--fg); color:var(--bg); }
 
-  /* ---------- 6. character set ---------- */
-  .charset-sec{ padding:0 0 100px; }
-  .charset-controls{ padding:22px 32px 0; }
-  .charset{
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr));
-    margin-top:24px; border-left:1px solid rgba(0,0,0,0.08);
-  }
-  .cell{
-    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
-    border-right:1px solid rgba(0,0,0,0.08); border-bottom:1px solid rgba(0,0,0,0.08);
-    font-size:46px; cursor:default; position:relative;
-    transition:background .15s, color .15s;
-  }
-  .cell:hover{ background:var(--red); color:#fff; z-index:2; }
-  .cell span{ transition:transform .2s; display:inline-block; }
+  /* ---------- charset ---------- */
+  .charset{ display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); margin-top:28px; border-top:1px solid var(--fg); border-left:1px solid var(--fg); }
+  .cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-right:1px solid var(--fg); border-bottom:1px solid var(--fg); font-size:46px; }
+  .cell:hover{ background:var(--fg); color:var(--bg); }
+  .cell span{ display:inline-block; }
   .cell:hover span{ transform:scale(1.8); }
 
-  /* ---------- 7. about the typeface ---------- */
-  .about{
-    display:grid; grid-template-columns:1fr 1fr; gap:48px;
-    padding:90px 32px 140px; border-top:1px solid rgba(0,0,0,0.1);
-  }
-  .about h2{
-    margin:0; font-family:"Skarp",sans-serif; font-weight:900; font-size:clamp(64px,10vw,150px);
-    line-height:0.8; color:var(--red); letter-spacing:-0.02em;
-  }
-  .about .specs{ margin-top:28px; font-size:13px; line-height:1.7; letter-spacing:0.02em; }
-  .about .specs div{ display:grid; grid-template-columns:110px 1fr; border-top:1px solid rgba(0,0,0,0.08); padding:6px 0; }
-  .about .specs span:first-child{ color:var(--grey); text-transform:lowercase; }
-  .about p{ margin:0 0 1em; font-size:15px; line-height:1.55; max-width:520px; }
-  .placeholder{ color:var(--grey); }
+  /* ---------- index ---------- */
+  .about{ text-align:center; padding:16vh 20px 12vh; }
+  .about h2{ margin:0 0 7vh; font-weight:900; font-size:clamp(64px,11vw,170px); line-height:0.8; letter-spacing:-0.02em; }
+  .about .specs{ display:inline-grid; grid-template-columns:auto auto; column-gap:28px; text-align:left; }
+  .about .specs span:nth-child(odd){ text-align:right; opacity:1; }
+  .about p{ margin:7vh auto 0; max-width:520px; font-family:"Archivo",sans-serif; font-size:15px; line-height:1.55; }
+  .end{ padding:0 0 60px; text-align:center; }
+
+  .sec-label{ text-align:center; padding:0 20px; }
 
   /* ---------- mobile ---------- */
   @media (max-width:900px){
+    .flyer-mid{ grid-template-columns:14vw 1fr 14vw; }
+    .plate{ grid-template-columns:1fr; padding:0 16px; }
+    .plate-side{ display:none; }
+    .frame{ --cut:18px; }
     .giants{ grid-template-columns:1fr; }
-    .giant{ aspect-ratio:4/3; }
+    .giant{ aspect-ratio:4/3; border-right:0; border-bottom:1px solid var(--fg); }
     .giant .g{ font-size:70vw; }
     .p-word{ font-size:11vw !important; }
-    .wall{ grid-template-columns:repeat(2,1fr); gap:18px; padding:32px 20px 0; }
-    .wf-row{ grid-template-columns:1fr; gap:4px; padding:12px 20px; }
-    .about{ grid-template-columns:1fr; }
-    .label, .controls, .stage, .chars-note, .charset-controls{ padding-left:20px; padding-right:20px; }
-    .home-link{ left:20px; }
-    .hero-meta{ left:20px; }
-    .hero-hint{ display:none; }
+    .wall{ grid-template-columns:repeat(2,1fr); gap:18px; padding:32px 16px 0; }
+    .register ol, .register h2{ font-size:12px; letter-spacing:0.1em; }
+    .home-link{ left:16px; } .corner-id{ right:16px; }
+    .meta{ font-size:11px; }
   }
 </style>
 </head>
-<body class="on-red">
+<body class="gated">
 
-<a class="home-link" href="index.html">&larr; aquam3ss</a>
-
-<!-- 1. HERO — the word follows the mouse: left→right = thin→superbold, lower half = italic -->
-<section class="hero" id="hero">
-  <span class="hero-word sk" id="heroWord">skarp</span>
-  <h1 class="hero-meta">skarp</h1>
-  <div class="hero-hint">flytta musen<br><b>&larr; tunn &nbsp;·&nbsp; tjock &rarr;</b><br>nedåt = kursiv</div>
-</section>
-
-<!-- 2. BAND -->
-<div class="band-wrap" aria-hidden="true">
-  <div class="band">
-    <div class="band-track sk" id="bandTrack"></div>
+<!-- 0. GATE -->
+<div class="gate" id="gate">
+  <div class="gate-index meta">
+    <span>SKARP</span>
+    <span>ARKIV 001</span>
+    <span class="off">ARKIV 002</span>
+    <span class="off">ARKIV 003</span>
   </div>
+  <button class="gate-enter" id="enterBtn" aria-label="enter">
+    <svg id="emblem" viewBox="-75 -95 150 190" aria-hidden="true"></svg>
+    <span class="meta">ENTER</span>
+  </button>
 </div>
 
+<a class="home-link" href="index.html">&larr; aquam3ss</a>
+<div class="corner-id meta" >SKARP - 001</div>
+
+<!-- 1. FLYER -->
+<header class="flyer" id="top">
+  <div class="chev"><i></i><span class="notch meta">ARKIV 001</span><i></i></div>
+  <div class="flyer-mid">
+    <div class="flyer-side"><svg class="checker" data-checker="7" data-phase="0"></svg><span class="side-label meta" >SKARP - TYPSNITT</span></div>
+    <div class="flyer-center" id="hero">
+      <div class="crossrow"><span class="cross"></span><span class="meta">TYPSNITT - 10 SNITT</span><span class="cross"></span></div>
+      <span class="hero-word sk" id="heroWord">SKARP</span>
+      <div class="crossrow"><span class="cross"></span><span class="meta">TOKYO <span id="clock">--:--</span></span><span class="cross"></span></div>
+    </div>
+    <div class="flyer-side"><svg class="checker flip" data-checker="7" data-phase="0"></svg><span class="side-label meta">ARKIV 001</span></div>
+  </div>
+  <div class="chev"><i></i><span class="notch meta">SCROLL</span><i></i></div>
+</header>
+
+<!-- 2. REGISTER -->
+<nav class="register meta">
+  <h2 data-marks>ARKIV 001 «SKARP»</h2>
+  <ol>
+    <li><a href="#tunnel" data-marks>ENTRANCE «TUNNEL»</a></li>
+    <li><a href="#esc" data-marks>TRANSIT «RULLTRAPPA»</a></li>
+    <li><a href="#input" data-marks>SKARP «10 SNITT»</a></li>
+    <li><a href="#noll" data-marks>NOLL NOLL ETT</a></li>
+    <li><a href="#scan" data-marks>SCAN «SKARP»</a></li>
+    <li><a href="#sheets" data-marks>SHEETS «08»</a></li>
+    <li><a href="#stack" data-marks>STACK «S»</a></li>
+    <li><a href="#charset" data-marks>CHARSET «75»</a></li>
+    <li><a href="#index" data-marks>INDEX</a></li>
+  </ol>
+</nav>
+
+<!-- 3. TUNNEL PLATE -->
+<section class="block" id="tunnel">
+  <div class="plate">
+    <div class="plate-side"><svg class="checker" data-checker="5" data-phase="1.3"></svg></div>
+    <div>
+      <div class="plate-head meta"><span>SKARP</span><span class="cross"></span><span>ARKIV 001</span></div>
+      <div class="frame"><div class="in"><img src="arkiv-tunnel.png" alt="noll i noll i noll, rastrerat" width="1520" height="940"></div></div>
+      <div class="plate-cap meta" data-marks>ENTRANCE «TUNNEL»</div>
+    </div>
+    <div class="plate-side"><svg class="checker flip" data-checker="5" data-phase="1.3"></svg></div>
+  </div>
+</section>
+
+<!-- BAND -->
+<div class="band" aria-hidden="true"><div class="band-track" id="bandTrack"></div></div>
 
 <!-- ESCALATOR — her own text goes in data-text below; each word gets its own step -->
-<section class="esc-sec" id="escSec"
+<section class="esc-sec" id="esc"
   data-text="skriv din egen text här, ord för ord. varje ord åker upp för rulltrappan när man scrollar.">
   <div class="esc-pin" id="escPin">
     <div class="esc-rail lo" id="railLo"></div>
     <div class="esc-rail" id="railHi"></div>
-    <div class="esc-label">scrolla &darr;</div>
+    <div class="esc-label meta" data-marks>TRANSIT «RULLTRAPPA»</div>
   </div>
 </section>
 
-<!-- 3. TESTER -->
-<section class="tester">
-  <div class="label"><span>skriv själv</span><span>10 snitt</span></div>
-
-  <div class="controls">
+<!-- TESTER -->
+<section class="block tester" id="input">
+  <div class="sec-label meta" data-marks>SKARP «10 SNITT»</div>
+  <div class="controls meta">
     <div class="pills" id="weightPills">
       <button class="pill" data-w="100">thin</button>
       <button class="pill" data-w="400">regular</button>
@@ -309,84 +313,69 @@
       <button class="pill" data-w="700">bold</button>
       <button class="pill on" data-w="900">superbold</button>
     </div>
-    <div class="pills">
-      <button class="pill" id="italicBtn">kursiv</button>
-    </div>
+    <div class="pills"><button class="pill" id="italicBtn">kursiv</button></div>
     <label class="size">storlek <input type="range" id="sizeRange" min="24" max="320" value="150"><output id="sizeOut">150</output></label>
     <div class="swatches" id="swatches">
-      <button class="sw on" data-bg="#ffffff" data-fg="#111111" style="background:#fff" aria-label="svart på vitt"></button>
-      <button class="sw" data-bg="#ff0000" data-fg="#ffffff" style="background:#ff0000" aria-label="vitt på rött"></button>
-      <button class="sw" data-bg="#111111" data-fg="#ff0000" style="background:#111" aria-label="rött på svart"></button>
-      <button class="sw" data-bg="#ecebe6" data-fg="#111111" style="background:#ecebe6" aria-label="svart på papper"></button>
+      <button class="sw on" data-bg="transparent" data-fg="#E8E6DF" style="background:#0D0D0D" aria-label="ljust på mörkt"></button>
+      <button class="sw" data-bg="#E8E6DF" data-fg="#0D0D0D" style="background:#E8E6DF" aria-label="mörkt på ljust"></button>
     </div>
   </div>
-
-  <div class="stage" id="stage">
-    <textarea id="tester" rows="1" spellcheck="false" autocomplete="off">Skriv något här</textarea>
-  </div>
-  <div class="chars-note">skarp har <span class="sk">A-Ö a-ö 0-9 ! ? . , : ; -</span> &nbsp;— allt annat visas i ett reservtypsnitt</div>
-
+  <div class="stage" id="stage"><textarea id="tester" rows="1" spellcheck="false" autocomplete="off">vad är skarp</textarea></div>
+  <div class="chars-note meta">A-Ö A-Ö 0-9 ! ? . , : ; -</div>
   <div class="waterfall" id="waterfall"></div>
 </section>
 
-<!-- 4. GIANT GLYPHS -->
-<section class="giants">
-  <div class="giant"><small>superbold</small><span class="g sk" style="font-weight:900">Å</span></div>
-  <div class="giant"><small>bold kursiv</small><span class="g sk it" style="font-weight:700">g</span></div>
-  <div class="giant"><small>thin</small><span class="g sk" style="font-weight:100">?</span></div>
+<!-- 0 0 1 -->
+<section class="giants" id="noll">
+  <div class="giant"><span class="meta">0 - SUPERBOLD</span><span class="g sk" style="font-weight:900">0</span></div>
+  <div class="giant"><span class="meta">0 - BOLD KURSIV</span><span class="g sk it" style="font-weight:700">0</span></div>
+  <div class="giant"><span class="meta">1 - MEDIUM</span><span class="g sk" style="font-weight:500">1</span></div>
 </section>
 
-<!-- 5. POSTER WALL — words are placeholders, swap freely (only A–Ö, a–ö, 0–9 and ! ? . , : ; - exist in the font) -->
-<section class="wall-sec">
-  <div class="label"><span>väggen</span><span>håll musen över</span></div>
-  <div class="wall" id="wall">
-    <div class="poster c-red" style="--r:-2deg">
-      <div class="p-top"><span>no. 01</span><span>superbold</span></div>
-      <div class="p-word sk" style="font-weight:900;font-size:7.3vw">SKARP</div>
-      <div class="p-bot"><span>aquam3ss</span><span>2026</span></div>
+<!-- SCAN PLATE -->
+<section class="block" id="scan">
+  <div class="plate">
+    <div class="plate-side"><svg class="checker" data-checker="5" data-phase="2.6"></svg></div>
+    <div>
+      <div class="plate-head meta"><span>ARKIV 001</span><span class="cross"></span><span>SKARP</span></div>
+      <div class="frame"><div class="in"><img src="arkiv-scan.png" alt="SKARP, skannat" width="1520" height="940"></div></div>
+      <div class="plate-cap meta" data-marks>SCAN «SKARP»</div>
     </div>
-    <div class="poster c-paper" style="--r:1.5deg">
-      <div class="p-top"><span>no. 02</span><span>thin</span></div>
-      <div class="p-word sk" style="font-weight:100;font-size:6.2vw">betong</div>
-      <div class="p-bot"><span>raka kanter</span><span>-</span></div>
-    </div>
-    <div class="poster c-ink-red" style="--r:-1deg">
-      <div class="p-top"><span>no. 03</span><span>bold kursiv</span></div>
-      <div class="p-word sk it" style="font-weight:700;font-size:5.9vw">NATT BUSS 94</div>
-      <div class="p-bot"><span>sista turen</span><span>!</span></div>
-    </div>
-    <div class="poster c-white" style="--r:2.5deg">
-      <div class="p-top"><span>no. 04</span><span>regular</span></div>
-      <div class="p-word sk" style="font-weight:400;font-size:8.8vw">ÅÄÖ</div>
-      <div class="p-bot"><span>svenska tecken</span><span>3</span></div>
-    </div>
-    <div class="poster c-ink" style="--r:1deg">
-      <div class="p-top"><span>no. 05</span><span>medium</span></div>
-      <div class="p-word sk" style="font-weight:500;font-size:4.6vw">inga kurvor. bara hörn.</div>
-      <div class="p-bot"><span>skarp</span><span>?</span></div>
-    </div>
-    <div class="poster c-red" style="--r:-2.5deg">
-      <div class="p-top"><span>no. 06</span><span>superbold kursiv</span></div>
-      <div class="p-word sk it" style="font-weight:900;font-size:7.6vw">SÖDER</div>
-      <div class="p-bot"><span>stockholm</span><span>-</span></div>
-    </div>
-    <div class="poster c-paper" style="--r:2deg">
-      <div class="p-top"><span>no. 07</span><span>bold</span></div>
-      <div class="p-word sk" style="font-weight:700;font-size:5.7vw">vad händer?</div>
-      <div class="p-bot"><span>fråga</span><span>?</span></div>
-    </div>
-    <div class="poster c-white" style="--r:-1.5deg">
-      <div class="p-top"><span>no. 08</span><span>thin kursiv</span></div>
-      <div class="p-word sk it" style="font-weight:100;font-size:4.9vw">0123 4567 89</div>
-      <div class="p-bot"><span>siffror</span><span>10</span></div>
-    </div>
+    <div class="plate-side"><svg class="checker flip" data-checker="5" data-phase="2.6"></svg></div>
   </div>
 </section>
 
-<!-- 6. CHARACTER SET -->
-<section class="charset-sec">
-  <div class="label"><span>alla tecken</span><span id="charCount"></span></div>
-  <div class="controls charset-controls">
+<!-- SHEETS — words are placeholders (only A–Ö, a–ö, 0–9 and ! ? . , : ; - exist in the font; / is drawn) -->
+<section class="block" id="sheets">
+  <div class="sec-label meta" data-marks>SHEETS «08»</div>
+  <div class="wall">
+    <div class="poster c-paper" style="--r:-1.5deg"><div class="p-top"><span>001.01</span><span>superbold</span></div><div class="p-word sk" style="font-weight:900;font-size:6.6vw">SKARP</div><div class="p-bot"><span>typsnitt</span><span>001</span></div></div>
+    <div class="poster c-ink" style="--r:1deg"><div class="p-top"><span>001.02</span><span>thin</span></div><div class="p-word sk" style="font-weight:100;font-size:6.6vw">arkiv</div><div class="p-bot"><span>samling</span><span>001</span></div></div>
+    <div class="poster c-ink" style="--r:-0.8deg"><div class="p-top"><span>001.03</span><span>bold kursiv</span></div><div class="p-word sk it" style="font-weight:700;font-size:5.9vw">NATT BUSS 94</div><div class="p-bot"><span>transit</span><span>sista</span></div></div>
+    <div class="poster c-paper" style="--r:2deg"><div class="p-top"><span>001.04</span><span>regular</span></div><div class="p-word sk" style="font-weight:400;font-size:8.8vw">ÅÄÖ</div><div class="p-bot"><span>tecken</span><span>03</span></div></div>
+    <div class="poster c-ink" style="--r:0.8deg"><div class="p-top"><span>001.05</span><span>medium</span></div><div class="p-word sk" style="font-weight:500;font-size:4.6vw">inga kurvor. bara hörn.</div><div class="p-bot"><span>påstående</span><span>-</span></div></div>
+    <div class="poster c-paper" style="--r:-2deg"><div class="p-top"><span>001.06</span><span>superbold kursiv</span></div><div class="p-word sk it" style="font-weight:900;font-size:4.4vw">BETONG</div><div class="p-bot"><span>material</span><span>-</span></div></div>
+    <div class="poster c-ink" style="--r:1.5deg"><div class="p-top"><span>001.07</span><span>bold</span></div><div class="p-word sk" style="font-weight:700;font-size:5.7vw">vad händer?</div><div class="p-bot"><span>fråga</span><span>?</span></div></div>
+    <div class="poster c-ink" style="--r:-1deg"><div class="p-top"><span>001.08</span><span>thin kursiv</span></div><div class="p-word sk it" style="font-weight:100;font-size:4.9vw">0123 4567 89</div><div class="p-bot"><span>siffror</span><span>10</span></div></div>
+  </div>
+</section>
+
+<!-- STACK PLATE (portrait) -->
+<section class="block" id="stack">
+  <div class="plate portrait">
+    <div class="plate-side"><svg class="checker" data-checker="4" data-phase="0.6"></svg></div>
+    <div>
+      <div class="frame" style="max-width:540px;margin:0 auto"><div class="in"><img src="arkiv-stack.png" alt="S i fyra snitt, förskjutna" width="1040" height="1360"></div></div>
+      <div class="plate-cap meta" data-marks>STACK «S»</div>
+    </div>
+    <div class="plate-side"><svg class="checker flip" data-checker="4" data-phase="0.6"></svg></div>
+  </div>
+</section>
+
+<!-- CHARSET -->
+<section class="block" id="charset" style="padding-bottom:0">
+  <div class="sec-label meta" data-marks>CHARSET «<span id="charCount">75</span>»</div>
+  <div class="controls meta">
     <div class="pills" id="csPills">
       <button class="pill" data-w="100">thin</button>
       <button class="pill" data-w="400">regular</button>
@@ -396,45 +385,101 @@
     </div>
     <div class="pills"><button class="pill" id="csItalic">kursiv</button></div>
   </div>
-  <div class="charset sk" id="charset" style="font-weight:700"></div>
+  <div class="charset sk" id="charsetGrid" style="font-weight:700"></div>
 </section>
 
-<!-- 7. ABOUT -->
-<section class="about">
-  <div>
-    <h2>skarp</h2>
-    <div class="specs">
-      <div><span>snitt</span><span>thin, regular, medium, bold, superbold — alla med kursiv</span></div>
-      <div><span>tecken</span><span>A–Ö, a–ö, 0–9, ! ? . , : ; -</span></div>
-      <div><span>ritad av</span><span>Julia elsa</span></div>
-      <div><span>används på</span><span><a href="https://stuckholm.se" target="_blank" rel="noopener" style="color:var(--red);text-decoration:none">stuckholm.se</a></span></div>
-    </div>
+<!-- INDEX -->
+<section class="about" id="index">
+  <h2 class="sk">SKARP</h2>
+  <div class="specs meta">
+    <span>arkiv</span><span>001</span>
+    <span>typ</span><span>typsnitt</span>
+    <span>snitt</span><span>thin regular medium bold superbold</span>
+    <span></span><span>- alla med kursiv</span>
+    <span>tecken</span><span>75</span>
+    <span>ritad av</span><span>Julia elsa</span>
+    <span>syns på</span><span><a href="https://stuckholm.se" target="_blank" rel="noopener">stuckholm.se</a></span>
   </div>
-  <div>
-    <p class="placeholder">[din text om skarp — hur den kom till, varför, vilka verktyg du ritade i. skriv med dina egna ord, så klistrar jag in den här.]</p>
-  </div>
+  <p>[din text om skarp, med dina egna ord. skicka den så klistrar jag in den här.]</p>
 </section>
+
+<div class="end">
+  <div class="chev fine"><i></i><span class="notch meta">ARKIV 001 - SLUT</span><i></i></div>
+</div>
 
 <script>
 (function(){
-  const WEIGHTS = [
-    {w:100, name:'thin'},
-    {w:400, name:'regular'},
-    {w:500, name:'medium'},
-    {w:700, name:'bold'},
-    {w:900, name:'superbold'},
-  ];
+  const WEIGHTS = [{w:100,name:'thin'},{w:400,name:'regular'},{w:500,name:'medium'},{w:700,name:'bold'},{w:900,name:'superbold'}];
   const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖabcdefghijklmnopqrstuvwxyzåäö0123456789!?.,:;-';
 
-  /* ---------- hero: fit to width + follow the mouse ---------- */
+  /* ---------- glyphs Skarp doesn't have: draw / « » ---------- */
+  const GL = '<svg class="gq" viewBox="0 0 10 9" aria-hidden="true"><path d="M4.5 .5 1 4.5 4.5 8.5M9 .5 5.5 4.5 9 8.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+  const GR = '<svg class="gq" viewBox="0 0 10 9" aria-hidden="true"><path d="M1 .5 4.5 4.5 1 8.5M5.5 .5 9 4.5 5.5 8.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+  const fmt = html => html.replace(/\//g, '<span class="sl"></span>').replace(/«/g, GL).replace(/»/g, GR);
+  document.querySelectorAll('[data-brand],[data-marks]').forEach(el => { el.innerHTML = fmt(el.innerHTML.replace(/<\/?[^>]*>/g, m => m.replace(/\//g, '\u0000'))).replace(/\u0000/g, '/'); });
+
+  /* ---------- warped checker columns ---------- */
+  function drawChecker(svg){
+    const r = svg.getBoundingClientRect();
+    const W = Math.max(40, r.width), H = Math.max(40, r.height);
+    const cols = +svg.dataset.checker || 6, ph = +svg.dataset.phase || 0;
+    const cw = W / cols; const rows = Math.ceil(H / cw) + 2;
+    let out = '';
+    for (let i = 0; i < rows; i++){
+      const y = i * cw;
+      const shift = Math.sin(i * 0.33 + ph) * cw * 1.3;           // rows slide sideways
+      const squash = 0.55 + 0.45 * Math.abs(Math.cos(i * 0.21 + ph)); // and pinch
+      for (let j = -2; j < cols + 2; j++){
+        if ((i + j) % 2) continue;
+        const x = j * cw * squash + shift + (W - cols * cw * squash) / 2;
+        out += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(cw * squash).toFixed(1)}" height="${cw.toFixed(1)}"/>`;
+      }
+    }
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.innerHTML = `<g fill="#E8E6DF">${out}</g>`;
+  }
+  const checkers = [...document.querySelectorAll('svg[data-checker]')];
+  const drawAll = () => checkers.forEach(drawChecker);
+
+  /* ---------- gate ---------- */
+  const emblem = document.getElementById('emblem');
+  (function(){
+    // static burst around a Skarp-shaped 0 (rounded rect), + a long vertical signal line
+    let p = '<rect x="-17" y="-26" width="34" height="52" rx="6" fill="none" stroke="#E8E6DF" stroke-width="1.6"/>';
+    p += '<line x1="0" y1="34" x2="0" y2="92" stroke="#E8E6DF" stroke-width="0.8"/><line x1="0" y1="-34" x2="0" y2="-60" stroke="#E8E6DF" stroke-width="0.8"/>';
+    p += '<line x1="-66" y1="0" x2="-44" y2="0" stroke="#E8E6DF" stroke-width="0.8"/><line x1="44" y1="0" x2="66" y2="0" stroke="#E8E6DF" stroke-width="0.8"/>';
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let k = 0; k < 150; k++){
+      const a = (k / 150) * Math.PI * 2 + rnd() * 0.02;
+      const cx = Math.cos(a), cy = Math.sin(a);
+      const t = Math.min(21 / Math.abs(cx || 1e-6), 30 / Math.abs(cy || 1e-6)); // distance to the rect edge + margin
+      const r0 = t + 3, r1 = r0 + 4 + Math.pow(rnd(), 2.2) * 26;
+      p += `<line x1="${(cx*r0).toFixed(1)}" y1="${(cy*r0).toFixed(1)}" x2="${(cx*r1).toFixed(1)}" y2="${(cy*r1).toFixed(1)}" stroke="#E8E6DF" stroke-width="0.7"/>`;
+    }
+    emblem.innerHTML = p;
+  })();
+  const gate = document.getElementById('gate');
+  function enter(){
+    // two mechanical cuts, then gone
+    gate.classList.add('cut');
+    setTimeout(() => gate.classList.remove('cut'), 70);
+    setTimeout(() => gate.classList.add('cut'), 150);
+    setTimeout(() => { gate.classList.add('off'); document.body.classList.remove('gated'); drawAll(); fitHero(); }, 260);
+  }
+  document.getElementById('enterBtn').addEventListener('click', enter);
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && !gate.classList.contains('off')) enter(); });
+  if (location.hash && location.hash !== '#top') { gate.classList.add('off'); document.body.classList.remove('gated'); }
+
+  /* ---------- hero ---------- */
   const hero = document.getElementById('hero');
   const word = document.getElementById('heroWord');
   let heroW = 900, heroIt = false;
-
   function fitHero(){
     word.style.fontSize = '100px';
     const w = word.getBoundingClientRect().width;
-    const target = window.innerWidth * 0.92;
+    if (!w) return;
+    const target = hero.getBoundingClientRect().width * 0.9;
     word.style.fontSize = (100 * target / w) + 'px';
   }
   function setHero(w, it){
@@ -443,72 +488,63 @@
     word.style.fontWeight = w;
     word.style.fontStyle = it ? 'italic' : 'normal';
     word.style.letterSpacing = it ? '-0.1em' : '-0.02em';
-    word.style.wordSpacing = it ? '0.15em' : 'normal';
+    word.className = 'hero-word sk w' + w + (it ? ' it' : '');
     fitHero();
   }
   hero.addEventListener('pointermove', e => {
     const r = hero.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    const y = (e.clientY - r.top) / r.height;
-    const i = Math.min(WEIGHTS.length - 1, Math.floor(x * WEIGHTS.length));
-    setHero(WEIGHTS[i].w, y > 0.6);
+    const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+    setHero(WEIGHTS[Math.min(4, Math.floor(x * 5))].w, y > 0.62);
   });
-  // on touch / idle: slowly cycle through the weights by itself
-  let idle = 0;
-  hero.addEventListener('pointerleave', () => { idle = 0; });
-  setInterval(() => {
-    if (hero.matches(':hover')) return;
-    idle = (idle + 1) % (WEIGHTS.length * 2);
-    setHero(WEIGHTS[idle % WEIGHTS.length].w, idle >= WEIGHTS.length);
-  }, 900);
-
-  // back link turns white while it sits over the red hero
-  const onScroll = () => document.body.classList.toggle('on-red', window.scrollY < window.innerHeight - 40);
-  window.addEventListener('scroll', onScroll, {passive:true});
+  (function idleTick(){
+    if (!hero.matches(':hover') && gate.classList.contains('off')) {
+      setHero(WEIGHTS[Math.floor(Math.random() * 5)].w, Math.random() < 0.25);
+    }
+    setTimeout(idleTick, 1400 + Math.random() * 2600);
+  })();
+  (function signalCut(){
+    const flicks = Math.random() < 0.5 ? 1 : 2; let n = 0;
+    (function flick(){
+      word.classList.add('cut');
+      setTimeout(() => { word.classList.remove('cut'); if (++n < flicks) setTimeout(flick, 90); }, 50 + Math.random() * 40);
+    })();
+    setTimeout(signalCut, 7000 + Math.random() * 9000);
+  })();
+  const clock = document.getElementById('clock');
+  function tick(){ try { clock.textContent = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Tokyo', hour:'2-digit', minute:'2-digit', hour12:false}).format(new Date()); } catch(e){} }
+  tick(); setInterval(tick, 15000);
 
   /* ---------- band ---------- */
-  const band = document.getElementById('bandTrack');
-  const bits = ['skarp!', 'raka kanter', 'skarp?', 'inga kurvor', 'skarp.', 'hörn hörn hörn'];
-  const once = bits.map(b => `<span>${b}</span>`).join('');
-  band.innerHTML = once + once + once + once;
-
+  const bits = ['SKARP', 'arkiv 001', 'typsnitt', '10 snitt', 'SKARP', 'natt'];
+  const once = bits.map(b => `<span>${fmt(b)}</span>`).join('');
+  document.getElementById('bandTrack').innerHTML = once + once + once + once;
 
   /* ---------- escalator ---------- */
   (function(){
-    const sec = document.getElementById('escSec');
-    const pin = document.getElementById('escPin');
-    const railHi = document.getElementById('railHi');
-    const railLo = document.getElementById('railLo');
+    const sec = document.getElementById('esc'), pin = document.getElementById('escPin');
+    const railHi = document.getElementById('railHi'), railLo = document.getElementById('railLo');
     const words = sec.dataset.text.trim().split(/\s+/);
-    // weight/style for each step — cycles so every step looks different
     const STY = [[900,0],[100,0],[700,1],[400,0],[900,1],[500,0],[100,1],[700,0],[500,1],[400,1]];
     const steps = words.map((w, i) => {
-      const el = document.createElement('div');
-      el.className = 'step';
+      const el = document.createElement('div'); el.className = 'step';
       const [wt, it] = STY[i % STY.length];
-      el.innerHTML = `<div class="tread"></div><div class="riser"></div><span class="word sk${it ? ' it' : ''}" style="font-weight:${wt}">${w}</span>`;
-      pin.appendChild(el);
-      return el;
+      el.innerHTML = `<div class="tread"></div><div class="riser"></div><span class="word sk w${wt}${it ? ' it' : ''}" style="font-weight:${wt}">${fmt(w)}</span>`;
+      pin.appendChild(el); return el;
     });
     let W, H, sw, sh;
     function layout(){
       W = window.innerWidth; H = window.innerHeight;
       const mobile = W < 700;
-      sw = mobile ? W * 0.5 : W * 0.24;      // step run
-      sh = mobile ? H * 0.13 : H * 0.13;      // step rise
+      sw = mobile ? W * 0.5 : W * 0.24; sh = H * 0.13;
       sec.style.height = (words.length * 38 + 100) + 'vh';
       steps.forEach(el => {
         el.style.width = sw + 'px'; el.style.height = sh + 'px';
-        const word = el.querySelector('.word');
-        word.style.fontSize = (sh * 1.25) + 'px';
-        word.style.transform = 'none';
-        const ww = word.getBoundingClientRect().width;
-        const max = sw * 1.05;
-        if (ww > max) word.style.transform = `scale(${max / ww})`;
+        const wd = el.querySelector('.word');
+        wd.style.fontSize = (sh * 1.25) + 'px'; wd.style.transform = 'none';
+        const ww = wd.getBoundingClientRect().width, max = sw * 1.05;
+        if (ww > max) wd.style.transform = `scale(${max / ww})`;
       });
-      // handrail runs parallel to the stairs, a bit above the treads
-      const ang = Math.atan2(sh, sw);
-      const len = Math.hypot(W, H) * 1.6;
+      const ang = Math.atan2(sh, sw), len = Math.hypot(W, H) * 1.6;
       [[railHi, -sh * 2.35], [railLo, -sh * 2.1]].forEach(([r, off]) => {
         r.style.width = len + 'px';
         r.style.transform = `translate(${-W * 0.3}px, ${H + W * 0.3 * Math.tan(ang) + off}px) rotate(${-ang}rad)`;
@@ -516,17 +552,11 @@
       update();
     }
     function update(){
-      const r = sec.getBoundingClientRect();
-      const total = sec.offsetHeight - H;
+      const r = sec.getBoundingClientRect(), total = sec.offsetHeight - H;
       const p = Math.min(1, Math.max(0, -r.top / total));
-      // how many steps have passed: first word starts below the screen, last one exits the top
-      const onScreen = Math.ceil(W / sw) + 1;
-      const shift = p * (words.length + onScreen) - 1;
-      // bottom-left anchor: step at k=0 sits at the bottom-left corner, k grows up-right
+      const onScreen = Math.ceil(W / sw) + 1, shift = p * (words.length + onScreen) - 1;
       steps.forEach((el, i) => {
-        const k = shift - i;                       // 0 = just entering bottom-left, grows as you scroll
-        const x = -sw + k * sw;
-        const y = H - sh * 0.2 - k * sh;
+        const k = shift - i, x = -sw + k * sw, y = H - sh * 0.2 - k * sh;
         el.style.transform = `translate(${x}px, ${y - sh}px)`;
         el.style.visibility = (x > W + sw || x < -sw * 2) ? 'hidden' : 'visible';
       });
@@ -538,62 +568,42 @@
   })();
 
   /* ---------- tester + waterfall ---------- */
-  const ta = document.getElementById('tester');
-  const stage = document.getElementById('stage');
-  const sizeRange = document.getElementById('sizeRange');
-  const sizeOut = document.getElementById('sizeOut');
-  const italicBtn = document.getElementById('italicBtn');
-  const wf = document.getElementById('waterfall');
+  const ta = document.getElementById('tester'), stage = document.getElementById('stage');
+  const sizeRange = document.getElementById('sizeRange'), sizeOut = document.getElementById('sizeOut');
+  const italicBtn = document.getElementById('italicBtn'), wf = document.getElementById('waterfall');
   let tW = 900, tIt = false;
-
   function autoGrow(){ ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
   function applyTester(){
-    ta.style.fontWeight = tW;
-    ta.style.fontStyle = tIt ? 'italic' : 'normal';
-    ta.style.letterSpacing = tIt ? '-0.1em' : '-0.02em';
-    ta.style.wordSpacing = tIt ? '0.15em' : 'normal';
-    ta.style.fontSize = sizeRange.value + 'px';
-    sizeOut.textContent = sizeRange.value;
+    ta.style.fontWeight = tW; ta.style.fontStyle = tIt ? 'italic' : 'normal';
+    ta.style.letterSpacing = tIt ? '-0.1em' : '-0.02em'; ta.style.wordSpacing = tIt ? '0.15em' : 'normal';
+    ta.style.fontSize = sizeRange.value + 'px'; sizeOut.textContent = sizeRange.value;
     document.querySelectorAll('#weightPills .pill').forEach(p => p.classList.toggle('on', +p.dataset.w === tW));
-    italicBtn.classList.toggle('on', tIt);
-    autoGrow();
+    italicBtn.classList.toggle('on', tIt); autoGrow();
   }
   document.querySelectorAll('#weightPills .pill').forEach(p => p.addEventListener('click', () => { tW = +p.dataset.w; applyTester(); }));
   italicBtn.addEventListener('click', () => { tIt = !tIt; applyTester(); });
   sizeRange.addEventListener('input', applyTester);
   document.querySelectorAll('#swatches .sw').forEach(s => s.addEventListener('click', () => {
-    document.querySelectorAll('#swatches .sw').forEach(x => x.classList.remove('on'));
-    s.classList.add('on');
+    document.querySelectorAll('#swatches .sw').forEach(x => x.classList.remove('on')); s.classList.add('on');
     stage.style.background = s.dataset.bg; stage.style.color = s.dataset.fg;
   }));
-
-  // waterfall rows: all 10 styles, mirroring the tester text; click a row to load that style above
   const rows = [];
   WEIGHTS.forEach(({w, name}) => [false, true].forEach(it => {
-    const row = document.createElement('div');
-    row.className = 'wf-row';
-    row.innerHTML = `<span class="wf-name">${name}${it ? ' kursiv' : ''}</span><span class="wf-text sk${it ? ' it' : ''}" style="font-weight:${w}"></span>`;
-    row.addEventListener('click', () => {
-      tW = w; tIt = it; applyTester();
-      stage.scrollIntoView({behavior:'smooth', block:'center'});
-    });
-    wf.appendChild(row);
-    rows.push(row.querySelector('.wf-text'));
+    const row = document.createElement('div'); row.className = 'wf-row';
+    row.innerHTML = `<span class="wf-name meta">${name}${it ? ' kursiv' : ''}</span><span class="wf-text sk${it ? ' it' : ''}" style="font-weight:${w}"></span>`;
+    row.addEventListener('click', () => { tW = w; tIt = it; applyTester(); stage.scrollIntoView({behavior:'smooth', block:'center'}); });
+    wf.appendChild(row); rows.push(row.querySelector('.wf-text'));
   }));
-  function syncWaterfall(){
-    const t = ta.value.replace(/\s+/g, ' ').trim() || 'Skriv något här';
-    rows.forEach(r => r.textContent = t);
-  }
+  function syncWaterfall(){ const t = ta.value.replace(/\s+/g, ' ').trim() || 'vad är skarp'; rows.forEach(r => r.textContent = t); }
   ta.addEventListener('input', () => { autoGrow(); syncWaterfall(); });
 
-  /* ---------- character set ---------- */
-  const cs = document.getElementById('charset');
+  /* ---------- charset ---------- */
+  const cs = document.getElementById('charsetGrid');
   cs.innerHTML = [...CHARS].map(c => `<div class="cell"><span>${c}</span></div>`).join('');
-  document.getElementById('charCount').textContent = CHARS.length + ' tecken';
+  document.getElementById('charCount').textContent = CHARS.length;
   let csW = 700, csIt = false;
   function applyCs(){
-    cs.style.fontWeight = csW;
-    cs.style.fontStyle = csIt ? 'italic' : 'normal';
+    cs.style.fontWeight = csW; cs.style.fontStyle = csIt ? 'italic' : 'normal';
     document.querySelectorAll('#csPills .pill').forEach(p => p.classList.toggle('on', +p.dataset.w === csW));
     document.getElementById('csItalic').classList.toggle('on', csIt);
   }
@@ -602,13 +612,10 @@
 
   /* ---------- start ---------- */
   applyTester(); syncWaterfall();
-  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => {
-    Promise.all(WEIGHTS.flatMap(({w}) => [
-      document.fonts.load(`${w} 100px Skarp`), document.fonts.load(`italic ${w} 100px Skarp`)
-    ])).then(() => { fitHero(); autoGrow(); });
-  });
-  fitHero();
-  window.addEventListener('resize', () => { fitHero(); autoGrow(); });
+  const ready = () => { fitHero(); autoGrow(); drawAll(); };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => Promise.all(WEIGHTS.flatMap(({w}) => [document.fonts.load(`${w} 100px Skarp`), document.fonts.load(`italic ${w} 100px Skarp`)])).then(ready));
+  ready();
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(ready, 120); });
 })();
 </script>
 </body>
