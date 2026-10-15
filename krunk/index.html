@@ -25,6 +25,47 @@
       z-index: 0;
       height: 100vh;
       width: 100%;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Hela vågen: höjden följer bildens proportioner (3228 x 354) */
+    .wave {
+      width: min(92vw, 1400px);
+      aspect-ratio: 3228 / 354;
+      display: flex;
+      animation: drift 14s ease-in-out 4.4s infinite alternate;
+    }
+
+    /* Varje skiva är en vertikal remsa av vågen som glider in från höger.
+       Remsorna längst till höger startar först, så rörelsen går som en våg inåt. */
+    .slice {
+      position: relative;
+      flex: 0 0 calc(100% / 64);
+      height: 100%;
+      overflow: hidden;
+      opacity: 0;
+      animation: slideIn 1.8s cubic-bezier(.2, .7, .1, 1) forwards;
+    }
+
+    .slice img {
+      position: absolute;
+      top: 0;
+      width: calc(64 * 100%);
+      height: 100%;
+      max-width: none;
+      filter: drop-shadow(0 0 10px rgba(31, 91, 255, 0.35));
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(60vw); opacity: 0; }
+      15%  { opacity: 1; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    @keyframes drift {
+      from { transform: translateY(-6px); }
+      to   { transform: translateY(6px); }
     }
 
     .back {
@@ -39,13 +80,38 @@
       opacity: 0.7;
     }
     .back:hover { opacity: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wave { animation: none; }
+      .slice { animation: none; opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <a class="back" href="/">← aquam3ss</a>
 
   <main class="hero">
-    <!-- Ny grafik kommer här -->
+    <div class="wave" id="wave" role="img" aria-label="KRUNK våg"></div>
   </main>
+
+  <script>
+    (function () {
+      var N = 64;            // antal remsor
+      var STEP = 0.035;      // fördröjning mellan remsor, i sekunder
+      var wave = document.getElementById("wave");
+      for (var i = 0; i < N; i++) {
+        var slice = document.createElement("div");
+        slice.className = "slice";
+        // den högra remsan (i = N-1) startar först
+        slice.style.animationDelay = ((N - 1 - i) * STEP) + "s";
+        var img = document.createElement("img");
+        img.src = "/krunk-wave.png";
+        img.alt = "";
+        img.style.left = (-i * 100) + "%";
+        slice.appendChild(img);
+        wave.appendChild(slice);
+      }
+    })();
+  </script>
 </body>
 </html>
