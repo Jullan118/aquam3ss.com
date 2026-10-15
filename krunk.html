@@ -10,7 +10,6 @@
   <style>
     :root {
       --bg: #221f20;
-      --blue: #1f5bff;
       --text: #e8e6df;
     }
 
@@ -32,19 +31,24 @@
       place-items: center;
     }
 
-    /* Vågen: startar dold och "ritas in" från vänster när sidan laddas */
-    .wave {
+    /* Yttre lager: glider in från höger och stannar i mitten */
+    .wave-wrap {
       width: min(92vw, 1400px);
-      height: auto;
+      animation: enter 3s cubic-bezier(.2, .7, .1, 1) 0.2s both;
+    }
+
+    /* Inre lager: hela vågen rör sig långsamt upp och ned */
+    .wave {
       display: block;
-      clip-path: inset(0 100% 0 0);
-      animation: reveal 2.6s cubic-bezier(.6, 0, .2, 1) 0.2s forwards,
-                 drift 14s ease-in-out 2.8s infinite alternate;
+      width: 100%;
+      height: auto;
+      animation: drift 14s ease-in-out 3.2s infinite alternate;
       filter: drop-shadow(0 0 12px rgba(31, 91, 255, 0.35));
     }
 
-    @keyframes reveal {
-      to { clip-path: inset(0 0 0 0); }
+    @keyframes enter {
+      from { transform: translateX(70vw); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
     }
 
     @keyframes drift {
@@ -62,7 +66,7 @@
       font-size: clamp(14px, 1.6vw, 20px);
       letter-spacing: 0.4em;
       opacity: 0;
-      animation: fade 1.2s ease 2.6s forwards;
+      animation: fade 1.2s ease 3.2s forwards;
     }
 
     .back {
@@ -82,7 +86,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .wave { animation: none; clip-path: none; }
+      .wave-wrap, .wave { animation: none; }
       .label { animation: none; opacity: 0.85; }
     }
   </style>
@@ -91,8 +95,10 @@
   <a class="back" href="index.html">← aquam3ss</a>
 
   <main class="hero">
-    <!-- Vågbilden ligger bredvid den här filen som krunk-wave.jpg -->
-    <img class="wave" src="krunk-wave.jpg" alt="KRUNK våg">
+    <div class="wave-wrap">
+      <!-- krunk-wave.png är vågen med bakgrunden borttagen (transparent) -->
+      <img class="wave" src="krunk-wave.png" alt="KRUNK våg">
+    </div>
     <div class="label">KRUNK</div>
   </main>
 </body>
