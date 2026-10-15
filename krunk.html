@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KRUNK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #221f20;
+      --blue: #1f5bff;
+      --text: #e8e6df;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Archivo", system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Vågen: startar dold och "ritas in" från vänster när sidan laddas */
+    .wave {
+      width: min(92vw, 1400px);
+      height: auto;
+      display: block;
+      clip-path: inset(0 100% 0 0);
+      animation: reveal 2.6s cubic-bezier(.6, 0, .2, 1) 0.2s forwards,
+                 drift 14s ease-in-out 2.8s infinite alternate;
+      filter: drop-shadow(0 0 12px rgba(31, 91, 255, 0.35));
+    }
+
+    @keyframes reveal {
+      to { clip-path: inset(0 0 0 0); }
+    }
+
+    @keyframes drift {
+      from { transform: translateY(-6px); }
+      to   { transform: translateY(6px); }
+    }
+
+    .label {
+      position: absolute;
+      bottom: 6vh;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-weight: 800;
+      font-size: clamp(14px, 1.6vw, 20px);
+      letter-spacing: 0.4em;
+      opacity: 0;
+      animation: fade 1.2s ease 2.6s forwards;
+    }
+
+    .back {
+      position: fixed;
+      top: 24px;
+      left: 28px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0.7;
+    }
+    .back:hover { opacity: 1; }
+
+    @keyframes fade {
+      to { opacity: 0.85; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wave { animation: none; clip-path: none; }
+      .label { animation: none; opacity: 0.85; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="index.html">← aquam3ss</a>
+
+  <main class="hero">
+    <!-- Vågbilden ligger bredvid den här filen som krunk-wave.jpg -->
+    <img class="wave" src="krunk-wave.jpg" alt="KRUNK våg">
+    <div class="label">KRUNK</div>
+  </main>
+</body>
+</html>
