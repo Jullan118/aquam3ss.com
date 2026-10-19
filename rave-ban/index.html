@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KRUNK</title>
+  <title>Rave-Ban</title>
   <style>
     :root {
       --bg: #221f20;
@@ -55,7 +55,7 @@
   <a class="back" href="/">← aquam3ss</a>
 
   <main class="hero">
-    <div class="wave" id="wave" role="img" aria-label="KRUNK våg">
+    <div class="wave" id="wave" role="img" aria-label="Rave-Ban våg">
       <canvas id="c"></canvas>
     </div>
   </main>
@@ -71,7 +71,7 @@
       var AMP = 0.03;         // andningens amplitud, andel av vågens höjd
       var WK = 1.6;           // antal vågtoppar över vågens bredd
 
-      var W = 3228, H = 354;  // bildens storlek (krunk-wave.png)
+      var W = 3228, H = 354;  // bildens storlek (rave-ban-wave.png)
       var RATIO = H / W;
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -181,7 +181,7 @@
         resize();
         if (!reduce) requestAnimationFrame(frame);
       };
-      img.src = "/krunk-wave.png";
+      img.src = "/rave-ban-wave.png";
 
       window.addEventListener("resize", resize);
     })();
