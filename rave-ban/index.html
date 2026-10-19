@@ -45,6 +45,31 @@
       pointer-events: none;
     }
 
+    /* --- 3D product viewer, drag to turn, scroll/pinch to zoom --- */
+    .viewer {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+    }
+    #viewer-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      touch-action: none;
+    }
+    #viewer-canvas:active { cursor: grabbing; }
+    .viewer-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
     .back {
       position: fixed;
       z-index: 10;
@@ -58,6 +83,14 @@
     }
     .back:hover { opacity: 1; }
   </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
   <a class="back" href="/">← aquam3ss</a>
@@ -66,6 +99,11 @@
     <main class="hero">
       <img class="avatar" id="avatar" src="avatar.png" alt="Avatar av Julia">
     </main>
+  </section>
+
+  <section class="viewer">
+    <canvas id="viewer-canvas" aria-label="3D-modell av glasögonen"></canvas>
+    <div class="viewer-hint">dra för att vrida · scrolla för att zooma</div>
   </section>
 
   <script>
@@ -95,6 +133,73 @@
       window.addEventListener("resize", update);
       update();
     })();
+  </script>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+    var canvas = document.getElementById("viewer-canvas");
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+    var scene = new THREE.Scene();
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    var camera = new THREE.PerspectiveCamera(35, 1, 0.01, 1000);
+
+    var controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enablePan = false;
+    controls.minDistance = 0.3;
+    controls.maxDistance = 20;
+
+    function resize() {
+      var w = canvas.clientWidth;
+      var h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    var loader = new GLTFLoader();
+    loader.load("model.glb", function (gltf) {
+      var model = gltf.scene;
+      scene.add(model);
+
+      // center the model and fit the camera to it
+      var box = new THREE.Box3().setFromObject(model);
+      var size = box.getSize(new THREE.Vector3());
+      var center = box.getCenter(new THREE.Vector3());
+      model.position.sub(center);
+
+      var radius = Math.max(size.x, size.y, size.z) / 2;
+      var dist = radius / Math.sin((camera.fov * Math.PI / 180) / 2);
+      camera.position.set(0, 0, dist * 1.1);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }, undefined, function (err) {
+      console.error("Kunde inte ladda modellen:", err);
+    });
+
+    var light = new THREE.DirectionalLight(0xffffff, 0.6);
+    light.position.set(2, 3, 4);
+    scene.add(light);
+
+    function animate() {
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
   </script>
 </body>
 </html>
