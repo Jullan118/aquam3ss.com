@@ -13,28 +13,36 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      height: 100%;
       background: var(--bg);
       color: var(--text);
       font-family: "Archivo", system-ui, sans-serif;
-      overflow: hidden;
+    }
+
+    /* scroll distance that drives one full spin */
+    .hero-scroll {
+      position: relative;
+      height: 300vh;
     }
 
     .hero {
-      position: relative;
-      z-index: 0;
+      position: sticky;
+      top: 0;
       height: 100vh;
       width: 100%;
       display: grid;
       place-items: center;
+      perspective: 1400px;
+      overflow: hidden;
     }
 
-    .wave {
-      width: min(92vw, 1400px);
-    }
-
-    .wave canvas {
+    .avatar {
+      height: 82vh;
+      width: auto;
+      max-width: 92vw;
       display: block;
+      will-change: transform;
+      transform-style: preserve-3d;
+      pointer-events: none;
     }
 
     .back {
@@ -54,136 +62,38 @@
 <body>
   <a class="back" href="/">← aquam3ss</a>
 
-  <main class="hero">
-    <div class="wave" id="wave" role="img" aria-label="Rave-Ban våg">
-      <canvas id="c"></canvas>
-    </div>
-  </main>
+  <section class="hero-scroll" id="heroScroll">
+    <main class="hero">
+      <img class="avatar" id="avatar" src="avatar.png" alt="Avatar av Julia">
+    </main>
+  </section>
 
   <script>
     (function () {
-      // ---- Inställningar ----
-      var K = 14000;          // antal partiklar
-      var L = 7;              // en partikels hela livscykel i sekunder: in, vila, ut
-      var TRAVEL = 1.8;       // hur länge en partikel åker in från höger
-      var HOLD_END = 5.0;     // till och med denna tid sitter partikeln kvar i formen
-      var P = 4.2;            // andningens period i sekunder
-      var AMP = 0.03;         // andningens amplitud, andel av vågens höjd
-      var WK = 1.6;           // antal vågtoppar över vågens bredd
+      var wrapper = document.getElementById("heroScroll");
+      var avatar  = document.getElementById("avatar");
 
-      var W = 3228, H = 354;  // bildens storlek (rave-ban-wave.png)
-      var RATIO = H / W;
-      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-      var canvas = document.getElementById("c");
-      var ctx = canvas.getContext("2d");
-      var box = document.getElementById("wave");
-      var cssW = 0, cssH = 0;
-      var homes = [];
-
-      function resize() {
-        var w = box.clientWidth;
-        var h = w * RATIO;
-        var dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-        canvas.style.width = w + "px";
-        canvas.style.height = h + "px";
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        cssW = w;
-        cssH = h;
-        if (reduce) drawStatic();
+      function update() {
+        var rect = wrapper.getBoundingClientRect();
+        var scrollable = wrapper.offsetHeight - window.innerHeight;
+        var scrolled = clamp(-rect.top, 0, scrollable);
+        var overall = scrollable > 0 ? scrolled / scrollable : 0;
+        // one full turn (360deg) across the scroll distance
+        avatar.style.transform = "rotateY(" + (overall * 360) + "deg)";
       }
 
-      function easeOut(k) { return 1 - Math.pow(1 - k, 3); }
-      function easeIn(k) { return k * k * k; }
-
-      function dotSize() { return Math.max(1.4, cssW / 1100); }
-
-      function drawStatic() {
-        ctx.clearRect(0, 0, cssW, cssH);
-        ctx.fillStyle = "#1f5bff";
-        var s = dotSize();
-        for (var i = 0; i < homes.length; i++) {
-          var h = homes[i];
-          ctx.fillRect(h.hx * cssW, h.hy * cssH, s, s);
+      var ticking = false;
+      window.addEventListener("scroll", function () {
+        if (!ticking) {
+          requestAnimationFrame(function () { update(); ticking = false; });
+          ticking = true;
         }
-      }
+      }, { passive: true });
 
-      function frame(now) {
-        var t = now / 1000;
-        ctx.clearRect(0, 0, cssW, cssH);
-        ctx.fillStyle = "#1f5bff";
-        var s = dotSize();
-        var TWO_PI = Math.PI * 2;
-
-        for (var i = 0; i < homes.length; i++) {
-          var h = homes[i];
-          var u = (t + h.off) % L;
-          var x, alpha;
-
-          if (u < TRAVEL) {
-            // in från höger till sin plats
-            var k = easeOut(u / TRAVEL);
-            x = 1.08 + (h.hx - 1.08) * k;
-            alpha = Math.min(1, k * 2.5);
-          } else if (u < HOLD_END) {
-            // sitter kvar i formen
-            x = h.hx;
-            alpha = 1;
-          } else {
-            // åker ut åt vänster och tonar bort
-            var k2 = easeIn((u - HOLD_END) / (L - HOLD_END));
-            x = h.hx + (-0.08 - h.hx) * k2;
-            alpha = 1 - k2;
-          }
-
-          // andning: hela vågen går upp och ned tillsammans, med en våg längs x-axeln
-          var dy = AMP * Math.sin(TWO_PI * t / P - h.hx * WK * TWO_PI);
-
-          ctx.globalAlpha = alpha;
-          ctx.fillRect(x * cssW, (h.hy + dy) * cssH, s, s);
-        }
-        ctx.globalAlpha = 1;
-        requestAnimationFrame(frame);
-      }
-
-      var img = new Image();
-      img.onload = function () {
-        var c = document.createElement("canvas");
-        c.width = W;
-        c.height = H;
-        var cx = c.getContext("2d");
-        cx.drawImage(img, 0, 0);
-        var data = cx.getImageData(0, 0, W, H).data;
-
-        // alla synliga pixlar i vågen
-        var idx = [];
-        for (var p = 0; p < W * H; p++) {
-          if (data[p * 4 + 3] > 128) idx.push(p);
-        }
-
-        // slumpa ut K stycken som partiklar
-        var n = Math.min(K, idx.length);
-        for (var s = 0; s < n; s++) {
-          var r = s + Math.floor(Math.random() * (idx.length - s));
-          var tmp = idx[s]; idx[s] = idx[r]; idx[r] = tmp;
-        }
-        for (var j = 0; j < n; j++) {
-          var q = idx[j];
-          homes.push({
-            hx: (q % W) / W,
-            hy: Math.floor(q / W) / H,
-            off: Math.random() * L
-          });
-        }
-
-        resize();
-        if (!reduce) requestAnimationFrame(frame);
-      };
-      img.src = "/rave-ban-wave.png";
-
-      window.addEventListener("resize", resize);
+      window.addEventListener("resize", update);
+      update();
     })();
   </script>
 </body>

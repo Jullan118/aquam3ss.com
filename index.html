@@ -11,6 +11,7 @@
   :root{
     --bg: #ffffff;
     --grey: #a3a3a3;
+    --card-bg: #1c1c1e;
   }
   *{ box-sizing: border-box; }
   html, body{
@@ -70,10 +71,10 @@
     text-decoration: none;
   }
 
-  /* --- hero: grey name in the background, spinning avatar on top --- */
+  /* --- the pinned scroll-stack section --- */
   .hero-scroll{
     position: relative;
-    height: 300vh; /* scroll distance that drives one full spin */
+    height: 980vh; /* 100vh release buffer + 16 cards * 55vh each */
   }
   .hero-sticky{
     position: sticky;
@@ -83,7 +84,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1400px;
   }
 
   .hero-text{
@@ -100,19 +100,30 @@
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--grey);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .hero-text span.visible{
+    opacity: 1;
+    transform: translateY(0);
   }
 
-  .avatar{
-    position: relative;
-    z-index: 1;
-    height: 82vh;
-    width: auto;
-    max-width: 92vw;
-    display: block;
-    mix-blend-mode: multiply;   /* white background disappears, blue lines stay */
-    transform-style: preserve-3d;
+  .card{
+    position: absolute;
+    inset: 0; /* full-bleed: fills the entire pinned viewport, edge to edge */
+    overflow: hidden;
     will-change: transform;
-    pointer-events: none;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
   .scroll-hint{
@@ -149,10 +160,57 @@
     <div class="hero-sticky">
 
       <div class="hero-text">
-        <span>@aquam3ss</span>
+        <span id="heroText">@aquam3ss</span>
       </div>
 
-      <img class="avatar" id="avatar" src="avatar.png" alt="Avatar av Julia">
+      <div class="card" data-card>
+        <img src="hero-01.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-02.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-03.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-04.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-05.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-06.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-07.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-08.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-09.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-10.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-11.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-12.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-13.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-14.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-15.jpg" alt="">
+      </div>
+      <div class="card" data-card>
+        <img src="hero-16.jpg" alt="">
+      </div>
 
     </div>
   </section>
@@ -161,9 +219,17 @@
 
 <script>
 (function(){
-  const wrapper    = document.getElementById('heroScroll');
-  const avatar     = document.getElementById('avatar');
-  const scrollHint = document.getElementById('scrollHint');
+  const wrapper   = document.getElementById('heroScroll');
+  const cards     = Array.from(document.querySelectorAll('[data-card]'));
+  const heroText  = document.getElementById('heroText');
+  const scrollHint= document.getElementById('scrollHint');
+  const n         = cards.length;
+
+  cards.forEach((card, i) => {
+    card.style.zIndex = n - i;
+  });
+
+  const EXIT_DISTANCE = 105; // vh the card travels while exiting
 
   function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
@@ -173,8 +239,20 @@
     const scrolled = clamp(-rect.top, 0, scrollable);
     const overall = scrollable > 0 ? scrolled / scrollable : 0;
 
-    // one full turn (360deg) across the scroll distance
-    avatar.style.transform = `rotateY(${overall * 360}deg)`;
+    const segment = 1 / n;
+
+    cards.forEach((card, i) => {
+      const raw = (overall - i * segment) / segment;
+      const p = clamp(raw, 0, 1);
+
+      const translateY = -p * EXIT_DISTANCE;
+
+      card.style.transform = `translateY(${translateY}vh)`;
+      card.style.opacity = p >= 1 ? 0 : 1;
+    });
+
+    const lastCardProgress = clamp((overall - (n - 1) * segment) / segment, 0, 1);
+    heroText.classList.toggle('visible', lastCardProgress >= 0.98);
 
     scrollHint.style.opacity = overall > 0.03 ? '0' : '1';
   }
