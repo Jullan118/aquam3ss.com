@@ -31,17 +31,14 @@
       width: 100%;
       display: grid;
       place-items: center;
-      perspective: 1400px;
       overflow: hidden;
     }
 
+    /* 3D avatar, drawn with WebGL */
     .avatar {
-      height: 82vh;
-      width: auto;
-      max-width: 92vw;
       display: block;
-      will-change: transform;
-      transform-style: preserve-3d;
+      height: 82vh;
+      width: min(92vw, 80vh);
       pointer-events: none;
     }
 
@@ -97,7 +94,7 @@
 
   <section class="hero-scroll" id="heroScroll">
     <main class="hero">
-      <img class="avatar" id="avatar" src="avatar.png" alt="Avatar av Julia">
+      <canvas class="avatar" id="avatar3d" aria-label="Avatar av Julia"></canvas>
     </main>
   </section>
 
@@ -106,41 +103,170 @@
     <div class="viewer-hint">dra för att vrida · scrolla för att zooma</div>
   </section>
 
-  <script>
-    (function () {
-      var wrapper = document.getElementById("heroScroll");
-      var avatar  = document.getElementById("avatar");
-
-      function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
-      function update() {
-        var rect = wrapper.getBoundingClientRect();
-        var scrollable = wrapper.offsetHeight - window.innerHeight;
-        var scrolled = clamp(-rect.top, 0, scrollable);
-        var overall = scrollable > 0 ? scrolled / scrollable : 0;
-        // one full turn (360deg) across the scroll distance
-        avatar.style.transform = "rotateY(" + (overall * 360) + "deg)";
-      }
-
-      var ticking = false;
-      window.addEventListener("scroll", function () {
-        if (!ticking) {
-          requestAnimationFrame(function () { update(); ticking = false; });
-          ticking = true;
-        }
-      }, { passive: true });
-
-      window.addEventListener("resize", update);
-      update();
-    })();
-  </script>
-
   <script type="module">
     import * as THREE from "three";
-    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-    import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
+    // ---------- 3D avatar (scroll spins it) ----------
+    var heroWrap = document.getElementById("heroScroll");
+    var avatarCanvas = document.getElementById("avatar3d");
+
+    var rendA = new THREE.WebGLRenderer({ canvas: avatarCanvas, antialias: true, alpha: true });
+    rendA.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    rendA.outputColorSpace = THREE.SRGBColorSpace;
+
+    var sceneA = new THREE.Scene();
+    var camA = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    camA.position.z = 2.6;
+
+    var holder = new THREE.Group();
+    holder.rotation.x = 0.1;   // slight tilt so the 3D shape reads
+    sceneA.add(holder);
+
+    sceneA.add(new THREE.HemisphereLight(0xffffff, 0x222222, 1.1));
+    var key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(1.5, 2, 3);
+    sceneA.add(key);
+    var rim = new THREE.DirectionalLight(0x9fb8ff, 0.8);
+    rim.position.set(-2, 1, -2);
+    sceneA.add(rim);
+
+    function sizeAvatar() {
+      var w = avatarCanvas.clientWidth;
+      var h = avatarCanvas.clientHeight;
+      rendA.setSize(w, h, false);
+      camA.aspect = w / h;
+      camA.position.z = 2.6 * Math.max(1, 0.9 / camA.aspect);  // keep it in view on narrow screens
+      camA.updateProjectionMatrix();
+    }
+    window.addEventListener("resize", sizeAvatar);
+    sizeAvatar();
+
+    // Turn the drawing into a 3D relief: lines are raised, the plate is domed
+    // toward its edges. Built from avatar.png at load time.
+    function buildRelief(img) {
+      var W = 240;
+      var H = Math.round(240 * img.naturalHeight / img.naturalWidth);
+      var N = W * H;
+
+      var src = document.createElement("canvas");
+      src.width = W; src.height = H;
+      var sc = src.getContext("2d");
+      sc.drawImage(img, 0, 0, W, H);
+      var px = sc.getImageData(0, 0, W, H).data;
+
+      var isLine = new Uint8Array(N);
+      for (var i = 0; i < N; i++) isLine[i] = px[i * 4 + 3] > 90 ? 1 : 0;
+
+      // distance (in pixels) from the picture edge, used for the domed shape
+      var dist = new Int32Array(N).fill(-1);
+      var q = new Int32Array(N);
+      var qh = 0, qt = 0;
+      function seedPixel(j) { if (dist[j] < 0) { dist[j] = 0; q[qt++] = j; } }
+      for (var x = 0; x < W; x++) { seedPixel(x); seedPixel((H - 1) * W + x); }
+      for (var y = 0; y < H; y++) { seedPixel(y * W); seedPixel(y * W + W - 1); }
+      while (qh < qt) {
+        var cur = q[qh++];
+        var cx = cur % W, cy = (cur / W) | 0, d = dist[cur] + 1;
+        if (cx > 0)     { if (dist[cur - 1] < 0) { dist[cur - 1] = d; q[qt++] = cur - 1; } }
+        if (cx < W - 1) { if (dist[cur + 1] < 0) { dist[cur + 1] = d; q[qt++] = cur + 1; } }
+        if (cy > 0)     { if (dist[cur - W] < 0) { dist[cur - W] = d; q[qt++] = cur - W; } }
+        if (cy < H - 1) { if (dist[cur + W] < 0) { dist[cur + W] = d; q[qt++] = cur + W; } }
+      }
+
+      // soft version of the lines, so the raised strokes have smooth edges
+      var bump = new Float32Array(N);
+      for (var yy = 0; yy < H; yy++) {
+        for (var xx = 0; xx < W; xx++) {
+          var s = 0, c = 0;
+          for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+            var nx = xx + dx, ny = yy + dy;
+            if (nx >= 0 && nx < W && ny >= 0 && ny < H) { s += isLine[ny * W + nx]; c++; }
+          }
+          bump[yy * W + xx] = s / c;
+        }
+      }
+
+      var R = 0.42 * Math.min(W, H);
+      var height = new Float32Array(N);
+      for (var k = 0; k < N; k++) {
+        var e = Math.min(dist[k] / R, 1);
+        height[k] = Math.sqrt(e) * 0.8 + bump[k] * 0.06;
+      }
+
+      // soft rounded outline: a superellipse mask (cuts the corners)
+      var inside = new Uint8Array(N);
+      for (var g = 0; g < N; g++) {
+        var gx = ((g % W) + 0.5) / W * 2 - 1;
+        var gy = ((g / W | 0) + 0.5) / H * 2 - 1;
+        inside[g] = (Math.pow(Math.abs(gx), 4) + Math.pow(Math.abs(gy), 4)) <= 1 ? 1 : 0;
+        if (!inside[g]) height[g] = 0;
+      }
+
+      // smooth the height so the shape has no sharp creases
+      for (var pass = 0; pass < 4; pass++) {
+        var tmp = new Float32Array(N);
+        for (var sy = 0; sy < H; sy++) {
+          for (var sx = 0; sx < W; sx++) {
+            var t = 0, cnt = 0;
+            for (var ddy = -1; ddy <= 1; ddy++) for (var ddx = -1; ddx <= 1; ddx++) {
+              var ax = sx + ddx, ay = sy + ddy;
+              if (ax >= 0 && ax < W && ay >= 0 && ay < H) { t += height[ay * W + ax]; cnt++; }
+            }
+            tmp[sy * W + sx] = t / cnt;
+          }
+        }
+        height = tmp;
+      }
+
+      // texture: blue lines on a dark grey plate
+      var tc = document.createElement("canvas");
+      tc.width = W; tc.height = H;
+      var tx = tc.getContext("2d");
+      var out = tx.createImageData(W, H);
+      var o = out.data;
+      for (var m = 0; m < N; m++) {
+        var p = m * 4;
+        if (isLine[m]) {
+          o[p] = 31; o[p + 1] = 91; o[p + 2] = 255;
+        } else {
+          var shade = 40 + Math.round(height[m] * 18);
+          o[p] = shade + 4; o[p + 1] = shade; o[p + 2] = shade + 1;
+        }
+        o[p + 3] = inside[m] ? 255 : 0;
+      }
+      tx.putImageData(out, 0, 0);
+
+      var tex = new THREE.CanvasTexture(tc);
+      tex.colorSpace = THREE.SRGBColorSpace;
+
+      var geo = new THREE.PlaneGeometry(1, H / W, W - 1, H - 1);
+      var pos = geo.attributes.position;
+      var DEPTH = 0.22;
+      for (var v = 0; v < N; v++) pos.setZ(v, height[v] * DEPTH);
+      geo.computeVertexNormals();
+
+      var mat = new THREE.MeshStandardMaterial({
+        map: tex, roughness: 0.5, metalness: 0.05, side: THREE.DoubleSide,
+        alphaTest: 0.5
+      });
+      return new THREE.Mesh(geo, mat);
+    }
+
+    var avatarImg = new Image();
+    avatarImg.onload = function () {
+      holder.add(buildRelief(avatarImg));
+      sizeAvatar();
+    };
+    avatarImg.src = "avatar.png";
+
+    function scrollProgress() {
+      var r = heroWrap.getBoundingClientRect();
+      var total = heroWrap.offsetHeight - window.innerHeight;
+      if (total <= 0) return 0;
+      return Math.min(Math.max(-r.top / total, 0), 1);
+    }
+
+    // ---------- 3D product viewer (glasses) ----------
     var canvas = document.getElementById("viewer-canvas");
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -148,55 +274,73 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
     var scene = new THREE.Scene();
-    var pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-
     var camera = new THREE.PerspectiveCamera(35, 1, 0.01, 1000);
 
-    var controls = new OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.enablePan = false;
-    controls.minDistance = 0.3;
-    controls.maxDistance = 20;
+    // OrbitControls is loaded lazily so the avatar still works if it fails
+    Promise.all([
+      import("three/addons/controls/OrbitControls.js"),
+      import("three/addons/loaders/GLTFLoader.js"),
+      import("three/addons/environments/RoomEnvironment.js")
+    ]).then(function (mods) {
+      var OrbitControls = mods[0].OrbitControls;
+      var GLTFLoader = mods[1].GLTFLoader;
+      var RoomEnvironment = mods[2].RoomEnvironment;
 
-    function resize() {
+      var pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+      var controls = new OrbitControls(camera, canvas);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.enablePan = false;
+      controls.minDistance = 0.3;
+      controls.maxDistance = 20;
+
+      new GLTFLoader().load("model.glb", function (gltf) {
+        var model = gltf.scene;
+        scene.add(model);
+
+        var box = new THREE.Box3().setFromObject(model);
+        var size = box.getSize(new THREE.Vector3());
+        var center = box.getCenter(new THREE.Vector3());
+        model.position.sub(center);
+
+        var radius = Math.max(size.x, size.y, size.z) / 2;
+        var dist = radius / Math.sin((camera.fov * Math.PI / 180) / 2);
+        camera.position.set(0, 0, dist * 1.1);
+        controls.target.set(0, 0, 0);
+        controls.update();
+      }, undefined, function (err) {
+        console.error("Kunde inte ladda modellen:", err);
+      });
+
+      viewerLoop = function () {
+        controls.update();
+        renderer.render(scene, camera);
+      };
+    });
+
+    function resizeViewer() {
       var w = canvas.clientWidth;
       var h = canvas.clientHeight;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     }
-    window.addEventListener("resize", resize);
-    resize();
-
-    var loader = new GLTFLoader();
-    loader.load("model.glb", function (gltf) {
-      var model = gltf.scene;
-      scene.add(model);
-
-      // center the model and fit the camera to it
-      var box = new THREE.Box3().setFromObject(model);
-      var size = box.getSize(new THREE.Vector3());
-      var center = box.getCenter(new THREE.Vector3());
-      model.position.sub(center);
-
-      var radius = Math.max(size.x, size.y, size.z) / 2;
-      var dist = radius / Math.sin((camera.fov * Math.PI / 180) / 2);
-      camera.position.set(0, 0, dist * 1.1);
-      controls.target.set(0, 0, 0);
-      controls.update();
-    }, undefined, function (err) {
-      console.error("Kunde inte ladda modellen:", err);
-    });
+    window.addEventListener("resize", resizeViewer);
+    resizeViewer();
 
     var light = new THREE.DirectionalLight(0xffffff, 0.6);
     light.position.set(2, 3, 4);
     scene.add(light);
 
+    var viewerLoop = function () { renderer.render(scene, camera); };
+
+    // ---------- one loop for everything ----------
     function animate() {
-      controls.update();
-      renderer.render(scene, camera);
+      holder.rotation.y = scrollProgress() * Math.PI * 2;   // one full turn while scrolling
+      rendA.render(sceneA, camA);
+      viewerLoop();
       requestAnimationFrame(animate);
     }
     animate();
