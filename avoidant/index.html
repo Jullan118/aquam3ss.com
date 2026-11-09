@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:1100vh;
+    height:1200vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -54,12 +54,13 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:40px;
+    gap:28px;
     pointer-events:none;
     z-index:5;
   }
   .black-figure{
     width:100%;
+    max-width:640px;
     height:auto;
     opacity:0;
   }
@@ -190,6 +191,8 @@
   <div class="black-stack" id="black-stack">
     <p class="black-text" id="black-text">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
     <img class="black-figure" id="black-figure" src="avoidant-black-diagram.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
+    <p class="black-text black-findings" id="black-findings">Findings: ~10 mm as a central value and void height as the primary diﬀuseness control. Pattern depths of 1–4 mm all produced visible diﬀuseness, with 2 layers yielding the strongest spray eﬀect. Layer introduced a spatial gradient in spray intensity across the print, making inclination an eﬀective tool for modulating directional diﬀusion. Printhead motion was found to amplify droplet drift.</p>
+    <img class="black-figure black-patterns" id="black-patterns" src="avoidant-black-patterns.jpg" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers">
   </div>
 </section>
 </div>
@@ -218,6 +221,7 @@
   let u3 = 0;                       // phase 3: the phrase fades out
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
   let u6 = 0;                       // phase 6: more black streaks fill the screen, until it is black
+  let u7 = 0;                       // phase 7: the findings come up under the diagram
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
@@ -226,6 +230,8 @@
   const centerEl = document.getElementById('hero-center');
   const blackText = document.getElementById('black-text');
   const blackFig = document.getElementById('black-figure');
+  const blackFindings = document.getElementById('black-findings');
+  const blackPatterns = document.getElementById('black-patterns');
   const phraseEl = document.getElementById('hero-phrase');
   const restEls = document.querySelectorAll('.ph-rest');
 
@@ -336,6 +342,8 @@
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
     blackText.style.opacity = smooth(0.8, 0.9, u6);  // once the screen is black, the text comes up
     blackFig.style.opacity = smooth(0.9, 1, u6);     // then the diagram, centred below it
+    blackFindings.style.opacity = smooth(0, 0.6, u7); // then the findings, under the diagram
+    blackPatterns.style.opacity = smooth(0.6, 1, u7); // and the test prints last
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
   }
 
@@ -494,6 +502,7 @@
     u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
     u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
     u6 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 6: 2 screens, more black streaks fill the screen until it is black
+    u7 = Math.min(1, Math.max(0, (y - vh * 10) / vh));         // phase 7: 1 screen, the findings come up
     if (reduce) {
       p = pTarget;
       draw(0);
