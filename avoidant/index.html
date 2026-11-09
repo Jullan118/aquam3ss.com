@@ -36,7 +36,16 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:1000vh;
+    height:1200vh;
+  }
+  .hero-full{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    opacity:0;
+    pointer-events:none;
   }
   .ph-logic{
     display:inline-block;
@@ -185,6 +194,7 @@
 <div class="glitter-track">
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
+  <img id="hero-full" class="hero-full" src="avoidant-final.jpg" alt="diagram of material jetting layers with void layers between the printed layers">
   <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
@@ -198,8 +208,8 @@
   <div class="story">
     <p>Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
     <img class="story-figure" src="avoidant-figure-2.png" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers" loading="lazy">
-    <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
     <p><strong>Research question:</strong> Can void height, pattern depth, and void inclination be encoded as designable parameters to control a spray-like, diffuse surface effect in MJT?</p>
+    <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
     <h3>Method</h3>
     <p><strong>Experimental Fabrication:</strong> Three print series were produced (Figure 4) to isolate void height, pattern depth, and inclination as independent variables.</p>
     <p><strong>Structural Investigation:</strong> Surface character, from ordered to diffuse, spray-like is compared across void height, pattern depth, and inclination.</p>
@@ -233,6 +243,8 @@
   let u2 = 0;                       // phase 2: the phrase moves to the middle
   let u3 = 0;                       // phase 3: the phrase fades out
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
+  let u5 = 0;                       // phase 5: the streaks sweep back out to white, the final image arrives
+  const imgEl = document.getElementById('hero-full');
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
@@ -343,6 +355,7 @@
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
+    imgEl.style.opacity = smooth(0.9, 1, u5);        // the final image arrives on the white screen
   }
 
   function drawGlitter(time){
@@ -385,13 +398,13 @@
 
   // Phase 4: the header's glitter run in reverse. Black horizontal streaks
   // sweep in row by row, from alternating edges, until the white screen is black.
-  function drawStreaks(){
+  function drawStreaks(cov){
     const row = rowSize();
     ctx.fillStyle = '#111111';
     for (let y = 0; y < H; y += row) {
       const band = Math.floor(y / (row * 9));
       const rt = rowThreshold(y, row);
-      const k = smooth(rt, rt + 0.25, u4);
+      const k = smooth(rt, rt + 0.25, cov);
       if (k <= 0) continue;
       const w = W * k;
       const x = band % 2 ? W - w : 0;
@@ -420,13 +433,13 @@
   }
 
   // the drawing appears in the order the header's glitter dissolved, but in reverse
-  function drawDrawing(time){
-    const amp = 1.5 + 6 * u4;
+  function drawDrawing(time, cov){
+    const amp = 1.5 + 6 * cov;
     ctx.fillStyle = '#ffffff';
     const sparks = [];
     for (let i = 0; i < drawing.length; i++) {
       const q = drawing[i];
-      if (q.t > u4) continue;                        // not yet built
+      if (q.t > cov) continue;                       // not built (yet, or any more)
       if (q.kind === 'bar') {
         let dx = Math.sin(time * q.f + q.ph) * amp * 0.6;
         if (Math.sin(time * 0.9 + q.band) > 0.985) dx += amp * 3;
@@ -449,7 +462,8 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     if (p < 1) drawGlitter(time);
-    if (u4 > 0) { drawStreaks(); drawDrawing(time); }
+    const cov = u4 * (1 - u5);                       // 0 = white, 1 = fully streaked
+    if (cov > 0) { drawStreaks(cov); drawDrawing(time, cov); }
   }
 
   function frame(now){
@@ -479,7 +493,8 @@
     // 3..4 screens: hold, the sentence stays still
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));          // phase 2: 1 screen, phrase moves to the middle
     u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
-    u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the end image arrives
+    u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
+    u5 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 5: 2 screens, the streaks sweep back out, the final image arrives
     if (reduce) {
       p = pTarget;
       draw(0);
