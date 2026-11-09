@@ -64,6 +64,22 @@
     color:#ff0000;
     margin:0;
   }
+  /* sentence that appears in the middle of the white page once the glitter is gone */
+  .p-hero-center{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    width:min(640px, 84vw);
+    margin:0;
+    text-align:center;
+    font-size:clamp(18px, 2.2vw, 26px);
+    line-height:1.4;
+    color:#111;
+    opacity:0;
+    pointer-events:none;
+    z-index:5;
+  }
   .p-hero-caption{
     margin:6px 0 0;
     font-size:15px;
@@ -141,16 +157,16 @@
 <div class="glitter-track">
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
-  <div class="p-hero-title-block">
+  <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
   </div>
+  <p class="p-hero-center" id="hero-center">What happens when you intentionally leave? And what happens when that logic of omission becomes a material operation, when layers are deliberately left empty inside a voxel print?</p>
 </section>
 </div>
 
 <section class="info">
   <div class="story">
-    <p>What happens when you intentionally leave? And what happens when that logic of omission becomes a material operation, when layers are deliberately left empty inside a voxel print?</p>
     <p>Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
     <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
     <p>Supervised by TU Delft Computational Fabrication. Building on the bitmap workflow of Doubrovski et al. (2015).</p>
@@ -248,7 +264,20 @@
     return v - Math.floor(v);
   }
 
+  // title fades out as the glitter goes, the sentence fades in on the white page
+  const titleEl = document.getElementById('hero-title');
+  const centerEl = document.getElementById('hero-center');
+  function smooth(a, b, v){
+    const x = Math.min(1, Math.max(0, (v - a) / (b - a)));
+    return x * x * (3 - 2 * x);
+  }
+  function updateText(){
+    titleEl.style.opacity = 1 - smooth(0.6, 0.9, p);
+    centerEl.style.opacity = smooth(0.85, 1, p);
+  }
+
   function draw(time){
+    updateText();
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
