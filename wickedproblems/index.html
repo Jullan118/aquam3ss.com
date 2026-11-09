@@ -52,16 +52,23 @@
     display: block;
   }
   .wp-hero-title{
-    position: absolute;
-    left: 32px;
-    bottom: 40px;
-    z-index: 5;
     font-size: clamp(28px, 5vw, 56px);
     font-weight: 700;
     letter-spacing: -0.01em;
     color: #ff0000;
-    text-transform: lowercase;
     margin: 0;
+  }
+  .wp-hero-title-block{
+    position: absolute;
+    left: 32px;
+    bottom: 40px;
+    z-index: 5;
+  }
+  .wp-hero-caption{
+    margin: 6px 0 0;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #111;
   }
 
   /* --- shop section --- */
@@ -249,14 +256,13 @@
 
   <section class="wp-hero">
     <img src="/wickedproblems-hero.jpg" alt="wicked problems">
-    <h1 class="wp-hero-title">wicked problems</h1>
+    <div class="wp-hero-title-block">
+      <h1 class="wp-hero-title">Wicked problems</h1>
+      <p class="wp-hero-caption">Handmade ceramics, crafted in Sweden. A selection of pieces is available directly from limited stock.</p>
+    </div>
   </section>
 
   <section class="shop" id="shop">
-    <div class="shop-intro">
-      Handmade ceramics, crafted in Sweden. A selection of pieces is available directly from limited stock.
-    </div>
-
     <div class="shop-grid" id="shopGrid">
       <div class="product" data-name="Large candleholder" data-price="Get in touch" data-imgs="wp-triple-3.jpg,wp-triple-2.jpg,wp-triple-4.jpg,wp-triple-1.jpg">
         <div class="product-photo"><img src="/wp-triple-3.jpg" alt="Large candleholder"></div>
