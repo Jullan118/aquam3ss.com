@@ -152,45 +152,6 @@
   }
   .details-text p{ margin:0; }
 
-  .info{
-    background:#000000;
-    color:#ffffff;
-    padding:48px 32px 120px;
-    text-align:center;
-  }
-  .info-figure{
-    display:block;
-    width:100%;
-    max-width:1100px;
-    height:auto;
-    margin:0 auto 96px;
-  }
-  .story{
-    max-width:640px;
-    margin:0 auto;
-    font-size:15px;
-    line-height:1.6;
-  }
-  .story p{ margin:0 0 20px; }
-  .story h3{
-    font-size:15px;
-    font-weight:700;
-    margin:48px 0 20px;
-  }
-  .story-caption{
-    font-size:13px;
-    line-height:1.4;
-    margin:-24px 0 48px;
-  }
-  .story-figure{
-    display:block;
-    width:100%;
-    height:auto;
-    margin:48px 0;
-  }
-  .story p:last-child{ margin-bottom:0; }
-  .story p.lede{ color:#8c8c8c; text-align:center; }
-  .info-footer{text-align:right;font-size:11px;line-height:1.4;margin:64px 0 0;}
 
   @media (max-width:700px){
     .photos{ grid-template-columns:1fr; padding:64px 20px 0; }
@@ -215,26 +176,7 @@
 </section>
 </div>
 
-<section class="info">
-  <img class="info-figure" src="avoidant-diagram.jpg" alt="diagram of the print stack in three axes (x, y, z), with void layers left empty between the printed layers">
-  <div class="story">
-    <p class="lede">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
-    <img class="story-figure" src="avoidant-figure-2.png" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers" loading="lazy">
-    <p><strong>Research question:</strong> Can void height, pattern depth, and void inclination be encoded as designable parameters to control a spray-like, diffuse surface effect in MJT?</p>
-    <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
-    <h3>Method</h3>
-    <p><strong>Experimental Fabrication:</strong> Three print series were produced (Figure 4) to isolate void height, pattern depth, and inclination as independent variables.</p>
-    <p><strong>Structural Investigation:</strong> Surface character, from ordered to diffuse, spray-like is compared across void height, pattern depth, and inclination.</p>
-    <p><strong>Design Contribution:</strong> Findings from the print series were translated directly into parametric surface-finish controls within the Voxolotl workflow.</p>
-    <h3>Findings</h3>
-    <p>A void height of 8 mm produced sharper pattern boundaries while 12 mm caused greater droplet drift and a more diffuse surface, establishing ~10 mm as a central value and void height as the primary diffuseness control. Pattern depths of 1–4 mm all produced visible diffuseness, with 2 layers yielding the strongest spray effect, confirming pattern depth around 2 as a key strength parameter. Inclining the void layer introduced a spatial gradient in spray intensity across the print, making inclination an effective tool for modulating directional diffusion.</p>
-    <p>Printhead motion was found to amplify droplet drift and is therefore proposed as a spray drift angle slider within the tool, enabling designers to account for and exploit print-direction effects in the resulting surface texture.</p>
-    <p>All four parameters can therefore be encoded as controllable sliders within the Grasshopper workflow, creating a design space for adjustable spray-like surface effects (Figure 2).</p>
-    <img class="story-figure" src="avoidant-workflow.jpg" alt="workflow diagram: spray drift angle, surface diffuseness, pattern depth and spray inclination sliders feed a spray geometry node above split 1, a void zone between the splits, and a base body below split 2, leading to material, export to print and preview" loading="lazy">
-    <p class="story-caption">Figure 2: Proposed schematic workflow, where findings from exploratory print series inform controllable sliders for spray drift, surface diffuseness, pattern depth, and spray inclination.</p>
-  </div>
-  <p class="info-footer">Supervised by TU Delft Computational Fabrication. Building on the bitmap workflow of Doubrovski et al. (2015).</p>
-</section>
+
 
 <script>
 (function(){
