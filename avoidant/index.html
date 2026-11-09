@@ -33,8 +33,14 @@
   }
 
   /* --- full-bleed intro hero --- */
-  .p-hero{
+  /* tall track so the hero stays pinned while the glitter dissolves */
+  .glitter-track{
     position:relative;
+    height:400vh;
+  }
+  .p-hero{
+    position:sticky;
+    top:0;
     width:100vw;
     height:100vh;
     overflow:hidden;
@@ -132,6 +138,7 @@
 
 <a class="home-link" href="/">← aquam3ss</a>
 
+<div class="glitter-track">
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
   <div class="p-hero-title-block">
@@ -139,6 +146,7 @@
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
   </div>
 </section>
+</div>
 
 <section class="info">
   <div class="story">
@@ -297,9 +305,9 @@
   }
 
   function onScroll(){
-    // the page is only about one screen longer than the hero, so the dissolve
-    // completes within that scroll range rather than after the page has ended
-    const max = window.innerHeight * 0.6;
+    // the hero is pinned for three screens of scrolling, so the dissolve
+    // takes about five times as long as before
+    const max = window.innerHeight * 3;
     pTarget = Math.min(1, Math.max(0, window.scrollY / max));
     if (reduce) {
       p = pTarget;
