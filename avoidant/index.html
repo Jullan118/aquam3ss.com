@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:1100vh;
+    height:1200vh;
   }
   .hero-full{
     position:absolute;
@@ -45,6 +45,13 @@
     height:100%;
     object-fit:contain;
     opacity:0;
+    pointer-events:none;
+  }
+  .sweep-canvas{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
     pointer-events:none;
   }
   .ph-logic{
@@ -158,6 +165,7 @@
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
   <img id="hero-full" class="hero-full" src="avoidant-final.jpg" alt="diagram of material jetting layers with void layers between the printed layers">
+  <canvas id="sweep" class="sweep-canvas" aria-hidden="true"></canvas>
   <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
@@ -173,6 +181,8 @@
   const hero = document.querySelector('.p-hero');
   const canvas = document.getElementById('glitter');
   const ctx = canvas.getContext('2d');
+  const sweep = document.getElementById('sweep');
+  const sctx = sweep.getContext('2d');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const src = new Image();          // the glitter source
@@ -188,6 +198,7 @@
   let u3 = 0;                       // phase 3: the phrase fades out
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
   let u5 = 0;                       // phase 5: the streaks sweep back out to white, the final image arrives
+  let u6 = 0;                       // phase 6: black streaks fill the screen, until it is black
   const imgEl = document.getElementById('hero-full');
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
@@ -276,6 +287,11 @@
     canvas.style.width = W + 'px';
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sweep.width = W * dpr;
+    sweep.height = H * dpr;
+    sweep.style.width = W + 'px';
+    sweep.style.height = H + 'px';
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // cover-fit the glitter source into the hero, same as object-fit: cover
     const s = Math.max(W / src.naturalWidth, H / src.naturalHeight);
@@ -329,6 +345,23 @@
       for (let i = 0; i < sparks.length; i += 2) {
         ctx.fillRect(sparks[i], sparks[i + 1], 2.4, 2.4);
       }
+    }
+  }
+
+  // Phase 6: the same rows, filled in black, until the whole screen is black
+  function drawSweep(c){
+    sctx.clearRect(0, 0, W, H);
+    if (c <= 0) return;
+    const row = rowSize();
+    sctx.fillStyle = '#000000';
+    for (let y = 0; y < H; y += row) {
+      const band = Math.floor(y / (row * 9));
+      const rt = rowThreshold(y, row);
+      const k = smooth(rt, rt + 0.25, c);
+      if (k <= 0) continue;
+      const w = W * k;
+      const x = band % 2 ? W - w : 0;
+      sctx.fillRect(x, y, w, row + 0.5);   // full height, so no gaps show when black
     }
   }
 
@@ -408,6 +441,7 @@
     if (p < 1) drawGlitter(time);
     const cov = u4 * (1 - u5);                       // 0 = white, 1 = fully streaked
     if (cov > 0) { drawStreaks(cov); drawDrawing(time, cov); }
+    drawSweep(u6);
   }
 
   function frame(now){
@@ -439,6 +473,7 @@
     u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
     u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
     u5 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 5: 2 screens, the streaks sweep back out, the final image arrives
+    u6 = Math.min(1, Math.max(0, (y - vh * 10) / vh));         // phase 6: 1 screen, black streaks fill the screen
     if (reduce) {
       p = pTarget;
       draw(0);
