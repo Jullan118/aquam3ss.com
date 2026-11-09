@@ -48,8 +48,8 @@
   .black-stack{
     position:absolute;
     left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
+    top:130px;
+    transform:translateX(-50%);
     width:min(960px,92vw);
     display:flex;
     flex-direction:column;
@@ -66,6 +66,23 @@
   }
   .black-workflow{
     max-width:900px;
+  }
+  .black-lede{
+    position:absolute;
+    top:28px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(960px,92vw);
+    margin:0;
+    padding:0 0 16px;
+    text-align:center;
+    font-size:clamp(14px,1.45vw,19px);
+    line-height:1.4;
+    color:#8c8c8c;
+    background:#000000;
+    opacity:0;
+    pointer-events:none;
+    z-index:6;
   }
   .black-text{
     width:100%;
@@ -191,8 +208,8 @@
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
   </div>
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
+  <p class="black-lede" id="black-text">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
   <div class="black-stack" id="black-stack">
-    <p class="black-text" id="black-text">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
     <img class="black-figure" id="black-figure" src="avoidant-black-diagram.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
     <p class="black-text black-findings" id="black-findings">Findings: ~10 mm as a central value and void height as the primary diﬀuseness control. Pattern depths of 1–4 mm all produced visible diﬀuseness, with 2 layers yielding the strongest spray eﬀect. Layer introduced a spatial gradient in spray intensity across the print, making inclination an eﬀective tool for modulating directional diﬀusion. Printhead motion was found to amplify droplet drift.</p>
     <img class="black-figure black-patterns" id="black-patterns" src="avoidant-black-patterns.jpg" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers">
@@ -356,8 +373,8 @@
     blackCaption.style.opacity = smooth(0.8, 1, u7);  // their caption last of all
     blackWorkflow.style.opacity = smooth(0, 0.5, u8);  // then the workflow, and the stack pans up to it
     const h = blackStack.offsetHeight;
-    const pan = Math.max(0, (h - H) / 2 + 40) * u8;
-    blackStack.style.transform = 'translate(-50%, calc(-50% - ' + pan + 'px))';
+    const pan = Math.max(0, h - H + 170) * u8;     // the stack starts under the pinned text and pans up
+    blackStack.style.transform = 'translate(-50%, ' + (-pan) + 'px)';
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
   }
 
