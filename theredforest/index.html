@@ -33,16 +33,23 @@
   }
   .hint{
     position: absolute;
-    bottom: 28px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 10px;
-    letter-spacing: 0.12em;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
     text-transform: lowercase;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.85);
     pointer-events: none;
     transition: opacity 0.6s ease;
     z-index: 10;
+    white-space: nowrap;
+  }
+  .hint .hint-title{
+    font-weight: 700;
+    letter-spacing: 0.14em;
   }
   .hint.hidden{
     opacity: 0;
@@ -180,7 +187,10 @@
 
 <div class="room">
   <canvas id="scene" tabindex="0"></canvas>
-  <div class="hint" id="hint">drag to look around &middot; arrow keys / wasd to walk &middot; scroll down for more</div>
+  <div class="hint" id="hint">
+    <div class="hint-title">virtual exhibition</div>
+    <div>drag on screen to look around &middot; arrow keys or wasd to walk through the room</div>
+  </div>
 </div>
 
 <div class="black-space"></div>
@@ -426,7 +436,6 @@
     dragging = true;
     lastX = x; lastY = y;
     canvas.classList.add('dragging');
-    hint.classList.add('hidden');
   }
   function pointerMove(x, y){
     if (!dragging) return;
@@ -460,6 +469,7 @@
     const action = KEY_MAP[e.code];
     if (action){ keys.add(action); hint.classList.add('hidden'); e.preventDefault(); }
   });
+  setTimeout(() => hint.classList.add('hidden'), 20000);
   window.addEventListener('keyup', (e) => {
     const action = KEY_MAP[e.code];
     if (action) keys.delete(action);
