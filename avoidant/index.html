@@ -347,7 +347,7 @@
   }
 
   function updateText(){
-    titleEl.style.opacity = 1 - smooth(0.6, 0.9, p);
+    titleEl.style.opacity = 1 - smooth(0, 0.15, u2);  // the title stays until 'logic of omission' starts to move
     centerEl.style.opacity = smooth(0.85, 1, p);
     restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
     const e = smooth(0, 1, u2);
