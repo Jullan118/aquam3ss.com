@@ -47,6 +47,15 @@
     opacity:0;
     pointer-events:none;
   }
+  .hero-black{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    background:#000000;
+    opacity:0;
+    pointer-events:none;
+  }
   .ph-logic{
     display:inline-block;
     will-change:transform;
@@ -144,9 +153,10 @@
   .details-text p{ margin:0; }
 
   .info{
+    background:#000000;
+    color:#ffffff;
     padding:48px 32px 120px;
     text-align:center;
-    color:#111;
   }
   .info-figure{
     display:block;
@@ -195,6 +205,7 @@
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
   <img id="hero-full" class="hero-full" src="avoidant-final.jpg" alt="diagram of material jetting layers with void layers between the printed layers">
+  <div class="hero-black" id="hero-black"></div>
   <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
@@ -244,6 +255,8 @@
   let u3 = 0;                       // phase 3: the phrase fades out
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
   let u5 = 0;                       // phase 5: the streaks sweep back out to white, the final image arrives
+  let u6 = 0;                       // phase 6: everything turns black, the page below is black
+  const blackEl = document.getElementById('hero-black');
   const imgEl = document.getElementById('hero-full');
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
@@ -356,6 +369,7 @@
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
     imgEl.style.opacity = smooth(0.9, 1, u5);        // the final image arrives on the white screen
+    blackEl.style.opacity = smooth(0, 1, u6);        // then everything turns black
   }
 
   function drawGlitter(time){
@@ -495,6 +509,7 @@
     u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
     u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
     u5 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 5: 2 screens, the streaks sweep back out, the final image arrives
+    u6 = Math.min(1, Math.max(0, (y - vh * 10) / vh));         // phase 6: 1 screen, everything turns black
     if (reduce) {
       p = pTarget;
       draw(0);
