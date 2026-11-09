@@ -45,16 +45,24 @@
     object-fit:cover;
     display:block;
   }
-  .p-hero-title{
+  .p-hero-title-block{
     position:absolute;
     left:32px;
     bottom:40px;
     z-index:5;
+  }
+  .p-hero-title{
     font-size:clamp(28px, 5vw, 56px);
     font-weight:700;
     letter-spacing:-0.01em;
     color:#ff0000;
     margin:0;
+  }
+  .p-hero-caption{
+    margin:6px 0 0;
+    font-size:15px;
+    line-height:1.4;
+    color:#111;
   }
 
   /* --- row of three photos --- */
@@ -111,7 +119,10 @@
 
 <section class="p-hero">
   <img src="607-hero.jpg" alt="607, skugga av häst och person på ljus bakgrund">
-  <h1 class="p-hero-title">607</h1>
+  <div class="p-hero-title-block">
+    <h1 class="p-hero-title">607</h1>
+    <p class="p-hero-caption">collab 2025, snus box in aluminum.</p>
+  </div>
 </section>
 
 <section class="photos">
