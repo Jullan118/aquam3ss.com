@@ -36,7 +36,11 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:400vh;
+    height:700vh;
+  }
+  .ph-logic{
+    display:inline-block;
+    will-change:transform;
   }
   .p-hero{
     position:sticky;
@@ -184,7 +188,7 @@
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
   </div>
-  <p class="p-hero-center" id="hero-center">What happens when you intentionally leave?<br>And what happens when that logic of omission becomes a material operation, when layers are deliberately left empty inside a voxel print?</p>
+  <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
 </section>
 </div>
 
@@ -215,46 +219,46 @@
   const canvas = document.getElementById('glitter');
   const ctx = canvas.getContext('2d');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const src = new Image();
-  src.src = 'avoidant-hero.png';
 
-  let items = [];
+  const src = new Image();          // the glitter source
+  src.src = 'avoidant-hero.png';
+  const cimg = new Image();         // the line drawing that grows in at the end
+  cimg.src = 'avoidant-contours.png';
+  let loaded = 0, isReady = false;
+
+  let items = [];                   // phase 1 glitter
+  let contour = [];                 // phase 3 drawing
   let W = 0, H = 0, dpr = 1;
-  let p = 0, pTarget = 0;
+  let p = 0, pTarget = 0;           // phase 1: glitter dissolves to white
+  let u2 = 0;                       // phase 2: the phrase moves to the middle
+  let u3 = 0;                       // phase 3: white turns black, the drawing grows in
+  let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
 
-  // Read the drawing row by row. Long dark runs become horizontal bars that
-  // shift together like scan-line glitch; short runs become loose dots.
-  function build(){
-    const rect = hero.getBoundingClientRect();
-    W = Math.max(1, Math.round(rect.width));
-    H = Math.max(1, Math.round(rect.height));
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const titleEl = document.getElementById('hero-title');
+  const centerEl = document.getElementById('hero-center');
+  const phraseEl = document.getElementById('hero-phrase');
+  const restEls = document.querySelectorAll('.ph-rest');
 
-    // cover-fit the image into the hero, same as object-fit: cover
-    const s = Math.max(W / src.naturalWidth, H / src.naturalHeight);
-    const dw = src.naturalWidth * s, dh = src.naturalHeight * s;
-    const ox = (W - dw) / 2, oy = (H - dh) / 2;
+  function smooth(a, b, v){
+    const x = Math.min(1, Math.max(0, (v - a) / (b - a)));
+    return x * x * (3 - 2 * x);
+  }
 
-    const off = document.createElement('canvas');
-    off.width = W; off.height = H;
-    const octx = off.getContext('2d', { willReadFrequently: true });
-    octx.fillStyle = '#ffffff';
-    octx.fillRect(0, 0, W, H);
-    octx.drawImage(src, ox, oy, dw, dh);
-    const data = octx.getImageData(0, 0, W, H).data;
+  // deterministic 0..1 value per section, so neighbouring rows dissolve together
+  function hash(n){
+    const v = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+    return v - Math.floor(v);
+  }
 
-    const row = Math.max(2, Math.round(W / 500));   // row pitch and bar thickness
-    const minBar = row * 3;                          // runs shorter than this become dots
+  // Read the glitter source row by row. Long dark runs become horizontal bars
+  // that shift together like scan-line glitch; short runs become loose dots.
+  function buildGlitter(data){
+    const row = Math.max(2, Math.round(W / 500));
+    const minBar = row * 3;
     items = [];
-
     for (let y = 0; y < H; y += row) {
-      const band = Math.floor(y / (row * 9));        // sections of rows share a dissolve value
+      const band = Math.floor(y / (row * 9));
       const bandT = hash(band);
       let x = 0;
       while (x < W) {
@@ -269,7 +273,7 @@
           x1++;
         }
         const len = x1 - x;
-        const t = 0.6 * bandT + 0.4 * Math.random(); // mostly section-wise, some random
+        const t = 0.6 * bandT + 0.4 * Math.random();
         if (len >= minBar) {
           items.push({
             kind: 'bar', x: x, y: y, w: len, h: row * 0.9,
@@ -294,39 +298,87 @@
     }
   }
 
-  // deterministic 0..1 value per section, so neighbouring rows dissolve together
-  function hash(n){
-    const v = Math.sin(n * 127.1 + 311.7) * 43758.5453;
-    return v - Math.floor(v);
+  // Sample the line drawing (white lines on dark) into pixels that will grow in.
+  function buildContour(){
+    if (!cimg.naturalWidth) { contour = []; return; }
+    const fit = Math.min((W * 0.62) / cimg.naturalWidth, (H * 0.7) / cimg.naturalHeight);
+    const cw = cimg.naturalWidth * fit, ch = cimg.naturalHeight * fit;
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    octx.drawImage(cimg, (W - cw) / 2, (H - ch) / 2, cw, ch);
+    const d = octx.getImageData(0, 0, W, H).data;
+    const cs = Math.max(2, Math.round(W / 600));
+    contour = [];
+    for (let y = 0; y < H; y += cs) {
+      for (let x = 0; x < W; x += cs) {
+        const i = (y * W + x) * 4;
+        if (d[i + 3] < 40) continue;
+        const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        if (lum < 110) continue;
+        contour.push({
+          x: x, y: y, size: cs * 0.9,
+          a: Math.random() * 0.95,               // the point of the reveal where this pixel appears
+          f: 0.6 + Math.random() * 1.4,
+          ph: Math.random() * Math.PI * 2,
+          sparkle: Math.random() < 0.04,
+        });
+      }
+    }
   }
 
-  // title fades out as the glitter goes, the sentence fades in on the white page
-  const titleEl = document.getElementById('hero-title');
-  const centerEl = document.getElementById('hero-center');
-  function smooth(a, b, v){
-    const x = Math.min(1, Math.max(0, (v - a) / (b - a)));
-    return x * x * (3 - 2 * x);
+  // Measure how far the phrase must travel to sit in the middle of the hero.
+  function measurePhrase(){
+    phraseEl.style.transform = 'none';
+    const hr = hero.getBoundingClientRect();
+    const pr = phraseEl.getBoundingClientRect();
+    phraseDX = hr.width / 2 - (pr.left + pr.width / 2 - hr.left);
+    phraseDY = hr.height / 2 - (pr.top + pr.height / 2 - hr.top);
   }
+
+  function build(){
+    const rect = hero.getBoundingClientRect();
+    W = Math.max(1, Math.round(rect.width));
+    H = Math.max(1, Math.round(rect.height));
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // cover-fit the glitter source into the hero, same as object-fit: cover
+    const s = Math.max(W / src.naturalWidth, H / src.naturalHeight);
+    const dw = src.naturalWidth * s, dh = src.naturalHeight * s;
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    const octx = off.getContext('2d', { willReadFrequently: true });
+    octx.fillStyle = '#ffffff';
+    octx.fillRect(0, 0, W, H);
+    octx.drawImage(src, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    buildGlitter(octx.getImageData(0, 0, W, H).data);
+
+    buildContour();
+    measurePhrase();
+  }
+
   function updateText(){
     titleEl.style.opacity = 1 - smooth(0.6, 0.9, p);
-    centerEl.style.opacity = smooth(0.85, 1, p);
+    centerEl.style.opacity = smooth(0.85, 1, p) * (1 - smooth(0.05, 0.3, u3));
+    restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
+    const e = smooth(0, 1, u2);
+    phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
 
-  function draw(time){
-    updateText();
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, W, H);
-
+  function drawGlitter(time){
     const amp = 1.5 + 9 * p;                  // jitter grows as you scroll
     const alpha = 1 - 0.35 * p;
     ctx.fillStyle = 'rgba(17,17,17,' + alpha + ')';
-
     const sparks = [];
     for (let i = 0; i < items.length; i++) {
       const q = items[i];
       if (q.t <= p) continue;                 // dissolved away
       if (q.kind === 'bar') {
-        // a bar slides sideways as one piece; now and then a section jumps
         let dx = Math.sin(time * q.f + q.ph) * amp * 0.6;
         if (Math.sin(time * 0.9 + q.band) > 0.985) dx += amp * 3;
         ctx.fillRect(q.x + dx, q.y, q.w, q.h);
@@ -340,13 +392,51 @@
       }
       ctx.fillRect(x, y, 1.6, 1.6);
     }
-
     if (sparks.length) {
       ctx.fillStyle = '#ff0000';
       for (let i = 0; i < sparks.length; i += 2) {
         ctx.fillRect(sparks[i], sparks[i + 1], 2.4, 2.4);
       }
     }
+  }
+
+  function drawContour(time){
+    // reveal runs 0..1.25 so that every pixel is fully sharp by the end
+    const q = Math.min(1, Math.max(0, (u3 - 0.25) / 0.75)) * 1.25;
+    const sparks = [];
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < contour.length; i++) {
+      const c = contour[i];
+      if (c.a > q) continue;                       // not yet appeared
+      const s = Math.min(1, (q - c.a) / 0.25);     // 0 = out of focus, 1 = sharp
+      const size = c.size * (1 + 2 * (1 - s));     // unfocused pixels are bigger and fainter
+      const jit = (1 - s) * 3 + 0.2;
+      const x = c.x + Math.sin(time * c.f + c.ph) * jit;
+      const y = c.y + Math.cos(time * c.f * 0.7 + c.ph) * jit;
+      if (c.sparkle && s > 0.9 && Math.sin(time * 6 + c.ph) > 0.95) {
+        sparks.push(x, y);
+        continue;
+      }
+      ctx.globalAlpha = 0.1 + 0.9 * s;
+      ctx.fillRect(x - size / 2, y - size / 2, size, size);
+    }
+    ctx.globalAlpha = 1;
+    if (sparks.length) {
+      ctx.fillStyle = '#ff0000';
+      for (let i = 0; i < sparks.length; i += 2) {
+        ctx.fillRect(sparks[i] - 1.5, sparks[i + 1] - 1.5, 3, 3);
+      }
+    }
+  }
+
+  function draw(time){
+    updateText();
+    const bgB = smooth(0, 0.25, u3);           // 0 = white, 1 = black
+    const bg = Math.round(255 * (1 - bgB));
+    ctx.fillStyle = 'rgb(' + bg + ',' + bg + ',' + bg + ')';
+    ctx.fillRect(0, 0, W, H);
+    if (p < 1) drawGlitter(time);
+    if (u3 > 0) drawContour(time);
   }
 
   function frame(now){
@@ -370,10 +460,11 @@
   }
 
   function onScroll(){
-    // the hero is pinned for three screens of scrolling, so the dissolve
-    // takes about five times as long as before
-    const max = window.innerHeight * 3;
-    pTarget = Math.min(1, Math.max(0, window.scrollY / max));
+    const vh = window.innerHeight;
+    const y = window.scrollY;
+    pTarget = Math.min(1, Math.max(0, y / (vh * 3)));          // phase 1: 3 screens
+    u2 = Math.min(1, Math.max(0, (y - vh * 3) / vh));          // phase 2: 1 screen
+    u3 = Math.min(1, Math.max(0, (y - vh * 4) / (vh * 2)));    // phase 3: 2 screens
     if (reduce) {
       p = pTarget;
       draw(0);
@@ -381,15 +472,26 @@
   }
 
   function onResize(){
+    if (!isReady) return;
     build();
     if (reduce) { p = pTarget; draw(0); }
   }
 
-  src.onload = function(){
+  function onLoaded(){
+    loaded++;
+    if (loaded < 2 || isReady) return;
+    isReady = true;
     build();
     onScroll();
     if (reduce) { draw(0); } else { start(); }
-  };
+  }
+
+  src.onload = onLoaded;  src.onerror = onLoaded;
+  cimg.onload = onLoaded; cimg.onerror = onLoaded;
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function(){ if (isReady) { measurePhrase(); updateText(); } });
+  }
 
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onResize);
