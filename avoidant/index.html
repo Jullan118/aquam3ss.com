@@ -79,6 +79,7 @@
     text-align:center;
     font-size:clamp(14px,1.45vw,19px);
     line-height:1.4;
+    font-weight:300;
     color:#fff;
     opacity:0;
   }
@@ -199,7 +200,7 @@
   </div>
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
   <div class="black-stack" id="black-stack">
-    <p class="black-text" id="black-text">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
+    <p class="black-text" id="black-text">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script.<br><br>The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer and printed in voxels.<br>Material leads, the script follows.</p>
     <img class="black-figure" id="black-figure" src="avoidant-black-diagram.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
     <p class="black-text black-findings" id="black-findings">Findings:<br>~10 mm as a central value and void height as the primary diffuseness control.<br><br>Pattern depths of 1–4 mm all produced visible diffuseness, with 2 layers yielding the strongest spray effect.<br><br>Layer introduced a spatial gradient in spray intensity across the print, making inclination an effective tool<br>for modulating directional diffusion.<br>Printhead motion was found to amplify droplet drift.</p>
     <img class="black-figure black-patterns" id="black-patterns" src="avoidant-black-patterns.jpg" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers">
@@ -364,7 +365,7 @@
     blackWorkflow.style.opacity = smooth(0, 0.5, u8);  // then the workflow, and the stack pans up to it
     const h = blackStack.offsetHeight;
     const th = blackText.offsetHeight;
-    const start = Math.max(0, H / 2 - 60 - th / 2); // the opening text comes up centred on the screen
+    const start = Math.max(0, H * 0.38 - 60 - th / 2); // the opening text comes up centred on the screen
     const pan = Math.max(0, h - H + 100);           // the stack pans up as one piece, the text included
     const y = start * (1 - u8) - pan * u8;
     blackStack.style.transform = 'translate(-50%, ' + y + 'px)';
