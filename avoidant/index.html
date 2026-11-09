@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:1200vh;
+    height:1400vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -194,6 +194,7 @@
     <p class="black-text black-findings" id="black-findings">Findings: ~10 mm as a central value and void height as the primary diﬀuseness control. Pattern depths of 1–4 mm all produced visible diﬀuseness, with 2 layers yielding the strongest spray eﬀect. Layer introduced a spatial gradient in spray intensity across the print, making inclination an eﬀective tool for modulating directional diﬀusion. Printhead motion was found to amplify droplet drift.</p>
     <img class="black-figure black-patterns" id="black-patterns" src="avoidant-black-patterns.jpg" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers">
     <p class="black-text black-caption" id="black-caption">Proposed schematic workflow, where findings from exploratory print series inform controllable sliders for spray drift, surface diffuseness, pattern depth, and spray inclination.</p>
+    <img class="black-figure black-workflow" id="black-workflow" src="avoidant-black-workflow.jpg" alt="workflow diagram: spray drift angle, surface diffuseness, pattern depth and spray inclination sliders feed a spray geometry node above a void zone and a base body, leading to material, export to print and preview">
   </div>
 </section>
 </div>
@@ -223,6 +224,7 @@
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
   let u6 = 0;                       // phase 6: more black streaks fill the screen, until it is black
   let u7 = 0;                       // phase 7: the findings come up under the diagram
+  let u8 = 0;                       // phase 8: the stack pans up so the workflow can be read
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
@@ -234,6 +236,8 @@
   const blackFindings = document.getElementById('black-findings');
   const blackPatterns = document.getElementById('black-patterns');
   const blackCaption = document.getElementById('black-caption');
+  const blackWorkflow = document.getElementById('black-workflow');
+  const blackStack = document.getElementById('black-stack');
   const phraseEl = document.getElementById('hero-phrase');
   const restEls = document.querySelectorAll('.ph-rest');
 
@@ -347,6 +351,10 @@
     blackFindings.style.opacity = smooth(0, 0.6, u7); // then the findings, under the diagram
     blackPatterns.style.opacity = smooth(0.6, 1, u7); // and the test prints last
     blackCaption.style.opacity = smooth(0.8, 1, u7);  // their caption last of all
+    blackWorkflow.style.opacity = smooth(0, 0.5, u8);  // then the workflow, and the stack pans up to it
+    const h = blackStack.offsetHeight;
+    const pan = Math.max(0, (h - H) / 2 + 40) * u8;
+    blackStack.style.transform = 'translate(-50%, calc(-50% - ' + pan + 'px))';
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
   }
 
@@ -506,6 +514,7 @@
     u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
     u6 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 6: 2 screens, more black streaks fill the screen until it is black
     u7 = Math.min(1, Math.max(0, (y - vh * 10) / vh));         // phase 7: 1 screen, the findings come up
+    u8 = Math.min(1, Math.max(0, (y - vh * 11) / (vh * 2)));   // phase 8: 2 screens, the stack pans up to the workflow
     if (reduce) {
       p = pTarget;
       draw(0);
