@@ -41,16 +41,24 @@
     justify-content:center;
     padding:0 32px;
   }
-  .p-title{
+  .p-title-block{
     position:absolute;
     left:32px;
     bottom:40px;
     z-index:5;
+  }
+  .p-title{
     font-size:clamp(28px, 5vw, 56px);
     font-weight:700;
     letter-spacing:-0.01em;
     color:#ff0000;
     margin:0;
+  }
+  .p-caption{
+    margin:6px 0 0;
+    font-size:15px;
+    line-height:1.4;
+    color:#111;
   }
 
   .carousel{
@@ -106,7 +114,7 @@
   .carousel-dots button.active{ background:#111; }
 
   .info{
-    padding:48px 32px 120px;
+    padding:16px 32px 120px;
     text-align:center;
     color:#111;
   }
@@ -117,7 +125,7 @@
   }
   .story{
     max-width:640px;
-    margin:56px auto 0;
+    margin:0 auto;
     font-size:15px;
     line-height:1.6;
   }
@@ -157,7 +165,10 @@
       <button aria-label="Bild 6"></button>
     </div>
   </div>
-  <h1 class="p-title">pantelleria</h1>
+  <div class="p-title-block">
+    <h1 class="p-title">pantelleria</h1>
+    <p class="p-caption">2024 oil on canvas. Chromed steel.</p>
+  </div>
 </section>
 
 <section class="info">
@@ -165,7 +176,6 @@
     <p>Everything moves, everything changes. The eternal now is the only thing still. This table captures a moment that has passed, and holds it.</p>
     <p>What is no longer possible, kept.</p>
     <p>The painting is the after of a gathering. What might be messy in the head, on the table, becomes still.</p>
-    <p>A 60 × 60 cm oil painting paired with a table, modelled in Fusion 360. Height 42 cm. The canvas is integrated, faced from above. The renderings carry it in chromed steel. Developed in collaboration with @therealblomburger 2024.</p>
   </div>
 </section>
 
