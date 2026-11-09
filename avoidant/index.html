@@ -43,7 +43,7 @@
     top:0; left:0;
     width:100%;
     height:100%;
-    object-fit:contain;
+    object-fit:cover;
     opacity:0;
     pointer-events:none;
   }
@@ -194,7 +194,7 @@
 <div class="glitter-track">
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
-  <img id="hero-full" class="hero-full" src="avoidant-layers.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
+  <img id="hero-full" class="hero-full" src="avoidant-end.jpg" alt="horizontal white streaks on black, a drawing of a voxel-printed void structure">
   <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
@@ -233,18 +233,14 @@
 
   const src = new Image();          // the glitter source
   src.src = 'avoidant-hero.png';
-  const cimg = new Image();         // the line drawing that grows in at the end
-  cimg.src = 'avoidant-contours.png';
   let loaded = 0, isReady = false;
 
   let items = [];                   // phase 1 glitter
-  let textPx = [];                  // the phrase, as pixels, for its dissolve
-  let contour = [];                 // phase 3 drawing
   let W = 0, H = 0, dpr = 1;
   let p = 0, pTarget = 0;           // phase 1: glitter dissolves to white
   let u2 = 0;                       // phase 2: the phrase moves to the middle
-  let u3 = 0;                       // phase 3: white turns black, the drawing grows in
-  let u4 = 0;                       // phase 4: the drawing breaks back up, the layers image arrives
+  let u3 = 0;                       // phase 3: the phrase fades out
+  let u4 = 0;                       // phase 4: black streaks sweep in, the end image arrives
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
 
@@ -312,37 +308,6 @@
     }
   }
 
-  // Sample the line drawing (white lines on dark) into pixels that will grow in.
-  function buildContour(){
-    if (!cimg.naturalWidth) { contour = []; return; }
-    const fit = Math.min((W * 0.62) / cimg.naturalWidth, (H * 0.7) / cimg.naturalHeight);
-    const cw = cimg.naturalWidth * fit, ch = cimg.naturalHeight * fit;
-    const off = document.createElement('canvas');
-    off.width = W; off.height = H;
-    const octx = off.getContext('2d', { willReadFrequently: true });
-    octx.drawImage(cimg, (W - cw) / 2, (H - ch) / 2, cw, ch);
-    const d = octx.getImageData(0, 0, W, H).data;
-    const cs = Math.max(2, Math.round(W / 600));
-    const maxD = Math.hypot(cw / 2, ch / 2);
-    contour = [];
-    for (let y = 0; y < H; y += cs) {
-      for (let x = 0; x < W; x += cs) {
-        const i = (y * W + x) * 4;
-        if (d[i + 3] < 40) continue;
-        const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        if (lum < 110) continue;
-        contour.push({
-          x: x, y: y, size: cs * 0.9,
-          // the reveal starts at the centre, where the phrase was, and spreads outward
-          a: Math.min(1, 0.85 * Math.hypot(x - W / 2, y - H / 2) / maxD + 0.15 * Math.random()),
-          f: 0.6 + Math.random() * 1.4,
-          ph: Math.random() * Math.PI * 2,
-          sparkle: Math.random() < 0.04,
-        });
-      }
-    }
-  }
-
   // Measure how far the phrase must travel to sit in the middle of the hero.
   function measurePhrase(){
     phraseEl.style.transform = 'none';
@@ -374,40 +339,7 @@
     octx.drawImage(src, (W - dw) / 2, (H - dh) / 2, dw, dh);
     buildGlitter(octx.getImageData(0, 0, W, H).data);
 
-    buildContour();
     measurePhrase();
-    buildText();
-  }
-
-  // Turn the centred phrase into pixels so it can break up as you keep scrolling.
-  function buildText(){
-    const cst = getComputedStyle(phraseEl);
-    const off = document.createElement('canvas');
-    off.width = W; off.height = H;
-    const c = off.getContext('2d', { willReadFrequently: true });
-    c.font = cst.fontWeight + ' ' + cst.fontSize + ' ' + cst.fontFamily;
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    c.fillStyle = '#000000';
-    c.fillText(phraseEl.textContent, W / 2, H / 2);
-    const fs = parseFloat(cst.fontSize) || 20;
-    const y0 = Math.max(0, Math.floor(H / 2 - fs * 2));
-    const y1 = Math.min(H, Math.ceil(H / 2 + fs * 2));
-    const d = c.getImageData(0, y0, W, y1 - y0).data;
-    textPx = [];
-    for (let y = y0; y < y1; y++) {
-      for (let x = 0; x < W; x++) {
-        if (d[((y - y0) * W + x) * 4 + 3] > 100) {
-          textPx.push({
-            x: x, y: y,
-            k: Math.random(),                 // when this pixel lets go
-            ph: Math.random() * Math.PI * 2,
-            f: 0.8 + Math.random() * 2,
-            rise: 20 + Math.random() * 80,    // how far it drifts up as it goes
-          });
-        }
-      }
-    }
   }
 
   function updateText(){
@@ -416,24 +348,8 @@
     restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
-    // once the phrase starts to break up, the pixel version takes over
-    phraseEl.style.opacity = u3 > 0 ? 0 : 1;
-    imgEl.style.opacity = smooth(0.75, 1, u4);
-  }
-
-  // the phrase's pixels: they turn white with the background, then drift up and go
-  function drawText(time){
-    const bgB = smooth(0, 0.25, u3);
-    const v = Math.round(17 + 238 * bgB);
-    const dq = smooth(0, 0.8, u3);
-    ctx.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
-    for (let i = 0; i < textPx.length; i++) {
-      const t = textPx[i];
-      if (t.k < dq) continue;
-      const x = t.x + Math.sin(time * t.f + t.ph) * (1 + dq * 4);
-      const y = t.y - t.rise * dq + Math.cos(time * t.f * 0.6 + t.ph) * (1 + dq * 3);
-      ctx.fillRect(x, y, 1.4, 1.4);
-    }
+    phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
+    imgEl.style.opacity = smooth(0.8, 1, u4);        // the end image arrives once the screen is black
   }
 
   function drawGlitter(time){
@@ -466,45 +382,28 @@
     }
   }
 
-  function drawContour(time){
-    // reveal runs 0..1.25 so that every pixel is fully sharp by the end
-    // forward: pixels appear from the centre out; back: they let go in reverse order
-    const q = u4 > 0 ? 1.25 * (1 - u4) : Math.min(1, Math.max(0, (u3 - 0.25) / 0.75)) * 1.25;
-    const sparks = [];
-    ctx.fillStyle = '#ffffff';
-    for (let i = 0; i < contour.length; i++) {
-      const c = contour[i];
-      if (c.a > q) continue;                       // not yet appeared
-      const s = Math.min(1, (q - c.a) / 0.25);     // 0 = out of focus, 1 = sharp
-      const size = c.size * (1 + 2 * (1 - s));     // unfocused pixels are bigger and fainter
-      const jit = (1 - s) * 3 + 0.2;
-      const x = c.x + Math.sin(time * c.f + c.ph) * jit;
-      const y = c.y + Math.cos(time * c.f * 0.7 + c.ph) * jit;
-      if (c.sparkle && s > 0.9 && Math.sin(time * 6 + c.ph) > 0.95) {
-        sparks.push(x, y);
-        continue;
-      }
-      ctx.globalAlpha = 0.1 + 0.9 * s;
-      ctx.fillRect(x - size / 2, y - size / 2, size, size);
-    }
-    ctx.globalAlpha = 1;
-    if (sparks.length) {
-      ctx.fillStyle = '#ff0000';
-      for (let i = 0; i < sparks.length; i += 2) {
-        ctx.fillRect(sparks[i] - 1.5, sparks[i + 1] - 1.5, 3, 3);
-      }
+  // Phase 4: the header's glitter run in reverse. Black horizontal streaks
+  // sweep in row by row, from alternating edges, until the white screen is black.
+  function drawStreaks(){
+    const row = Math.max(2, Math.round(W / 500));
+    ctx.fillStyle = '#111111';
+    for (let y = 0; y < H; y += row) {
+      const band = Math.floor(y / (row * 9));
+      const rowT = (0.6 * hash(band) + 0.4 * hash(y + 1000)) * 0.75;
+      const k = smooth(rowT, rowT + 0.25, u4);
+      if (k <= 0) continue;
+      const w = W * k;
+      const x = band % 2 ? W - w : 0;
+      ctx.fillRect(x, y, w, row * 0.9);
     }
   }
 
   function draw(time){
     updateText();
-    const bgB = smooth(0, 0.25, u3);           // 0 = white, 1 = black
-    const bg = Math.round(255 * (1 - bgB));
-    ctx.fillStyle = 'rgb(' + bg + ',' + bg + ',' + bg + ')';
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     if (p < 1) drawGlitter(time);
-    if (u3 > 0) drawText(time);
-    if (u3 > 0) drawContour(time);
+    if (u4 > 0) drawStreaks();
   }
 
   function frame(now){
@@ -533,8 +432,8 @@
     pTarget = Math.min(1, Math.max(0, y / (vh * 3)));          // phase 1: 3 screens
     // 3..4 screens: hold, the sentence stays still
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));          // phase 2: 1 screen, phrase moves to the middle
-    u3 = Math.min(1, Math.max(0, (y - vh * 5) / (vh * 2)));    // phase 3: 2 screens, pixels break up, drawing grows in
-    u4 = Math.min(1, Math.max(0, (y - vh * 7) / (vh * 2)));    // phase 4: 2 screens, the drawing breaks back up, the layers image arrives
+    u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
+    u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the end image arrives
     if (reduce) {
       p = pTarget;
       draw(0);
@@ -549,7 +448,7 @@
 
   function onLoaded(){
     loaded++;
-    if (loaded < 2 || isReady) return;
+    if (loaded < 1 || isReady) return;
     isReady = true;
     build();
     onScroll();
@@ -557,10 +456,9 @@
   }
 
   src.onload = onLoaded;  src.onerror = onLoaded;
-  cimg.onload = onLoaded; cimg.onerror = onLoaded;
 
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function(){ if (isReady) { measurePhrase(); buildText(); updateText(); } });
+    document.fonts.ready.then(function(){ if (isReady) { measurePhrase(); updateText(); } });
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
