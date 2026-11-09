@@ -39,10 +39,11 @@
     height:100vh;
     overflow:hidden;
   }
-  .p-hero img{
+  .p-hero canvas{
+    position:absolute;
+    inset:0;
     width:100%;
     height:100%;
-    object-fit:cover;
     display:block;
   }
   .p-hero-title-block{
@@ -118,7 +119,7 @@
 <a class="home-link" href="/">← aquam3ss</a>
 
 <section class="p-hero">
-  <img src="607-hero.jpg" alt="607, skugga av häst och person på ljus bakgrund">
+  <canvas id="horse-scene" role="img" aria-label="607, skugga av häst som springer i en cirkel runt personen som håller i linan"></canvas>
   <div class="p-hero-title-block">
     <h1 class="p-hero-title">607</h1>
     <p class="p-hero-caption">collab 2025, snus box in aluminum.</p>
@@ -139,5 +140,82 @@
   </div>
 </section>
 
+
+<script>
+(function(){
+  var canvas = document.getElementById('horse-scene');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+  var plate = new Image(), horse = new Image();
+  var ready = 0;
+  function onReady(){ if (++ready === 2) { resize(); requestAnimationFrame(loop); } }
+  plate.onload = onReady; horse.onload = onReady;
+  plate.src = '607-plate.jpg';
+  horse.src = '607-horse.png';
+
+  var IW = 1152, IH = 797;                // photo size
+  var HAND = { x: 552, y: 247 };          // the person's hand, the centre of the circle
+  var R = 200;                            // lunge-line length: the horse's head stays on this circle
+  var HX = 262, HY = 65, SW = 330, SH = 330; // sprite size and the horse's head inside it
+  var THETA0 = Math.atan2(85 - 247, 367 - 552); // where the horse starts (its current place)
+  var OMEGA = Math.PI * 2 / 9;            // one lap every 9 seconds
+  var s = 1, ox = 0, oy = 0, cw = 0, ch = 0, dpr = 1;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t0 = null;
+
+  function resize(){
+    var r = canvas.getBoundingClientRect();
+    cw = r.width; ch = r.height;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(cw * dpr);
+    canvas.height = Math.round(ch * dpr);
+    // same framing as object-fit: cover
+    s = Math.max(cw / IW, ch / IH);
+    ox = (cw - IW * s) / 2;
+    oy = (ch - IH * s) / 2;
+    if (reduce) draw(THETA0);
+  }
+
+  function toScreen(x, y){ return { x: ox + x * s, y: oy + y * s }; }
+
+  function draw(theta){
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(plate, ox, oy, IW * s, IH * s);
+
+    // the horse's head moves on the circle around the hand
+    var hx = HAND.x + R * Math.cos(theta);
+    var hy = HAND.y + R * Math.sin(theta);
+    var bob = reduce ? 0 : Math.sin(theta * 6) * 1.5;   // a small trot bounce
+    var flip = Math.sin(theta) > 0;                    // moving left: turn the horse around
+
+    ctx.globalCompositeOperation = 'multiply';
+
+    // the line from the hand to the horse's head
+    var a = toScreen(HAND.x, HAND.y), b = toScreen(hx, hy + bob);
+    ctx.strokeStyle = 'rgba(40,40,40,0.85)';
+    ctx.lineWidth = Math.max(1, 1.3 * s);
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+
+    // the horse (with its shadow), anchored at its head
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.scale(s, s);
+    if (flip) ctx.scale(-1, 1);
+    ctx.drawImage(horse, -HX, -HY, SW, SH);
+    ctx.restore();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  function loop(now){
+    if (t0 === null) t0 = now;
+    draw(THETA0 + (now - t0) / 1000 * OMEGA);
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', resize);
+})();
+</script>
 </body>
 </html>
