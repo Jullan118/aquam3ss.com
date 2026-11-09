@@ -54,13 +54,13 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:28px;
+    gap:22px;
     pointer-events:none;
     z-index:5;
   }
   .black-figure{
     width:100%;
-    max-width:640px;
+    max-width:560px;
     height:auto;
     opacity:0;
   }
@@ -193,6 +193,7 @@
     <img class="black-figure" id="black-figure" src="avoidant-black-diagram.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
     <p class="black-text black-findings" id="black-findings">Findings: ~10 mm as a central value and void height as the primary diﬀuseness control. Pattern depths of 1–4 mm all produced visible diﬀuseness, with 2 layers yielding the strongest spray eﬀect. Layer introduced a spatial gradient in spray intensity across the print, making inclination an eﬀective tool for modulating directional diﬀusion. Printhead motion was found to amplify droplet drift.</p>
     <img class="black-figure black-patterns" id="black-patterns" src="avoidant-black-patterns.jpg" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers">
+    <p class="black-text black-caption" id="black-caption">Proposed schematic workflow, where findings from exploratory print series inform controllable sliders for spray drift, surface diffuseness, pattern depth, and spray inclination.</p>
   </div>
 </section>
 </div>
@@ -232,6 +233,7 @@
   const blackFig = document.getElementById('black-figure');
   const blackFindings = document.getElementById('black-findings');
   const blackPatterns = document.getElementById('black-patterns');
+  const blackCaption = document.getElementById('black-caption');
   const phraseEl = document.getElementById('hero-phrase');
   const restEls = document.querySelectorAll('.ph-rest');
 
@@ -344,6 +346,7 @@
     blackFig.style.opacity = smooth(0.9, 1, u6);     // then the diagram, centred below it
     blackFindings.style.opacity = smooth(0, 0.6, u7); // then the findings, under the diagram
     blackPatterns.style.opacity = smooth(0.6, 1, u7); // and the test prints last
+    blackCaption.style.opacity = smooth(0.8, 1, u7);  // their caption last of all
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
   }
 
