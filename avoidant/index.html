@@ -149,6 +149,11 @@
     line-height:1.6;
   }
   .story p{ margin:0 0 20px; }
+  .story h3{
+    font-size:15px;
+    font-weight:700;
+    margin:48px 0 20px;
+  }
   .story-figure{
     display:block;
     width:100%;
@@ -184,6 +189,14 @@
     <p>Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
     <img class="story-figure" src="avoidant-figure-2.png" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers" loading="lazy">
     <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
+    <h3>Method</h3>
+    <p><strong>Experimental Fabrication:</strong> Three print series were produced (Figure 4) to isolate void height, pattern depth, and inclination as independent variables.</p>
+    <p><strong>Structural Investigation:</strong> Surface character, from ordered to diffuse, spray-like is compared across void height, pattern depth, and inclination.</p>
+    <p><strong>Design Contribution:</strong> Findings from the print series were translated directly into parametric surface-finish controls within the Voxolotl workflow.</p>
+    <h3>Findings</h3>
+    <p>A void height of 8 mm produced sharper pattern boundaries while 12 mm caused greater droplet drift and a more diffuse surface, establishing ~10 mm as a central value and void height as the primary diffuseness control. Pattern depths of 1–4 mm all produced visible diffuseness, with 2 layers yielding the strongest spray effect, confirming pattern depth around 2 as a key strength parameter. Inclining the void layer introduced a spatial gradient in spray intensity across the print, making inclination an effective tool for modulating directional diffusion.</p>
+    <p>Printhead motion was found to amplify droplet drift and is therefore proposed as a spray drift angle slider within the tool, enabling designers to account for and exploit print-direction effects in the resulting surface texture.</p>
+    <p>All four parameters can therefore be encoded as controllable sliders within the Grasshopper workflow, creating a design space for adjustable spray-like surface effects (Figure 2).</p>
     <p>Supervised by TU Delft Computational Fabrication. Building on the bitmap workflow of Doubrovski et al. (2015).</p>
   </div>
 </section>
