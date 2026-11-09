@@ -159,12 +159,13 @@
   const src = new Image();
   src.src = 'avoidant-hero.png';
 
-  let particles = [];
+  let items = [];
   let W = 0, H = 0, dpr = 1;
   let p = 0, pTarget = 0;
   let running = false, visible = true, raf = null;
 
-  // Sample the line drawing on a grid. Dark pixels become glitter particles.
+  // Read the drawing row by row. Long dark runs become horizontal bars that
+  // shift together like scan-line glitch; short runs become loose dots.
   function build(){
     const rect = hero.getBoundingClientRect();
     W = Math.max(1, Math.round(rect.width));
@@ -189,24 +190,55 @@
     octx.drawImage(src, ox, oy, dw, dh);
     const data = octx.getImageData(0, 0, W, H).data;
 
-    const step = Math.max(3, Math.round(W / 380));
-    particles = [];
-    for (let y = 0; y < H; y += step) {
-      for (let x = 0; x < W; x += step) {
+    const row = Math.max(2, Math.round(W / 500));   // row pitch and bar thickness
+    const minBar = row * 3;                          // runs shorter than this become dots
+    items = [];
+
+    for (let y = 0; y < H; y += row) {
+      const band = Math.floor(y / (row * 9));        // sections of rows share a dissolve value
+      const bandT = hash(band);
+      let x = 0;
+      while (x < W) {
         const i = (y * W + x) * 4;
         const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        if (lum < 140) {
-          particles.push({
-            x: x, y: y,
-            ph: Math.random() * Math.PI * 2,
-            f1: 0.6 + Math.random() * 1.8,
-            f2: 0.4 + Math.random() * 1.2,
-            t: Math.random(),                 // dissolve threshold
-            sparkle: Math.random() < 0.04,    // a few particles glint
-          });
+        if (lum >= 140) { x++; continue; }
+        let x1 = x;
+        while (x1 < W) {
+          const j = (y * W + x1) * 4;
+          const l = 0.299 * data[j] + 0.587 * data[j + 1] + 0.114 * data[j + 2];
+          if (l >= 140) break;
+          x1++;
         }
+        const len = x1 - x;
+        const t = 0.6 * bandT + 0.4 * Math.random(); // mostly section-wise, some random
+        if (len >= minBar) {
+          items.push({
+            kind: 'bar', x: x, y: y, w: len, h: row * 0.9,
+            ph: Math.random() * Math.PI * 2,
+            f: 0.5 + Math.random() * 1.2,
+            t: t, band: band,
+          });
+        } else {
+          for (let k = x; k < x1; k += row) {
+            items.push({
+              kind: 'dot', x: k, y: y,
+              ph: Math.random() * Math.PI * 2,
+              f1: 0.8 + Math.random() * 2.2,
+              f2: 0.6 + Math.random() * 1.6,
+              t: 0.5 * bandT + 0.5 * Math.random(),
+              sparkle: Math.random() < 0.05,
+            });
+          }
+        }
+        x = x1;
       }
     }
+  }
+
+  // deterministic 0..1 value per section, so neighbouring rows dissolve together
+  function hash(n){
+    const v = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+    return v - Math.floor(v);
   }
 
   function draw(time){
@@ -218,9 +250,16 @@
     ctx.fillStyle = 'rgba(17,17,17,' + alpha + ')';
 
     const sparks = [];
-    for (let i = 0; i < particles.length; i++) {
-      const q = particles[i];
+    for (let i = 0; i < items.length; i++) {
+      const q = items[i];
       if (q.t <= p) continue;                 // dissolved away
+      if (q.kind === 'bar') {
+        // a bar slides sideways as one piece; now and then a section jumps
+        let dx = Math.sin(time * q.f + q.ph) * amp * 0.6;
+        if (Math.sin(time * 0.9 + q.band) > 0.985) dx += amp * 3;
+        ctx.fillRect(q.x + dx, q.y, q.w, q.h);
+        continue;
+      }
       const x = q.x + Math.sin(time * q.f1 + q.ph) * amp;
       const y = q.y + Math.cos(time * q.f2 + q.ph * 1.3) * amp;
       if (q.sparkle && Math.sin(time * 6 + q.ph) > 0.92) {
