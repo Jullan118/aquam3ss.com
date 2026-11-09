@@ -310,6 +310,7 @@
     octx.drawImage(cimg, (W - cw) / 2, (H - ch) / 2, cw, ch);
     const d = octx.getImageData(0, 0, W, H).data;
     const cs = Math.max(2, Math.round(W / 600));
+    const maxD = Math.hypot(cw / 2, ch / 2);
     contour = [];
     for (let y = 0; y < H; y += cs) {
       for (let x = 0; x < W; x += cs) {
@@ -319,7 +320,8 @@
         if (lum < 110) continue;
         contour.push({
           x: x, y: y, size: cs * 0.9,
-          a: Math.random() * 0.95,               // the point of the reveal where this pixel appears
+          // the reveal starts at the centre, where the phrase was, and spreads outward
+          a: Math.min(1, 0.85 * Math.hypot(x - W / 2, y - H / 2) / maxD + 0.15 * Math.random()),
           f: 0.6 + Math.random() * 1.4,
           ph: Math.random() * Math.PI * 2,
           sparkle: Math.random() < 0.04,
