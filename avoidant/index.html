@@ -258,7 +258,7 @@
   function buildGlitter(data){
     const row = Math.max(2, Math.round(W / 500));
     const minBar = row * 3;
-    items = [];
+    const out = [];
     for (let y = 0; y < H; y += row) {
       const band = Math.floor(y / (row * 9));
       const bandT = hash(band);
@@ -277,7 +277,7 @@
         const len = x1 - x;
         const t = 0.6 * bandT + 0.4 * Math.random();
         if (len >= minBar) {
-          items.push({
+          out.push({
             kind: 'bar', x: x, y: y, w: len, h: row * 0.9,
             ph: Math.random() * Math.PI * 2,
             f: 0.5 + Math.random() * 1.2,
@@ -285,7 +285,7 @@
           });
         } else {
           for (let k = x; k < x1; k += row) {
-            items.push({
+            out.push({
               kind: 'dot', x: k, y: y,
               ph: Math.random() * Math.PI * 2,
               f1: 0.8 + Math.random() * 2.2,
@@ -298,6 +298,7 @@
         x = x1;
       }
     }
+    return out;
   }
 
   // Measure how far the phrase must travel to sit in the middle of the hero.
@@ -329,7 +330,7 @@
     octx.fillStyle = '#ffffff';
     octx.fillRect(0, 0, W, H);
     octx.drawImage(src, (W - dw) / 2, (H - dh) / 2, dw, dh);
-    buildGlitter(octx.getImageData(0, 0, W, H).data);
+    items = buildGlitter(octx.getImageData(0, 0, W, H).data);
 
     measurePhrase();
     buildDrawing();
@@ -398,45 +399,49 @@
     }
   }
 
-  // Sample the drawing (white lines on black) into short horizontal dashes on the
-  // same row grid, so it is built out of streaks and keeps moving as a pattern.
+  // The drawing is built the same way as the header's glitter: its white lines
+  // are read as the ink (inverted), into bars and dots that shift together.
   function buildDrawing(){
     drawing = [];
     if (!endImg.naturalWidth) return;
-    const row = rowSize();
     const s = Math.max(W / endImg.naturalWidth, H / endImg.naturalHeight);
     const dw = endImg.naturalWidth * s, dh = endImg.naturalHeight * s;
     const off = document.createElement('canvas');
     off.width = W; off.height = H;
     const octx = off.getContext('2d', { willReadFrequently: true });
+    octx.fillStyle = '#000000';
+    octx.fillRect(0, 0, W, H);
     octx.drawImage(endImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
     const d = octx.getImageData(0, 0, W, H).data;
-    for (let y = 0; y < H; y += row) {
-      const rt = rowThreshold(y, row);
-      for (let x = 0; x < W; x += row) {
-        const i = (y * W + x) * 4;
-        const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        if (lum < 110) continue;
-        drawing.push({
-          x: x, y: y, rt: rt,
-          ph: Math.random() * Math.PI * 2,
-          f: 0.6 + Math.random() * 1.4,
-        });
-      }
+    for (let i = 0; i < d.length; i += 4) {
+      d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
     }
+    drawing = buildGlitter(d);
   }
 
+  // the drawing appears in the order the header's glitter dissolved, but in reverse
   function drawDrawing(time){
-    const row = rowSize();
+    const amp = 1.5 + 6 * u4;
     ctx.fillStyle = '#ffffff';
+    const sparks = [];
     for (let i = 0; i < drawing.length; i++) {
-      const c = drawing[i];
-      if (u4 < c.rt) continue;                       // its row has not turned black yet
-      ctx.globalAlpha = Math.min(1, (u4 - c.rt) / 0.2);
-      const dx = Math.sin(time * c.f + c.ph) * 1.2;  // small jitter keeps it moving
-      ctx.fillRect(c.x + dx, c.y, row * 1.6, row * 0.9);
+      const q = drawing[i];
+      if (q.t > u4) continue;                        // not yet built
+      if (q.kind === 'bar') {
+        let dx = Math.sin(time * q.f + q.ph) * amp * 0.6;
+        if (Math.sin(time * 0.9 + q.band) > 0.985) dx += amp * 3;
+        ctx.fillRect(q.x + dx, q.y, q.w, q.h);
+        continue;
+      }
+      const x = q.x + Math.sin(time * q.f1 + q.ph) * amp;
+      const y = q.y + Math.cos(time * q.f2 + q.ph * 1.3) * amp;
+      if (q.sparkle && Math.sin(time * 6 + q.ph) > 0.92) { sparks.push(x, y); continue; }
+      ctx.fillRect(x, y, 1.6, 1.6);
     }
-    ctx.globalAlpha = 1;
+    if (sparks.length) {
+      ctx.fillStyle = '#ff0000';
+      for (let i = 0; i < sparks.length; i += 2) ctx.fillRect(sparks[i], sparks[i + 1], 2.4, 2.4);
+    }
   }
 
   function draw(time){
