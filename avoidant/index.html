@@ -107,6 +107,20 @@
   }
   .details-text p{ margin:0; }
 
+  .info{
+    padding:48px 32px 120px;
+    text-align:center;
+    color:#111;
+  }
+  .story{
+    max-width:640px;
+    margin:0 auto;
+    font-size:15px;
+    line-height:1.6;
+  }
+  .story p{ margin:0 0 20px; }
+  .story p:last-child{ margin-bottom:0; }
+
   @media (max-width:700px){
     .photos{ grid-template-columns:1fr; padding:64px 20px 0; }
     .details{ grid-template-columns:1fr; padding:64px 20px 96px; }
@@ -122,6 +136,15 @@
   <div class="p-hero-title-block">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
+  </div>
+</section>
+
+<section class="info">
+  <div class="story">
+    <p>What happens when you intentionally leave? And what happens when that logic of omission becomes a material operation, when layers are deliberately left empty inside a voxel print?</p>
+    <p>Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
+    <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
+    <p>Supervised by TU Delft Computational Fabrication. Building on the bitmap workflow of Doubrovski et al. (2015).</p>
   </div>
 </section>
 
