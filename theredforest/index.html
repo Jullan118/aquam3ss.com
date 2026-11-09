@@ -55,6 +55,9 @@
   .hint.hidden{
     opacity: 0;
   }
+  @media (max-width: 700px){
+    .hint{ white-space: normal; width: calc(100% - 40px); font-size: 12px; }
+  }
   .room-title{
     position: absolute;
     left: 32px;
@@ -106,6 +109,10 @@
   .carousel-frame{
     flex: 0 0 460px;
     width: 460px;
+  }
+  @media (max-width: 700px){
+    .carousel-frame{ flex: 0 0 auto; width: min(460px, 86vw); }
+    .info{ padding: 60px 20px 80px; }
   }
   .carousel-viewport{
     width: 100%;

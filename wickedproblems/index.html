@@ -69,6 +69,11 @@
     font-size: 15px;
     line-height: 1.4;
     color: #111;
+    text-shadow: 0 0 8px rgba(255,255,255,0.9);
+  }
+  @media (max-width: 700px){
+    .wp-hero-title-block{ left: 20px; right: 20px; bottom: 32px; }
+    .wp-hero-caption{ max-width: 90%; }
   }
 
   /* --- shop section --- */
@@ -145,7 +150,11 @@
   }
 
   @media (max-width: 900px){
-    .shop-grid{ grid-template-columns: repeat(2, 1fr); }
+    .shop-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 700px){
+    .product-caption{ flex-wrap: wrap; padding: 12px 12px 14px; gap: 6px 12px; }
+    .product-price{ white-space: normal; }
   }
 
   /* --- product overlay / lightbox --- */
