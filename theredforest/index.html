@@ -41,6 +41,7 @@
     line-height: 1.7;
     letter-spacing: 0.08em;
     text-transform: lowercase;
+    font-weight: 300;
     color: rgba(255,255,255,0.85);
     pointer-events: none;
     transition: opacity 0.6s ease;
@@ -48,7 +49,7 @@
     white-space: nowrap;
   }
   .hint .hint-title{
-    font-weight: 700;
+    font-weight: 300;
     letter-spacing: 0.14em;
   }
   .hint.hidden{
@@ -472,7 +473,10 @@
   }
 
   canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); pointerDown(e.clientX, e.clientY); });
-  canvas.addEventListener('pointermove', (e) => pointerMove(e.clientX, e.clientY));
+  canvas.addEventListener('pointermove', (e) => {
+    pointerMove(e.clientX, e.clientY);
+    if (dragging) roomTitle.classList.add('hidden');  // the title steps aside once the room is being moved around
+  });
   window.addEventListener('pointerup', pointerUp);
 
   // --- walk controls: WASD / arrow keys move through the room, drag still just looks around ---
