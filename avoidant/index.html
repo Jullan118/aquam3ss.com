@@ -189,6 +189,7 @@
     margin:48px 0;
   }
   .story p:last-child{ margin-bottom:0; }
+  .story p.lede{ color:#8c8c8c; text-align:center; }
   .info-footer{text-align:right;font-size:11px;line-height:1.4;margin:64px 0 0;}
 
   @media (max-width:700px){
@@ -217,7 +218,7 @@
 <section class="info">
   <img class="info-figure" src="avoidant-diagram.jpg" alt="diagram of the print stack in three axes (x, y, z), with void layers left empty between the printed layers">
   <div class="story">
-    <p>Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
+    <p class="lede">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script. The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer. Material leads, the script follows.</p>
     <img class="story-figure" src="avoidant-figure-2.png" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers" loading="lazy">
     <p><strong>Research question:</strong> Can void height, pattern depth, and void inclination be encoded as designable parameters to control a spray-like, diffuse surface effect in MJT?</p>
     <p>Spray density, opacity, gradient, and particle movement — tested and evaluated through print series, consolidated into a single node: a proposed design space for creating this spray-like effect in voxel printing.</p>
