@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:1200vh;
+    height:1100vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -187,8 +187,7 @@
   let u2 = 0;                       // phase 2: the phrase moves to the middle
   let u3 = 0;                       // phase 3: the phrase fades out
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
-  let u5 = 0;                       // phase 5: the streaks sweep back out to white, the final image arrives
-  let u6 = 0;                       // phase 6: black streaks fill the screen, until it is black
+  let u6 = 0;                       // phase 6: more black streaks fill the screen, until it is black
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
@@ -427,7 +426,7 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     if (p < 1) drawGlitter(time);
-    const cov = u4 * (1 - u5);                       // 0 = white, 1 = fully streaked
+    const cov = u4;                                  // 0 = white, 1 = fully streaked
     if (cov > 0) { drawStreaks(cov); drawDrawing(time, cov); }
     drawSweep(u6);
   }
@@ -460,8 +459,7 @@
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));          // phase 2: 1 screen, phrase moves to the middle
     u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
     u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
-    u5 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 5: 2 screens, the streaks sweep back out, the final image arrives
-    u6 = Math.min(1, Math.max(0, (y - vh * 10) / vh));         // phase 6: 1 screen, black streaks fill the screen
+    u6 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 6: 2 screens, more black streaks fill the screen until it is black
     if (reduce) {
       p = pTarget;
       draw(0);
