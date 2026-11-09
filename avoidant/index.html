@@ -359,8 +359,11 @@
     blackCaption.style.opacity = smooth(0.8, 1, u7);  // their caption last of all
     blackWorkflow.style.opacity = smooth(0, 0.5, u8);  // then the workflow, and the stack pans up to it
     const h = blackStack.offsetHeight;
-    const pan = Math.max(0, h - H + 100) * u8;     // the stack pans up as one piece, the text included
-    blackStack.style.transform = 'translate(-50%, ' + (-pan) + 'px)';
+    const th = blackText.offsetHeight;
+    const start = Math.max(0, H / 2 - 60 - th / 2); // the opening text comes up centred on the screen
+    const pan = Math.max(0, h - H + 100);           // the stack pans up as one piece, the text included
+    const y = start * (1 - u8) - pan * u8;
+    blackStack.style.transform = 'translate(-50%, ' + y + 'px)';
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
   }
 
