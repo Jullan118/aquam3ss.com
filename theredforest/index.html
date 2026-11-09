@@ -54,6 +54,22 @@
   .hint.hidden{
     opacity: 0;
   }
+  .room-title{
+    position: absolute;
+    left: 32px;
+    bottom: 40px;
+    margin: 0;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ff0000;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+    z-index: 10;
+  }
+  .room-title.hidden{
+    opacity: 0;
+  }
   .home-link{
     position: fixed;
     top: 24px;
@@ -187,6 +203,7 @@
 
 <div class="room">
   <canvas id="scene" tabindex="0"></canvas>
+  <h1 class="room-title" id="room-title">the red forest</h1>
   <div class="hint" id="hint">
     <div class="hint-title">virtual exhibition</div>
     <div>drag on screen to look around &middot; arrow keys or wasd to walk through the room</div>
@@ -224,6 +241,7 @@
 (function(){
   const canvas = document.getElementById('scene');
   const hint = document.getElementById('hint');
+  const roomTitle = document.getElementById('room-title');
 
   // --- basic scene setup ---
   const scene = new THREE.Scene();
@@ -467,7 +485,12 @@
   };
   window.addEventListener('keydown', (e) => {
     const action = KEY_MAP[e.code];
-    if (action){ keys.add(action); hint.classList.add('hidden'); e.preventDefault(); }
+    if (action){
+      keys.add(action);
+      hint.classList.add('hidden');
+      roomTitle.classList.add('hidden');
+      e.preventDefault();
+    }
   });
   setTimeout(() => hint.classList.add('hidden'), 20000);
   window.addEventListener('keyup', (e) => {
