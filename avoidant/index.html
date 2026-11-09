@@ -38,15 +38,6 @@
     position:relative;
     height:1200vh;
   }
-  .hero-full{
-    position:absolute;
-    top:0; left:0;
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    opacity:0;
-    pointer-events:none;
-  }
   .sweep-canvas{
     position:absolute;
     top:0; left:0;
@@ -164,7 +155,6 @@
 <div class="glitter-track">
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
-  <img id="hero-full" class="hero-full" src="avoidant-final.jpg" alt="diagram of material jetting layers with void layers between the printed layers">
   <canvas id="sweep" class="sweep-canvas" aria-hidden="true"></canvas>
   <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
@@ -199,7 +189,6 @@
   let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
   let u5 = 0;                       // phase 5: the streaks sweep back out to white, the final image arrives
   let u6 = 0;                       // phase 6: black streaks fill the screen, until it is black
-  const imgEl = document.getElementById('hero-full');
   let drawing = [];                 // phase 4 drawing, as streak dashes
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
@@ -315,7 +304,6 @@
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
     phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
-    imgEl.style.opacity = smooth(0.9, 1, u5);        // the final image arrives on the white screen
   }
 
   function drawGlitter(time){
