@@ -36,7 +36,16 @@
   /* tall track so the hero stays pinned while the glitter dissolves */
   .glitter-track{
     position:relative;
-    height:800vh;
+    height:1000vh;
+  }
+  .hero-full{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    opacity:0;
+    pointer-events:none;
   }
   .ph-logic{
     display:inline-block;
@@ -170,6 +179,7 @@
     margin:48px 0;
   }
   .story p:last-child{ margin-bottom:0; }
+  .info-footer{text-align:right;font-size:11px;line-height:1.4;margin:64px 0 0;}
 
   @media (max-width:700px){
     .photos{ grid-template-columns:1fr; padding:64px 20px 0; }
@@ -184,6 +194,7 @@
 <div class="glitter-track">
 <section class="p-hero">
   <canvas id="glitter" role="img" aria-label="avoidant, hero"></canvas>
+  <img id="hero-full" class="hero-full" src="avoidant-layers.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
   <div class="p-hero-title-block" id="hero-title">
     <h1 class="p-hero-title">avoidant</h1>
     <p class="p-hero-caption">computational design research 2026. voxel printing.</p>
@@ -209,8 +220,8 @@
     <p>All four parameters can therefore be encoded as controllable sliders within the Grasshopper workflow, creating a design space for adjustable spray-like surface effects (Figure 2).</p>
     <img class="story-figure" src="avoidant-workflow.jpg" alt="workflow diagram: spray drift angle, surface diffuseness, pattern depth and spray inclination sliders feed a spray geometry node above split 1, a void zone between the splits, and a base body below split 2, leading to material, export to print and preview" loading="lazy">
     <p class="story-caption">Figure 2: Proposed schematic workflow, where findings from exploratory print series inform controllable sliders for spray drift, surface diffuseness, pattern depth, and spray inclination.</p>
-    <p>Supervised by TU Delft Computational Fabrication. Building on the bitmap workflow of Doubrovski et al. (2015).</p>
   </div>
+  <p class="info-footer">Supervised by TU Delft Computational Fabrication. Building on the bitmap workflow of Doubrovski et al. (2015).</p>
 </section>
 
 <script>
@@ -233,6 +244,7 @@
   let p = 0, pTarget = 0;           // phase 1: glitter dissolves to white
   let u2 = 0;                       // phase 2: the phrase moves to the middle
   let u3 = 0;                       // phase 3: white turns black, the drawing grows in
+  let u4 = 0;                       // phase 4: the drawing breaks back up, the layers image arrives
   let phraseDX = 0, phraseDY = 0;
   let running = false, visible = true, raf = null;
 
@@ -240,6 +252,7 @@
   const centerEl = document.getElementById('hero-center');
   const phraseEl = document.getElementById('hero-phrase');
   const restEls = document.querySelectorAll('.ph-rest');
+  const imgEl = document.getElementById('hero-full');
 
   function smooth(a, b, v){
     const x = Math.min(1, Math.max(0, (v - a) / (b - a)));
@@ -405,6 +418,7 @@
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
     // once the phrase starts to break up, the pixel version takes over
     phraseEl.style.opacity = u3 > 0 ? 0 : 1;
+    imgEl.style.opacity = smooth(0.75, 1, u4);
   }
 
   // the phrase's pixels: they turn white with the background, then drift up and go
@@ -454,7 +468,8 @@
 
   function drawContour(time){
     // reveal runs 0..1.25 so that every pixel is fully sharp by the end
-    const q = Math.min(1, Math.max(0, (u3 - 0.25) / 0.75)) * 1.25;
+    // forward: pixels appear from the centre out; back: they let go in reverse order
+    const q = u4 > 0 ? 1.25 * (1 - u4) : Math.min(1, Math.max(0, (u3 - 0.25) / 0.75)) * 1.25;
     const sparks = [];
     ctx.fillStyle = '#ffffff';
     for (let i = 0; i < contour.length; i++) {
@@ -519,6 +534,7 @@
     // 3..4 screens: hold, the sentence stays still
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));          // phase 2: 1 screen, phrase moves to the middle
     u3 = Math.min(1, Math.max(0, (y - vh * 5) / (vh * 2)));    // phase 3: 2 screens, pixels break up, drawing grows in
+    u4 = Math.min(1, Math.max(0, (y - vh * 7) / (vh * 2)));    // phase 4: 2 screens, the drawing breaks back up, the layers image arrives
     if (reduce) {
       p = pTarget;
       draw(0);
