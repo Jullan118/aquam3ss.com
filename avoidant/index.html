@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves and the screen sweeps to black */
   .glitter-track{
     position:relative;
-    height:900vh;
+    height:1000vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -105,6 +105,18 @@
     line-height:1.4;
     font-weight:300;
     color:#fff;
+    opacity:0;
+    pointer-events:none;
+    z-index:11;
+  }
+  /* slot for the printer animation: centred, under the text once it has moved up */
+  .printer-slot{
+    position:absolute;
+    left:50%;
+    top:64%;
+    transform:translate(-50%, -50%);
+    width:min(900px, 90vw);
+    aspect-ratio:16 / 9;
     opacity:0;
     pointer-events:none;
     z-index:11;
@@ -179,6 +191,7 @@
     <p class="p-hero-caption">Computational design research, 2026, voxel printing</p>
   </div>
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
+  <div class="printer-slot" id="printer-slot" aria-hidden="true"></div>
   <p class="end-text" id="end-text">Material jetting builds objects voxel by voxel, layer by layer. Missing layers are normally considered defects.</p>
 </section>
 </div>
@@ -207,6 +220,8 @@
   const centerEl = document.getElementById('hero-center');
   const phraseEl = document.getElementById('hero-phrase');
   const endEl = document.getElementById('end-text');
+  const printerEl = document.getElementById('printer-slot');
+  let u9 = 0;                       // phase 3: on black, the text moves up and the printer slot comes in under it
   const restEls = document.querySelectorAll('.ph-rest');
   let u2 = 0;                       // phase 2a: the phrase moves to the middle, the rest of the sentence fades
   let phraseDX = 0, phraseDY = 0;
@@ -312,6 +327,9 @@
     centerEl.style.opacity = smooth(0.85, 1, p);     // the sentence comes up once the glitter is gone
     restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
     endEl.style.opacity = smooth(0.9, 1, pix);       // the text comes up once the screen is black
+    const lift = smooth(0, 1, u9) * H * 0.22;        // the text moves up as you scroll on
+    endEl.style.transform = 'translate(-50%, calc(-50% - ' + lift + 'px))';
+    printerEl.style.opacity = smooth(0.4, 1, u9);    // the printer animation fades in under it
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
@@ -429,6 +447,7 @@
     pTarget = Math.min(1, Math.max(0, y / (vh * 3)));            // phase 1: glitter dissolves over 3 screens
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));            // phase 2a: 1 screen, the phrase moves to the middle
     pix = Math.min(1, Math.max(0, (y - vh * 5.5) / (vh * 2)));   // phase 2b: after a short rest, 2 screens of glitter sweep it to black
+    u9 = Math.min(1, Math.max(0, (y - vh * 8) / vh));            // phase 3: 1 screen on black, the text lifts and the printer slot comes in
     if (reduce) {
       p = pTarget;
       draw(0);
