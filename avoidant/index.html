@@ -270,6 +270,18 @@
     .photos{ grid-template-columns:1fr; padding:64px 20px 0; }
     .details{ grid-template-columns:1fr; padding:64px 20px 96px; }
   }
+  /* --- interactive print lab --- */
+  .lab{ background:#000; color:#fff; padding:14vh 6vw 18vh; }
+  .lab-inner{ max-width:1100px; margin:0 auto; }
+  .lab-intro{ margin:0 0 7vh; max-width:46ch; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
+  .lab-figure{ position:relative; width:100%; }
+  .lab-figure > img{ display:block; width:100%; height:auto; }
+  .lab-mask{ position:absolute; background:#000; pointer-events:none; }
+  .lab-thumb{ position:absolute; width:1.4%; aspect-ratio:1 / 1; border-radius:50%; background:#fff; transform:translate(-50%,-50%); pointer-events:none; }
+  .lab-range{ position:absolute; margin:0; opacity:0; cursor:ew-resize; -webkit-appearance:none; appearance:none; background:transparent; }
+  .lab-print{ margin-top:8vh; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .lab-print canvas{ display:block; width:min(442px, 80vw); height:auto; }
+  .lab-caption{ margin:0; font-size:13px; letter-spacing:0.06em; color:#9a9a9a; }
 </style>
 </head>
 <body>
@@ -294,6 +306,19 @@
   <p class="end-text" id="end-text">Material jetting builds objects voxel by voxel, layer by layer. Missing layers are normally considered defects.</p>
 </section>
 </div>
+
+<section class="lab" id="lab">
+  <div class="lab-inner">
+    <p class="lab-intro">Four parameters were varied in the print series. Drag a slider in the diagram and the print below changes with it, showing how much glitter appears and how strongly the spray-like effect spreads.</p>
+    <div class="lab-figure" id="lab-figure">
+      <img src="logic-diagram.webp" alt="Logic diagram: four sliders (X-ray diffraction, Surface refinement, Pattern depth, Spray inclination) feed the spray geometry and the void zone of the print">
+    </div>
+    <div class="lab-print">
+      <canvas id="lab-print" aria-label="Print that changes with the four sliders"></canvas>
+      <p class="lab-caption">Print v10, rendered live from the four sliders</p>
+    </div>
+  </div>
+</section>
 
 
 
@@ -814,6 +839,131 @@
       if (visible) start(); else stop();
     }).observe(hero);
   }
+})();
+</script>
+
+<script>
+(function(){
+  // the sliders are laid over the diagram's own slider rows (diagram is 1813 x 868)
+  var IW = 1813, IH = 868;
+  var rows = [
+    { k:'xray',    name:'X-ray diffraction', y:153, cx:333, v:0.51 },
+    { k:'surface', name:'Surface refinement', y:256, cx:333, v:0.51 },
+    { k:'depth',   name:'Pattern depth',      y:368, cx:315, v:0.45 },
+    { k:'incl',    name:'Spray inclination',  y:480, cx:310, v:0.43 }
+  ];
+  var fig = document.getElementById('lab-figure');
+  var canvas = document.getElementById('lab-print');
+  var W = 442, H = 450;
+  canvas.width = W; canvas.height = H;
+  var ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  var work = document.createElement('canvas'); work.width = W; work.height = H;
+  var wctx = work.getContext('2d', { willReadFrequently: true });
+  var base = document.createElement('canvas'); base.width = W; base.height = H;
+  var bctx = base.getContext('2d');
+  var small = document.createElement('canvas');
+  var sctx = small.getContext('2d');
+
+  // fixed noise, so the glitter does not re-randomise on every move of a slider
+  var noise = new Float32Array(W * H);
+  for (var i = 0; i < noise.length; i++) noise[i] = Math.random();
+
+  var src = new Image();
+  src.src = 'prints-v10.webp';
+
+  var vals = {};
+  var pct = function(px, total){ return (px / total * 100) + '%'; };
+
+  rows.forEach(function(r){
+    vals[r.k] = r.v;
+
+    // cover the diagram's own thumb, then draw a live one at the same track
+    var mask = document.createElement('div');
+    mask.className = 'lab-mask';
+    mask.style.left = pct(r.cx - 20, IW); mask.style.width = pct(40, IW);
+    mask.style.top = pct(r.y - 22, IH); mask.style.height = pct(44, IH);
+    fig.appendChild(mask);
+
+    var thumb = document.createElement('div');
+    thumb.className = 'lab-thumb';
+    fig.appendChild(thumb);
+
+    var input = document.createElement('input');
+    input.type = 'range'; input.min = 0; input.max = 100; input.step = 1;
+    input.value = Math.round(r.v * 100);
+    input.className = 'lab-range';
+    input.setAttribute('aria-label', r.name);
+    input.style.left = pct(180, IW); input.style.width = pct(300, IW);
+    input.style.top = pct(r.y - 20, IH); input.style.height = pct(40, IH);
+    fig.appendChild(input);
+
+    var place = function(){
+      thumb.style.left = pct(187 + 285 * vals[r.k], IW);
+      thumb.style.top = pct(r.y, IH);
+    };
+    place();
+    input.addEventListener('input', function(){
+      vals[r.k] = input.value / 100;
+      place();
+      schedule();
+    });
+  });
+
+  var queued = false;
+  function schedule(){
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function(){ queued = false; render(); });
+  }
+
+  function render(){
+    if (!src.complete || !src.naturalWidth) return;
+
+    wctx.imageSmoothingEnabled = true;
+    wctx.clearRect(0, 0, W, H);
+    wctx.drawImage(src, 0, 0, W, H);
+
+    // surface refinement: low = coarse pixel blocks, high = fine detail
+    var sc = 0.3 + 0.7 * vals.surface;
+    var sw = Math.max(2, Math.round(W * sc)), sh = Math.max(2, Math.round(H * sc));
+    small.width = sw; small.height = sh;
+    sctx.drawImage(work, 0, 0, sw, sh);
+    wctx.imageSmoothingEnabled = false;
+    wctx.clearRect(0, 0, W, H);
+    wctx.drawImage(small, 0, 0, sw, sh, 0, 0, W, H);
+    wctx.imageSmoothingEnabled = true;
+
+    // spray inclination: the lines are smeared along one direction, longer as the slider rises
+    bctx.clearRect(0, 0, W, H);
+    bctx.drawImage(work, 0, 0);
+    var len = vals.incl * 9, ang = 0.45, n = 6;
+    wctx.globalCompositeOperation = 'lighten';
+    for (var j = 1; j <= n; j++){
+      var t = len * j / n;
+      wctx.drawImage(base, Math.cos(ang) * t, Math.sin(ang) * t);
+    }
+    wctx.globalCompositeOperation = 'source-over';
+
+    // pattern depth and x-ray diffraction, applied per pixel
+    var img = wctx.getImageData(0, 0, W, H), d = img.data;
+    var g = 1.6 - 1.2 * vals.depth;      // low depth = dim lines, high depth = strong lines
+    var pG = vals.xray * vals.xray * 0.12; // share of pixels that turn to copper glitter
+    for (var p = 0; p < W * H; p++){
+      var k = p * 4;
+      if (noise[p] < pG){
+        d[k] = 255; d[k + 1] = 206; d[k + 2] = 160;
+      } else {
+        var l = Math.pow(d[k] / 255, g) * 255;
+        d[k] = l; d[k + 1] = l; d[k + 2] = l;
+      }
+      d[k + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  src.addEventListener('load', render);
+  render();
 })();
 </script>
 
