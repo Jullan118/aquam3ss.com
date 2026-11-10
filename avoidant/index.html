@@ -173,45 +173,6 @@
     pointer-events:none;
     z-index:11;
   }
-  .print-image-slot{
-    position:fixed;
-    left:72%;
-    top:64%;
-    transform:translate(-50%, -50%);
-    opacity:0;
-    pointer-events:none;
-    z-index:11;
-  }
-  /* the print series is as wide as the text above it (.print-text) */
-  .print-trio{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    width:min(440px, 40vw);
-  }
-  /* three prints of equal size that together fill that width: height = width / (sum of the three aspect ratios) */
-  .print-trio img{
-    display:block;
-    height:calc(min(440px, 40vw) / 2.68);
-    width:auto;
-  }
-  /* the v10 drawing fills more of its file than v8 and v12, so it is scaled down to show the same size */
-  .print-trio #print-mid{
-    height:calc(min(440px, 40vw) / 2.68 * 0.9);
-  }
-  /* the combined print series sits exactly where the three prints were */
-  .print-combined{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%, -50%);
-    width:min(440px, 40vw);
-    height:auto;
-    max-width:none;
-    opacity:0;
-    pointer-events:none;
-    z-index:11;
-  }
   .printer-slot canvas{
     display:block;
     width:100%;
@@ -274,16 +235,17 @@
   }
   /* --- interactive print lab --- */
   .lab{ background:#000; color:#fff; padding:14vh 6vw 18vh; }
-  /* the lab stays in the left half, so the print in the top right corner has room */
-  .lab-inner{ max-width:52vw; margin:0 0 0 6vw; }
+  .lab-inner{ max-width:1200px; margin:0 auto; }
+  /* the diagram and the live print sit side by side, so both are visible while the sliders are dragged */
+  .lab-row{ display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:6vw; align-items:start; }
   .lab-intro{ margin:0 0 7vh; max-width:46ch; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
-  .lab-figure{ position:relative; width:min(100%, 520px); }
+  .lab-figure{ position:relative; width:100%; }
   .lab-figure > img{ display:block; width:100%; height:auto; }
   .lab-mask{ position:absolute; background:#000; pointer-events:none; }
   .lab-thumb{ position:absolute; width:1.4%; aspect-ratio:1 / 1; border-radius:50%; background:#fff; transform:translate(-50%,-50%); pointer-events:none; }
   .lab-range{ position:absolute; margin:0; opacity:0; cursor:ew-resize; -webkit-appearance:none; appearance:none; background:transparent; }
-  .lab-print{ margin-top:8vh; display:flex; flex-direction:column; align-items:center; gap:14px; }
-  .lab-print canvas{ display:block; width:min(300px, 24vw); height:auto; }
+  .lab-print{ position:sticky; top:12vh; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .lab-print canvas{ display:block; width:min(440px, 100%); height:auto; }
   .lab-caption{ margin:0; font-size:13px; letter-spacing:0.06em; color:#9a9a9a; }
 </style>
 </head>
@@ -302,7 +264,6 @@
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
   <p class="spray-text" id="spray-text">By introducing void layers, droplets spread before reaching the next surface, creating a diffuse, spray-like texture instead of a precise voxel pattern.</p>
   <p class="print-text" id="print-text">A series of prints were produced to isolate the void parameters influencing the spray-like effect. Void height, pattern depth, and inclination were investigated as independent variables.</p>
-  <div class="print-image-slot" id="print-image"><div class="print-trio" id="print-trio"><img class="print-side" id="print-side-l" src="prints-v8.webp" alt="Print series, print 8"><img id="print-mid" src="prints-v10.webp" alt="Print series, print 10: void prints with varying void height, pattern depth and inclination"><img class="print-side" id="print-side-r" src="prints-v12.webp" alt="Print series, print 12"></div><img class="print-combined" id="print-combined" src="prints.webp" alt="Print series: void prints with varying void height, pattern depth and inclination"></div>
   <div class="seq-slot" id="seq1-slot" aria-hidden="true"></div>
   <div class="seq-slot" id="seq2-slot" aria-hidden="true"></div>
   <div class="printer-slot" id="printer-slot" aria-hidden="true"><canvas id="printer-canvas"></canvas></div>
@@ -313,12 +274,14 @@
 <section class="lab" id="lab">
   <div class="lab-inner">
     <p class="lab-intro">Four parameters were varied in the print series. Drag a slider in the diagram and the print below changes with it, showing how much glitter appears and how strongly the spray-like effect spreads.</p>
-    <div class="lab-figure" id="lab-figure">
-      <img src="logic-diagram.webp" alt="Logic diagram: four sliders (X-ray diffraction, Surface refinement, Pattern depth, Spray inclination) feed the spray geometry and the void zone of the print">
-    </div>
-    <div class="lab-print">
-      <canvas id="lab-print" aria-label="Print that changes with the four sliders"></canvas>
-      <p class="lab-caption">Print v10, rendered live from the four sliders</p>
+    <div class="lab-row">
+      <div class="lab-figure" id="lab-figure">
+        <img src="logic-diagram.webp" alt="Logic diagram: four sliders (X-ray diffraction, Surface refinement, Pattern depth, Spray inclination) feed the spray geometry and the void zone of the print">
+      </div>
+      <div class="lab-print">
+        <canvas id="lab-print" aria-label="Print that changes with the four sliders"></canvas>
+        <p class="lab-caption">Print v10, rendered live from the four sliders</p>
+      </div>
     </div>
   </div>
 </section>
@@ -369,9 +332,6 @@
   const sprayEl = document.getElementById('spray-text');
   const seq1El = document.getElementById('seq1-slot');
   const printTextEl = document.getElementById('print-text');
-  const printImgEl = document.getElementById('print-image');
-  const printTrioEl = document.getElementById('print-trio');
-  const printCombinedEl = document.getElementById('print-combined');
   let u12 = 0;                      // phase 6: the left build fades out, the right one moves to the left, the print text comes in beside it
   let u13 = 0;                      // phase 7: the print text moves up and the print series image fades in under it
   let u14 = 0;                      // phase 8: all text and the left animation fade out
@@ -548,21 +508,6 @@
     const L13 = e13 * H * 0.36;                               // one shared lift for the text, the animation and the image
     printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     seq2El.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
-    // the print series starts under the text and moves to the top right, where it stays for the rest of the page
-    // (the combined print series takes over from the three prints in the same place)
-    const pw = Math.min(440, 0.4 * window.innerWidth);
-    const ph = pw / 2.94;
-    const e15 = smooth(0, 1, u15);
-    const y0 = H * 0.93 - L13;
-    const x0 = 0.72 * window.innerWidth;
-    const x1 = window.innerWidth * 0.94 - pw / 2;
-    const cy1 = H * 0.12 + ph / 2;
-    printImgEl.style.left = (x0 + (x1 - x0) * e15) + 'px';
-    printImgEl.style.top = (y0 + (cy1 - y0) * e15) + 'px';
-    printImgEl.style.opacity = smooth(0, 1, u13);
-    printTrioEl.style.transform = 'none';
-    printTrioEl.style.opacity = 1 - smooth(0, 0.7, u15);
-    printCombinedEl.style.opacity = smooth(0.4, 1, u15);
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
