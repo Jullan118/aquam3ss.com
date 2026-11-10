@@ -234,18 +234,18 @@
     .details{ grid-template-columns:1fr; padding:64px 20px 96px; }
   }
   /* --- interactive print lab --- */
-  .lab{ position:relative; z-index:2; margin-top:-28vh; background:#000; color:#fff; padding:3vh 6vw 8vh; }
+  .lab{ position:relative; z-index:2; margin-top:-100vh; background:#000; color:#fff; padding:3vh 6vw 40vh; }
   .lab-inner{ max-width:1200px; margin:0 auto; }
   /* the diagram and the live print sit side by side, so both are visible while the sliders are dragged */
-  .lab-row{ display:grid; grid-template-columns:minmax(0,1.9fr) minmax(0,1fr); gap:5vw; align-items:start; }
-  .lab-main{ min-width:0; }
-  .lab-intro{ margin:0 0 4vh; max-width:none; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
-  .lab-figure{ position:relative; width:100%; }
+  .lab-row{ display:grid; grid-template-columns:minmax(0,1.9fr) minmax(0,1fr); grid-template-rows:auto auto; column-gap:5vw; row-gap:0; align-items:start; }
+  .lab-main{ display:contents; }
+  .lab-intro{ grid-column:1; grid-row:1; min-width:0; margin:0 0 4vh; max-width:none; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
+  .lab-figure{ position:relative; width:100%; min-width:0; grid-column:1; grid-row:2; }
   .lab-figure > img{ display:block; width:100%; height:auto; }
   .lab-mask{ position:absolute; background:#000; pointer-events:none; }
   .lab-thumb{ position:absolute; width:1.4%; aspect-ratio:1 / 1; border-radius:50%; background:#fff; transform:translate(-50%,-50%); pointer-events:none; }
   .lab-range{ position:absolute; margin:0; opacity:0; cursor:ew-resize; -webkit-appearance:none; appearance:none; background:transparent; }
-  .lab-print{ position:sticky; top:12vh; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .lab-print{ grid-column:2; grid-row:2; align-self:start; position:sticky; top:12vh; display:flex; flex-direction:column; align-items:center; gap:14px; }
   .lab-print canvas{ display:block; width:min(220px, 100%); height:auto; }
   .lab-caption{ margin:0; font-size:13px; letter-spacing:0.06em; color:#9a9a9a; }
 </style>
