@@ -176,7 +176,7 @@
   .print-image-slot{
     position:absolute;
     left:72%;
-    top:76%;
+    top:64%;
     transform:translate(-50%, -50%);
     width:min(440px, 40vw);
     aspect-ratio:4 / 3;
@@ -477,7 +477,7 @@
     printerEl.style.opacity = smooth(0.4, 1, u9) * (1 - smooth(0, 0.6, u11)); // the printer animation fades in under the text, then steps aside
     const rise = smooth(0, 1, u10) * H * 0.36;       // then it moves up into the text's place
     printerEl.style.transform = 'translate(-50%, calc(-50% - ' + rise + 'px))';
-    sprayEl.style.opacity = smooth(0.6, 1, u10) * 1;  // the new text comes in under the animation
+    sprayEl.style.opacity = smooth(0.6, 1, u10) * (1 - smooth(0, 1, u13)); // the new text comes in under the animation, then gives way to the next one
     const lift2 = smooth(0, 1, u11) * H * 0.36;       // then the text moves up the same way
     sprayEl.style.transform = 'translate(-50%, calc(-50% - ' + lift2 + 'px))';
     const e12 = smooth(0, 1, u12);
@@ -486,8 +486,11 @@
     seq2El.style.left = (72 - 44 * e12) + '%';                // the right build slides into the left place
     printTextEl.style.opacity = smooth(0.75, 1, u12);         // the text comes in only once the right build has settled into the left place
     const e13 = smooth(0, 1, u13);
-    printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + (e13 * H * 0.24) + 'px))';
+    const L13 = e13 * H * 0.36;                               // one shared lift for the text, the animation and the image
+    printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
+    seq2El.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     printImgEl.style.opacity = smooth(0, 1, u13);             // the print series image comes in under the text
+    printImgEl.style.transform = 'translate(-50%, calc(-50% + ' + (H * 0.29 - L13) + 'px))';
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
