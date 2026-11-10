@@ -258,12 +258,23 @@
   </section>
   <style>
     .strip{ padding: 10vh 0 12vh; overflow: hidden; }
-    .strip-row{ display:flex; align-items:center; justify-content:center; gap:6px; height:150px; padding:0 3vw; overflow-x:auto; scrollbar-width:none; }
-    .strip-row img{ height:42px; width:56px; object-fit:cover; flex:0 0 auto; transition: width .35s ease, height .35s ease; cursor:pointer; }
-    .strip-row img:hover{ height:130px; width:180px; }
+    .strip-row{ display:flex; align-items:center; justify-content:center; gap:6px; height:220px; padding:0 3vw; overflow-x:auto; scrollbar-width:none; perspective:800px; }
+    /* each image is tilted into the room and slowly floats, a little out of step with its neighbours */
+    .strip-row img{ height:42px; width:56px; object-fit:cover; flex:0 0 auto; cursor:pointer;
+      transform: rotateY(-28deg) rotateX(10deg); transform-style: preserve-3d;
+      animation: strip-float 7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.4s);
+      transition: width .35s ease, height .35s ease, transform .35s ease; }
+    .strip-row img:hover{ height:150px; width:200px; transform: rotateY(0) rotateX(0) translateZ(30px); }
+    @keyframes strip-float{
+      0%, 100%{ translate: 0 -8px; }
+      50%{ translate: 0 8px; }
+    }
+    @media (prefers-reduced-motion: reduce){ .strip-row img{ animation: none; } }
   </style>
 
 <script>
+// give each strip image its own position in the float cycle
+document.querySelectorAll('.strip-row img').forEach(function(el, i){ el.style.setProperty('--i', i); });
 (function(){
   const wrapper   = document.getElementById('heroScroll');
   const cards     = Array.from(document.querySelectorAll('[data-card]'));
