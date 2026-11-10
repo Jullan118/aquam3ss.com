@@ -331,7 +331,7 @@
     set.offCanvas = document.createElement('canvas');
     set.offCtx = set.offCanvas.getContext('2d');
     // the five reference prints of this side, from fewest to most layers
-    const names = set.void ? ['v1','v2','v3','v4','v5'] : ['nv1','nv2','nv3','nv4','nv5'];
+    const names = set.void ? ['v1','v2','v3','v4','v5'] : ['nv1','nv2','nv3','nv4','nv5','nv6','nv7','nv8','nv9'];
     set.imgs = names.map(function(n){
       const im = new Image();
       im.src = 'seq/' + n + '.webp';
@@ -639,11 +639,10 @@
   const DX = 300, DX2 = 1320, DEPTH = 150, BLD_H = 26, VOID_H = 22, BASE_Y = 640;
 
   // the build: each reference print in turn, the next one wiped in from below
-  const SEQ_N = 5;
-  const SEQ_HOLD = 1.2, SEQ_WIPE = 0.9, SEQ_END = 1.6, SEQ_FADE = 0.6, SEQ_GAP = 0.4;
-  const SEQ_STEP = SEQ_HOLD + SEQ_WIPE;
-  const SEQ_LAST = (SEQ_N - 1) * SEQ_STEP;
-  const SEQ_CYCLE = SEQ_LAST + SEQ_END + SEQ_FADE + SEQ_GAP;
+  // both sides finish their build at the same time; each side's step depends on how many prints it has
+  const SEQ_TOTAL = 12;
+  const SEQ_END = 1.6, SEQ_FADE = 0.6, SEQ_GAP = 0.4;
+  const SEQ_CYCLE = SEQ_TOTAL + SEQ_END + SEQ_FADE + SEQ_GAP;
 
   function wipeFrames(set, from, to, p){
     const c = set.ctx, w = set.canvas.width, h = set.canvas.height;
@@ -666,20 +665,22 @@
 
   function drawBuild(time){
     const t = time % SEQ_CYCLE;
-    const fade = smooth(0, 0.5, t) * (1 - smooth(SEQ_LAST + SEQ_END, SEQ_LAST + SEQ_END + SEQ_FADE, t));
+    const fade = smooth(0, 0.5, t) * (1 - smooth(SEQ_TOTAL + SEQ_END, SEQ_TOTAL + SEQ_END + SEQ_FADE, t));
     seqSets.forEach(function(set){
       const c = set.ctx, w = set.canvas.width, h = set.canvas.height;
+      const n = set.imgs.length;
+      const step = SEQ_TOTAL / (n - 1), hold = step * 0.57, wipe = step - hold;
       c.setTransform(1, 0, 0, 1, 0, 0);
       c.clearRect(0, 0, w, h);
       if (!set.imgs.every(function(im){ return im.complete && im.naturalWidth > 0; })) return;
       c.globalAlpha = Math.max(0, fade);
-      if (t >= SEQ_LAST) {
-        c.drawImage(set.imgs[SEQ_N - 1], 0, 0, w, h);
+      if (t >= SEQ_TOTAL) {
+        c.drawImage(set.imgs[n - 1], 0, 0, w, h);
       } else {
-        const i = Math.floor(t / SEQ_STEP);
-        const local = t - i * SEQ_STEP;
-        if (local < SEQ_HOLD) c.drawImage(set.imgs[i], 0, 0, w, h);
-        else wipeFrames(set, i, i + 1, smooth(0, 1, (local - SEQ_HOLD) / SEQ_WIPE));
+        const i = Math.floor(t / step);
+        const local = t - i * step;
+        if (local < hold) c.drawImage(set.imgs[i], 0, 0, w, h);
+        else wipeFrames(set, i, i + 1, smooth(0, 1, (local - hold) / wipe));
       }
       c.globalAlpha = 1;
     });
