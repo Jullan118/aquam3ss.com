@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves and the screen sweeps to black */
   .glitter-track{
     position:relative;
-    height:1400vh;
+    height:1600vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -322,6 +322,8 @@
   const printImgEl = document.getElementById('print-image');
   let u12 = 0;                      // phase 6: the left build fades out, the right one moves to the left, the print text comes in beside it
   let u13 = 0;                      // phase 7: the print text moves up and the print series image fades in under it
+  let u14 = 0;                      // phase 8: all text and the left animation fade out
+  let u15 = 0;                      // phase 9: the print image shrinks, moves to the middle and settles up to the right
   const seq2El = document.getElementById('seq2-slot');
   // the two build illustrations, side by side under the text: the left is solid, the right has void layers between the layers
   const seqSets = [
@@ -486,15 +488,24 @@
     sprayEl.style.transform = 'translate(-50%, calc(-50% - ' + lift2 + 'px))';
     const e12 = smooth(0, 1, u12);
     seq1El.style.opacity = smooth(0.5, 1, u11) * (1 - e12);   // the left build fades out
-    seq2El.style.opacity = smooth(0.5, 1, u11);
+    const fade14 = 1 - smooth(0, 1, u14);                    // phase 8 fades everything out
+    seq2El.style.opacity = smooth(0.5, 1, u11) * fade14;
     seq2El.style.left = (72 - 44 * e12) + '%';                // the right build slides into the left place
-    printTextEl.style.opacity = smooth(0.75, 1, u12);         // the text comes in only once the right build has settled into the left place
+    printTextEl.style.opacity = smooth(0.75, 1, u12) * fade14; // the text comes in once the right build has settled, and fades out in phase 8
     const e13 = smooth(0, 1, u13);
     const L13 = e13 * H * 0.36;                               // one shared lift for the text, the animation and the image
     printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     seq2El.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     printImgEl.style.opacity = smooth(0, 1, u13);             // the print series image comes in under the text
-    printImgEl.style.transform = 'translate(-50%, calc(-50% + ' + (H * 0.29 - L13) + 'px))';
+    // the print image: from under the text, to the middle, then up to the right, getting slightly smaller
+    const p1 = smooth(0, 1, Math.min(1, u15 * 2));
+    const p2 = smooth(0, 1, Math.max(0, u15 * 2 - 1));
+    const y0 = H * 0.93 - L13;
+    const px = W * (0.72 - 0.22 * p1 + 0.22 * p2);
+    const py = y0 + (H * 0.5 - y0) * p1 + (H * 0.28 - H * 0.5) * p2;
+    printImgEl.style.left = (px / W * 100) + '%';
+    printImgEl.style.top = (py / H * 100) + '%';
+    printImgEl.style.transform = 'translate(-50%, -50%) scale(' + (1 - 0.15 * smooth(0, 1, u15)) + ')';
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
@@ -748,6 +759,8 @@
     u11 = Math.min(1, Math.max(0, (y - vh * 10) / vh));          // phase 5: 1 screen, the text moves up, the two sequences come in under it
     u12 = Math.min(1, Math.max(0, (y - vh * 11) / vh));          // phase 6: 1 screen, the left build fades, the right one moves left, the text comes in
     u13 = Math.min(1, Math.max(0, (y - vh * 12) / vh));          // phase 7: 1 screen, the text lifts and the print image comes in
+    u14 = Math.min(1, Math.max(0, (y - vh * 13) / vh));          // phase 8: 1 screen, the text and the left animation fade out
+    u15 = Math.min(1, Math.max(0, (y - vh * 14) / vh));          // phase 9: 1 screen, the print image goes to the middle and up to the right
     if (reduce) {
       p = pTarget;
       draw(0);
