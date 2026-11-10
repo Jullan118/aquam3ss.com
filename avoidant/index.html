@@ -238,7 +238,8 @@
   .lab-inner{ max-width:1200px; margin:0 auto; }
   /* the diagram and the live print sit side by side, so both are visible while the sliders are dragged */
   .lab-row{ display:grid; grid-template-columns:minmax(0,1.9fr) minmax(0,1fr); gap:5vw; align-items:start; }
-  .lab-intro{ margin:0 0 4vh; max-width:46ch; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
+  .lab-main{ min-width:0; }
+  .lab-intro{ margin:0 0 4vh; max-width:none; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
   .lab-figure{ position:relative; width:100%; }
   .lab-figure > img{ display:block; width:100%; height:auto; }
   .lab-mask{ position:absolute; background:#000; pointer-events:none; }
@@ -273,10 +274,12 @@
 
 <section class="lab" id="lab">
   <div class="lab-inner">
-    <p class="lab-intro">Four parameters were varied in the print series. Drag a slider in the diagram and the print below changes with it, showing how much glitter appears and how strongly the spray-like effect spreads.</p>
     <div class="lab-row">
-      <div class="lab-figure" id="lab-figure">
-        <img src="logic-diagram.webp" alt="Logic diagram: four sliders (X-ray diffraction, Surface refinement, Pattern depth, Spray inclination) feed the spray geometry and the void zone of the print">
+      <div class="lab-main">
+        <p class="lab-intro">Logic of omission uses the absence of printed layers to control material emission and create different surface effects. Four parameters were translated into an interactive diagram, where each slider adjusts the material distribution and spray-like effect of the corresponding print.</p>
+        <div class="lab-figure" id="lab-figure">
+          <img src="logic-diagram.webp" alt="Logic diagram: four sliders (X-ray diffraction, Surface refinement, Pattern depth, Spray inclination) feed the spray geometry and the void zone of the print">
+        </div>
       </div>
       <div class="lab-print">
         <canvas id="lab-print" aria-label="Print that changes with the four sliders"></canvas>
