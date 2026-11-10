@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves and the screen sweeps to black */
   .glitter-track{
     position:relative;
-    height:1200vh;
+    height:1400vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -156,6 +156,34 @@
   }
   #seq1-slot{ left:28%; }
   #seq2-slot{ left:72%; }
+  /* the print series text, beside the build animation, and the image under it */
+  .print-text{
+    position:absolute;
+    left:72%;
+    top:64%;
+    transform:translate(-50%, -50%);
+    width:min(440px, 40vw);
+    margin:0;
+    text-align:center;
+    font-size:clamp(14px, 1.45vw, 19px);
+    line-height:1.4;
+    font-weight:300;
+    color:#fff;
+    opacity:0;
+    pointer-events:none;
+    z-index:11;
+  }
+  .print-image-slot{
+    position:absolute;
+    left:72%;
+    top:76%;
+    transform:translate(-50%, -50%);
+    width:min(440px, 40vw);
+    aspect-ratio:4 / 3;
+    opacity:0;
+    pointer-events:none;
+    z-index:11;
+  }
   .printer-slot canvas{
     display:block;
     width:100%;
@@ -232,6 +260,8 @@
   </div>
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
   <p class="spray-text" id="spray-text">By introducing void layers, droplets spread before reaching the next surface, creating a diffuse, spray-like texture instead of a precise voxel pattern.</p>
+  <p class="print-text" id="print-text">A series of prints were produced to isolate the void parameters influencing the spray-like effect. Void height, pattern depth, and inclination were investigated as independent variables.</p>
+  <div class="print-image-slot" id="print-image" aria-hidden="true"></div>
   <div class="seq-slot" id="seq1-slot" aria-hidden="true"></div>
   <div class="seq-slot" id="seq2-slot" aria-hidden="true"></div>
   <div class="printer-slot" id="printer-slot" aria-hidden="true"><canvas id="printer-canvas"></canvas></div>
@@ -284,6 +314,10 @@
   let prevFwd = false, layers = [], current = null, particles = [], lastT = 0;
   const sprayEl = document.getElementById('spray-text');
   const seq1El = document.getElementById('seq1-slot');
+  const printTextEl = document.getElementById('print-text');
+  const printImgEl = document.getElementById('print-image');
+  let u12 = 0;                      // phase 6: the left build fades out, the right one moves to the left, the print text comes in beside it
+  let u13 = 0;                      // phase 7: the print text moves up and the print series image fades in under it
   const seq2El = document.getElementById('seq2-slot');
   // the two build illustrations, side by side under the text: the left is solid, the right has void layers between the layers
   const seqSets = [
@@ -432,8 +466,14 @@
     sprayEl.style.opacity = smooth(0.6, 1, u10) * 1;  // the new text comes in under the animation
     const lift2 = smooth(0, 1, u11) * H * 0.36;       // then the text moves up the same way
     sprayEl.style.transform = 'translate(-50%, calc(-50% - ' + lift2 + 'px))';
-    seq1El.style.opacity = smooth(0.5, 1, u11);       // the two sequences come in side by side under it
+    const e12 = smooth(0, 1, u12);
+    seq1El.style.opacity = smooth(0.5, 1, u11) * (1 - e12);   // the left build fades out
     seq2El.style.opacity = smooth(0.5, 1, u11);
+    seq2El.style.left = (72 - 44 * e12) + '%';                // the right build slides into the left place
+    printTextEl.style.opacity = smooth(0.2, 1, u12);          // the text comes in beside it
+    const e13 = smooth(0, 1, u13);
+    printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + (e13 * H * 0.24) + 'px))';
+    printImgEl.style.opacity = smooth(0, 1, u13);             // the print series image comes in under the text
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
@@ -676,6 +716,8 @@
     u9 = Math.min(1, Math.max(0, (y - vh * 8) / vh));            // phase 3: 1 screen on black, the text lifts and the printer slot comes in
     u10 = Math.min(1, Math.max(0, (y - vh * 9) / vh));           // phase 4: 1 screen, the animation moves up, the new text comes in
     u11 = Math.min(1, Math.max(0, (y - vh * 10) / vh));          // phase 5: 1 screen, the text moves up, the two sequences come in under it
+    u12 = Math.min(1, Math.max(0, (y - vh * 11) / vh));          // phase 6: 1 screen, the left build fades, the right one moves left, the text comes in
+    u13 = Math.min(1, Math.max(0, (y - vh * 12) / vh));          // phase 7: 1 screen, the text lifts and the print image comes in
     if (reduce) {
       p = pTarget;
       draw(0);
