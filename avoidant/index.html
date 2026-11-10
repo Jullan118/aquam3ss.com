@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves and the screen sweeps to black */
   .glitter-track{
     position:relative;
-    height:1400vh;
+    height:1600vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -353,6 +353,7 @@
   const tileFront = dotPattern('#8c8c91', '#2e2e32');
   const tilePink = dotPattern('#ff1f8e', '#c4006c');
   const seqTiles = { top: tileTop, front: tileFront, pink: tilePink };
+  let buildP = 0;                   // progress of the two builds, follows the scroll: they stop when you stop
   let u11 = 0;                      // phase 5: the text moves up, the printer animation steps aside, the two sequences come in under it
   let u10 = 0;                      // phase 4: the animation moves up to where the first text was, and the new text comes in under it
   let u9 = 0;                       // phase 3: on black, the text moves up and the printer slot comes in under it
@@ -664,7 +665,7 @@
   }
 
   function drawBuild(time){
-    const t = time % SEQ_CYCLE;
+    const t = buildP * SEQ_TOTAL;
     const fade = smooth(0, 0.5, t) * (1 - smooth(SEQ_TOTAL + SEQ_END, SEQ_TOTAL + SEQ_END + SEQ_FADE, t));
     seqSets.forEach(function(set){
       const c = set.ctx, w = set.canvas.width, h = set.canvas.height;
@@ -727,6 +728,7 @@
     u11 = Math.min(1, Math.max(0, (y - vh * 10) / vh));          // phase 5: 1 screen, the text moves up, the two sequences come in under it
     u12 = Math.min(1, Math.max(0, (y - vh * 11) / vh));          // phase 6: 1 screen, the left build fades, the right one moves left, the text comes in
     u13 = Math.min(1, Math.max(0, (y - vh * 12) / vh));          // phase 7: 1 screen, the text lifts and the print image comes in
+    buildP = Math.min(1, Math.max(0, (y - vh * 10) / (vh * 5))); // the builds play over five screens of scroll, so the page pauses on them
     if (reduce) {
       p = pTarget;
       draw(0);
