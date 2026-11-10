@@ -197,13 +197,15 @@
   .print-trio #print-mid{
     height:min(234px, 21.6vw);
   }
-  .print-single{
+  /* the combined print series sits exactly where the three prints were */
+  .print-combined{
     position:absolute;
     left:50%;
     top:50%;
     transform:translate(-50%, -50%);
-    height:min(300px, 26vw);
+    height:min(260px, 24vw);
     width:auto;
+    max-width:none;
     opacity:0;
     pointer-events:none;
     z-index:11;
@@ -285,8 +287,7 @@
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
   <p class="spray-text" id="spray-text">By introducing void layers, droplets spread before reaching the next surface, creating a diffuse, spray-like texture instead of a precise voxel pattern.</p>
   <p class="print-text" id="print-text">A series of prints were produced to isolate the void parameters influencing the spray-like effect. Void height, pattern depth, and inclination were investigated as independent variables.</p>
-  <img class="print-single" id="print-single" src="prints-v10.webp" alt="Print series: void prints with varying void height, pattern depth and inclination">
-  <div class="print-image-slot" id="print-image"><div class="print-trio"><img class="print-side" id="print-side-l" src="prints-v8.webp" alt="Print series, print 8"><img id="print-mid" src="prints-v10.webp" alt="Print series, print 10: void prints with varying void height, pattern depth and inclination"><img class="print-side" id="print-side-r" src="prints-v12.webp" alt="Print series, print 12"></div></div>
+  <div class="print-image-slot" id="print-image"><div class="print-trio" id="print-trio"><img class="print-side" id="print-side-l" src="prints-v8.webp" alt="Print series, print 8"><img id="print-mid" src="prints-v10.webp" alt="Print series, print 10: void prints with varying void height, pattern depth and inclination"><img class="print-side" id="print-side-r" src="prints-v12.webp" alt="Print series, print 12"></div><img class="print-combined" id="print-combined" src="prints.webp" alt="Print series: void prints with varying void height, pattern depth and inclination"></div>
   <div class="seq-slot" id="seq1-slot" aria-hidden="true"></div>
   <div class="seq-slot" id="seq2-slot" aria-hidden="true"></div>
   <div class="printer-slot" id="printer-slot" aria-hidden="true"><canvas id="printer-canvas"></canvas></div>
@@ -341,7 +342,8 @@
   const seq1El = document.getElementById('seq1-slot');
   const printTextEl = document.getElementById('print-text');
   const printImgEl = document.getElementById('print-image');
-  const printSingleEl = document.getElementById('print-single');
+  const printTrioEl = document.getElementById('print-trio');
+  const printCombinedEl = document.getElementById('print-combined');
   let u12 = 0;                      // phase 6: the left build fades out, the right one moves to the left, the print text comes in beside it
   let u13 = 0;                      // phase 7: the print text moves up and the print series image fades in under it
   let u14 = 0;                      // phase 8: all text and the left animation fade out
@@ -519,15 +521,16 @@
     printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     seq2El.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     // the print image: from under the text, to the middle, then up to the right, getting slightly smaller
-    // the three prints stay under the text and fade upward as the page scrolls on
+    // the three prints stay under the text; as the page scrolls on they fade upward
+    // and the combined print series comes in in the same place
     const lift15 = smooth(0, 1, u15) * H * 0.3;
     const y0 = H * 0.93 - L13;
     printImgEl.style.left = '72%';
     printImgEl.style.top = (y0 / H * 100) + '%';
-    printImgEl.style.transform = 'translate(-50%, calc(-50% - ' + lift15 + 'px))';
-    printImgEl.style.opacity = smooth(0, 1, u13) * (1 - smooth(0, 0.7, u15));
-    // the single print of the middle comes in in its place
-    printSingleEl.style.opacity = smooth(0.4, 1, u15);
+    printImgEl.style.opacity = smooth(0, 1, u13);
+    printTrioEl.style.transform = 'translateY(' + (-lift15) + 'px)';
+    printTrioEl.style.opacity = 1 - smooth(0, 0.7, u15);
+    printCombinedEl.style.opacity = smooth(0.4, 1, u15);
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
