@@ -331,7 +331,7 @@
     set.offCanvas = document.createElement('canvas');
     set.offCtx = set.offCanvas.getContext('2d');
     // the five reference prints of this side, from fewest to most layers
-    const names = set.void ? ['v1','v2','v3','v4','v5'] : ['nv1','nv2','nv3','nv4','nv5','nv6','nv7','nv8','nv9'];
+    const names = set.void ? ['v1','v2','v3','v4','v5','v6','v7','v8','v9'] : ['nv1','nv2','nv3','nv4','nv5','nv6','nv7','nv8','nv9'];
     set.imgs = names.map(function(n){
       const im = new Image();
       im.src = 'seq/' + n + '.webp';
