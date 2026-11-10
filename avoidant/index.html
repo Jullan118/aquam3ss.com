@@ -481,7 +481,7 @@
     seq1El.style.opacity = smooth(0.5, 1, u11) * (1 - e12);   // the left build fades out
     seq2El.style.opacity = smooth(0.5, 1, u11);
     seq2El.style.left = (72 - 44 * e12) + '%';                // the right build slides into the left place
-    printTextEl.style.opacity = smooth(0.2, 1, u12);          // the text comes in beside it
+    printTextEl.style.opacity = smooth(0.75, 1, u12);         // the text comes in only once the right build has settled into the left place
     const e13 = smooth(0, 1, u13);
     printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + (e13 * H * 0.24) + 'px))';
     printImgEl.style.opacity = smooth(0, 1, u13);             // the print series image comes in under the text
