@@ -231,6 +231,38 @@
 
   <div class="scroll-hint" id="scrollHint">scrolla ner ↓</div>
 
+  <!-- the row at the bottom: small images that grow when hovered -->
+  <section class="strip" aria-label="Images">
+    <div class="strip-row">
+      <img src="wickedproblems-hero.jpg" alt="">
+      <img src="pantelleria/pantelleria-1.png" alt="">
+      <img src="valencia/valencia-1.jpg" alt="">
+      <img src="amoralism-1.jpg" alt="">
+      <img src="arkiv-scan.png" alt="">
+      <img src="tavla1_standing.jpg" alt="">
+      <img src="wp-triple-1.jpg" alt="">
+      <img src="mordare-vas.png" alt="">
+      <img src="pantelleria/pantelleria-4.jpg" alt="">
+      <img src="rave-ban-wave.png" alt="">
+      <img src="wp-bigcup-1.jpg" alt="">
+      <img src="arkiv-tunnel.png" alt="">
+      <img src="valencia/valencia-2.jpg" alt="">
+      <img src="wp-double-1.jpg" alt="">
+      <img src="tavla2_fallen_wide.jpg" alt="">
+      <img src="arkiv-stack.png" alt="">
+      <img src="wp-singles-group-1.jpg" alt="">
+      <img src="pantelleria/pantelleria-2.png" alt="">
+      <img src="wp-smallcup-1.jpg" alt="">
+      <img src="valencia/valencia-3.jpg" alt="">
+    </div>
+  </section>
+  <style>
+    .strip{ padding: 10vh 0 12vh; overflow: hidden; }
+    .strip-row{ display:flex; align-items:center; justify-content:center; gap:6px; height:150px; padding:0 3vw; overflow-x:auto; scrollbar-width:none; }
+    .strip-row img{ height:42px; width:56px; object-fit:cover; flex:0 0 auto; transition: width .35s ease, height .35s ease; cursor:pointer; }
+    .strip-row img:hover{ height:130px; width:180px; }
+  </style>
+
 <script>
 (function(){
   const wrapper   = document.getElementById('heroScroll');
