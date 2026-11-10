@@ -92,6 +92,23 @@
     pointer-events:none;
     z-index:5;
   }
+  /* text on the black end state: white, centred, same size as the earlier body text */
+  .end-text{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    width:min(960px, 92vw);
+    margin:0;
+    text-align:center;
+    font-size:clamp(14px, 1.45vw, 19px);
+    line-height:1.4;
+    font-weight:300;
+    color:#fff;
+    opacity:0;
+    pointer-events:none;
+    z-index:11;
+  }
   .p-hero-caption{
     margin:6px 0 0;
     font-size:15px;
@@ -162,6 +179,7 @@
     <p class="p-hero-caption">Computational design research, 2026, voxel printing</p>
   </div>
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
+  <p class="end-text" id="end-text">Material jetting builds objects voxel by voxel, layer by layer. Missing layers are normally considered defects.</p>
 </section>
 </div>
 
@@ -188,6 +206,7 @@
 
   const centerEl = document.getElementById('hero-center');
   const phraseEl = document.getElementById('hero-phrase');
+  const endEl = document.getElementById('end-text');
   const restEls = document.querySelectorAll('.ph-rest');
   let u2 = 0;                       // phase 2a: the phrase moves to the middle, the rest of the sentence fades
   let phraseDX = 0, phraseDY = 0;
@@ -292,6 +311,7 @@
   function updateText(){
     centerEl.style.opacity = smooth(0.85, 1, p);     // the sentence comes up once the glitter is gone
     restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
+    endEl.style.opacity = smooth(0.9, 1, pix);       // the text comes up once the screen is black
     const e = smooth(0, 1, u2);
     phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
