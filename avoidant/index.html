@@ -328,6 +328,15 @@
     set.canvas = document.createElement('canvas');
     set.el.appendChild(set.canvas);
     set.ctx = set.canvas.getContext('2d');
+    set.offCanvas = document.createElement('canvas');
+    set.offCtx = set.offCanvas.getContext('2d');
+    // the five reference prints of this side, from fewest to most layers
+    const names = set.void ? ['v1','v2','v3','v4','v5'] : ['nv1','nv2','nv3','nv4','nv5'];
+    set.imgs = names.map(function(n){
+      const im = new Image();
+      im.src = 'seq/' + n + '.webp';
+      return im;
+    });
   });
 
   // the dotted surface of the layers, as in the illustrations
@@ -451,6 +460,8 @@
     seqSets.forEach(function(set){
       set.canvas.width = Math.round(set.canvas.clientWidth * dpr);
       set.canvas.height = Math.round(set.canvas.width * 1553 / 3237);
+      set.offCanvas.width = set.canvas.width;
+      set.offCanvas.height = set.canvas.height;
     });
   }
 
@@ -627,51 +638,48 @@
   const BUILD_CYCLE = BUILD_STEP * (BUILD_MAX - 1) + BUILD_LAND + BUILD_HOLD + BUILD_FADE;
   const DX = 300, DX2 = 1320, DEPTH = 150, BLD_H = 26, VOID_H = 22, BASE_Y = 640;
 
-  function drawLayer(c, k, y, pattern, lift){
-    // y is the front bottom edge of the layer; lift is how far it still has to drop
-    const yb = y - lift, yt = yb - BLD_H;
-    // front face
-    c.fillStyle = c.createPattern(pattern.front, 'repeat');
-    c.fillRect(DX, yt, DX2 - DX, BLD_H);
-    // top face, receding up and to the right
-    c.fillStyle = c.createPattern(pattern.top, 'repeat');
-    c.beginPath();
-    c.moveTo(DX, yt);
-    c.lineTo(DX2, yt);
-    c.lineTo(DX2 + DEPTH, yt - DEPTH * 0.5);
-    c.lineTo(DX + DEPTH, yt - DEPTH * 0.5);
-    c.closePath();
-    c.fill();
+  // the build: each reference print in turn, the next one wiped in from below
+  const SEQ_N = 5;
+  const SEQ_HOLD = 1.2, SEQ_WIPE = 0.9, SEQ_END = 1.6, SEQ_FADE = 0.6, SEQ_GAP = 0.4;
+  const SEQ_STEP = SEQ_HOLD + SEQ_WIPE;
+  const SEQ_LAST = (SEQ_N - 1) * SEQ_STEP;
+  const SEQ_CYCLE = SEQ_LAST + SEQ_END + SEQ_FADE + SEQ_GAP;
+
+  function wipeFrames(set, from, to, p){
+    const c = set.ctx, w = set.canvas.width, h = set.canvas.height;
+    const off = set.offCtx;
+    off.setTransform(1, 0, 0, 1, 0, 0);
+    off.clearRect(0, 0, w, h);
+    off.drawImage(set.imgs[to], 0, 0, w, h);
+    // keep only the part of the new print below the moving edge
+    const edge = h * (1 - p), soft = h * 0.06;
+    const g = off.createLinearGradient(0, edge - soft, 0, edge + soft);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, 'rgba(0,0,0,1)');
+    off.globalCompositeOperation = 'destination-in';
+    off.fillStyle = g;
+    off.fillRect(0, 0, w, h);
+    off.globalCompositeOperation = 'source-over';
+    c.drawImage(set.imgs[from], 0, 0, w, h);
+    c.drawImage(set.offCanvas, 0, 0);
   }
 
   function drawBuild(time){
-    const t = time % BUILD_CYCLE;
-    const built = Math.min(BUILD_MAX, Math.floor(t / BUILD_STEP) + 1);
-    const newest = built - 1;
-    const sinceNewest = t - newest * BUILD_STEP;
-    const fade = 1 - smooth(BUILD_STEP * (BUILD_MAX - 1) + BUILD_LAND + BUILD_HOLD, BUILD_CYCLE, t);
+    const t = time % SEQ_CYCLE;
+    const fade = smooth(0, 0.5, t) * (1 - smooth(SEQ_LAST + SEQ_END, SEQ_LAST + SEQ_END + SEQ_FADE, t));
     seqSets.forEach(function(set){
-      const c = set.ctx, cw = set.canvas.width, ch = set.canvas.height;
+      const c = set.ctx, w = set.canvas.width, h = set.canvas.height;
       c.setTransform(1, 0, 0, 1, 0, 0);
-      c.clearRect(0, 0, cw, ch);
-      c.setTransform(cw / 1618, 0, 0, ch / 776, 0, 0);
-      c.globalAlpha = fade;
-      const step = set.void ? BLD_H + VOID_H : BLD_H;
-      for (let k = 0; k < built; k++) {
-        const landed = k < newest ? 1 : smooth(0, BUILD_LAND, sinceNewest);
-        const lift = (1 - landed) * 70;               // the newest layer drops in from above
-        const y = BASE_Y - k * step;
-        drawLayer(c, k, y, seqTiles, lift);
-        // on the right, the spray leaves pink droplets on the layer that was just deposited
-        if (set.void && k === newest && landed > 0.3) {
-          c.fillStyle = c.createPattern(seqTiles.pink, 'repeat');
-          const seed = k * 37.1;
-          for (let j = 0; j < 4; j++) {
-            const px = DX + 180 + ((Math.sin(seed + j * 5.3) + 1) / 2) * (DX2 - DX - 480);
-            const pw = 90 + ((Math.cos(seed + j) + 1) / 2) * 60;
-            c.fillRect(px, BASE_Y - k * step - BLD_H - 4 - j * 3, pw, 8);
-          }
-        }
+      c.clearRect(0, 0, w, h);
+      if (!set.imgs.every(function(im){ return im.complete && im.naturalWidth > 0; })) return;
+      c.globalAlpha = Math.max(0, fade);
+      if (t >= SEQ_LAST) {
+        c.drawImage(set.imgs[SEQ_N - 1], 0, 0, w, h);
+      } else {
+        const i = Math.floor(t / SEQ_STEP);
+        const local = t - i * SEQ_STEP;
+        if (local < SEQ_HOLD) c.drawImage(set.imgs[i], 0, 0, w, h);
+        else wipeFrames(set, i, i + 1, smooth(0, 1, (local - SEQ_HOLD) / SEQ_WIPE));
       }
       c.globalAlpha = 1;
     });
