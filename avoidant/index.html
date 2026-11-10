@@ -174,7 +174,7 @@
     z-index:11;
   }
   .print-image-slot{
-    position:absolute;
+    position:fixed;
     left:72%;
     top:64%;
     transform:translate(-50%, -50%);
@@ -274,15 +274,16 @@
   }
   /* --- interactive print lab --- */
   .lab{ background:#000; color:#fff; padding:14vh 6vw 18vh; }
-  .lab-inner{ max-width:1100px; margin:0 auto; }
+  /* the lab stays in the left half, so the print in the top right corner has room */
+  .lab-inner{ max-width:52vw; margin:0 0 0 6vw; }
   .lab-intro{ margin:0 0 7vh; max-width:46ch; font-size:clamp(16px,1.3vw,19px); line-height:1.5; color:#d8d8d8; }
-  .lab-figure{ position:relative; width:100%; }
+  .lab-figure{ position:relative; width:min(100%, 520px); }
   .lab-figure > img{ display:block; width:100%; height:auto; }
   .lab-mask{ position:absolute; background:#000; pointer-events:none; }
   .lab-thumb{ position:absolute; width:1.4%; aspect-ratio:1 / 1; border-radius:50%; background:#fff; transform:translate(-50%,-50%); pointer-events:none; }
   .lab-range{ position:absolute; margin:0; opacity:0; cursor:ew-resize; -webkit-appearance:none; appearance:none; background:transparent; }
   .lab-print{ margin-top:8vh; display:flex; flex-direction:column; align-items:center; gap:14px; }
-  .lab-print canvas{ display:block; width:min(442px, 80vw); height:auto; }
+  .lab-print canvas{ display:block; width:min(300px, 24vw); height:auto; }
   .lab-caption{ margin:0; font-size:13px; letter-spacing:0.06em; color:#9a9a9a; }
 </style>
 </head>
@@ -547,15 +548,19 @@
     const L13 = e13 * H * 0.36;                               // one shared lift for the text, the animation and the image
     printTextEl.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
     seq2El.style.transform = 'translate(-50%, calc(-50% - ' + L13 + 'px))';
-    // the print image: from under the text, to the middle, then up to the right, getting slightly smaller
-    // the three prints stay under the text; as the page scrolls on they fade upward
-    // and the combined print series comes in in the same place
-    const lift15 = smooth(0, 1, u15) * H * 0.3;
+    // the print series starts under the text and moves to the top right, where it stays for the rest of the page
+    // (the combined print series takes over from the three prints in the same place)
+    const pw = Math.min(440, 0.4 * window.innerWidth);
+    const ph = pw / 2.94;
+    const e15 = smooth(0, 1, u15);
     const y0 = H * 0.93 - L13;
-    printImgEl.style.left = '72%';
-    printImgEl.style.top = (y0 / H * 100) + '%';
+    const x0 = 0.72 * window.innerWidth;
+    const x1 = window.innerWidth * 0.94 - pw / 2;
+    const cy1 = H * 0.12 + ph / 2;
+    printImgEl.style.left = (x0 + (x1 - x0) * e15) + 'px';
+    printImgEl.style.top = (y0 + (cy1 - y0) * e15) + 'px';
     printImgEl.style.opacity = smooth(0, 1, u13);
-    printTrioEl.style.transform = 'translateY(' + (-lift15) + 'px)';
+    printTrioEl.style.transform = 'none';
     printTrioEl.style.opacity = 1 - smooth(0, 0.7, u15);
     printCombinedEl.style.opacity = smooth(0.4, 1, u15);
     const e = smooth(0, 1, u2);
