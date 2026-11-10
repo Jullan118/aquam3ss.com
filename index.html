@@ -277,10 +277,8 @@
     </div>
   </section>
   <style>
-    .strip{ padding: 0; overflow: hidden; }
-    .strip-row{ position:relative; height:150px; padding:0 3vw; overflow:hidden; }
-    .strip-page{ position:absolute; top:0; left:3vw; right:3vw; bottom:0; display:flex; align-items:center; justify-content:center; gap:6px; opacity:0; transition:opacity .9s ease; pointer-events:none; }
-    .strip-page.on{ opacity:1; pointer-events:auto; }
+    .strip{ padding: 2vh 0 8vh; overflow: hidden; }
+    .strip-row{ display:flex; align-items:center; justify-content:center; gap:6px; height:220px; padding:0 3vw; overflow-x:auto; scrollbar-width:none; perspective:800px; }
     /* each image is tilted into the room; the row stays still */
     .strip-row img{ height:42px; width:auto; max-width:none; flex:0 0 auto; cursor:pointer; transition: height .35s ease; }
     .strip-row img:hover{ height:150px; }
@@ -339,30 +337,5 @@
 })();
 </script>
 
-<script>
-(function(){
-  var row = document.querySelector('.strip-row');
-  if (!row) return;
-  var imgs = Array.prototype.slice.call(row.querySelectorAll('img'));
-  var PER = 8;
-  var pages = [];
-  for (var i = 0; i < imgs.length; i += PER) {
-    var page = document.createElement('div');
-    page.className = 'strip-page';
-    imgs.slice(i, i + PER).forEach(function(im){ page.appendChild(im); });
-    row.appendChild(page);
-    pages.push(page);
-  }
-  if (!pages.length) return;
-  var current = 0;
-  pages[0].classList.add('on');
-  if (pages.length < 2) return;
-  setInterval(function(){
-    pages[current].classList.remove('on');
-    current = (current + 1) % pages.length;
-    pages[current].classList.add('on');
-  }, 4000);
-})();
-</script>
 </body>
 </html>
