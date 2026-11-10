@@ -144,13 +144,18 @@
     top:64%;
     transform:translate(-50%, -50%);
     width:min(440px, 40vw);
-    aspect-ratio:4 / 3;
+    aspect-ratio:3237 / 1553;
     opacity:0;
     pointer-events:none;
     z-index:11;
   }
-  #seq1-slot{ left:30%; }
-  #seq2-slot{ left:70%; }
+  .seq-slot canvas{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  #seq1-slot{ left:28%; }
+  #seq2-slot{ left:72%; }
   .printer-slot canvas{
     display:block;
     width:100%;
@@ -280,6 +285,23 @@
   const sprayEl = document.getElementById('spray-text');
   const seq1El = document.getElementById('seq1-slot');
   const seq2El = document.getElementById('seq2-slot');
+  // the two layer sequences: nv1-nv5 on the left, v1-v5 on the right, played in step
+  const SEQ_HOLD = 1.0, SEQ_FADE = 0.35;
+  const seqSets = [
+    { el: seq1El, prefix: 'seq/nv' },
+    { el: seq2El, prefix: 'seq/v' },
+  ];
+  seqSets.forEach(function(set){
+    set.canvas = document.createElement('canvas');
+    set.el.appendChild(set.canvas);
+    set.ctx = set.canvas.getContext('2d');
+    set.imgs = [];
+    for (let k = 1; k <= 5; k++) {
+      const im = new Image();
+      im.src = set.prefix + k + '.webp';
+      set.imgs.push(im);
+    }
+  });
   let u11 = 0;                      // phase 5: the text moves up, the printer animation steps aside, the two sequences come in under it
   let u10 = 0;                      // phase 4: the animation moves up to where the first text was, and the new text comes in under it
   let u9 = 0;                       // phase 3: on black, the text moves up and the printer slot comes in under it
@@ -384,6 +406,10 @@
     measurePhrase();
     printerCanvas.width = Math.round(printerCanvas.clientWidth * dpr);
     printerCanvas.height = Math.round(printerCanvas.width * PH / PW);
+    seqSets.forEach(function(set){
+      set.canvas.width = Math.round(set.canvas.clientWidth * dpr);
+      set.canvas.height = Math.round(set.canvas.width * 1553 / 3237);
+    });
   }
 
   function updateText(){
@@ -548,9 +574,30 @@
     });
   }
 
+  // play the five frames in order, each crossfading into the next, then loop
+  function drawSeq(time){
+    const t = time % (SEQ_HOLD * 5);
+    const i = Math.floor(t / SEQ_HOLD);
+    const next = (i + 1) % 5;
+    const f = smooth(SEQ_HOLD - SEQ_FADE, SEQ_HOLD, t - i * SEQ_HOLD);
+    seqSets.forEach(function(set){
+      const c = set.ctx, cw = set.canvas.width, ch = set.canvas.height;
+      const a = set.imgs[i], b = set.imgs[next];
+      c.globalAlpha = 1;
+      c.clearRect(0, 0, cw, ch);
+      if (a.complete && a.naturalWidth) c.drawImage(a, 0, 0, cw, ch);
+      if (f > 0 && b.complete && b.naturalWidth) {
+        c.globalAlpha = f;
+        c.drawImage(b, 0, 0, cw, ch);
+        c.globalAlpha = 1;
+      }
+    });
+  }
+
   function draw(time){
     updateText();
     drawPrinter(time);
+    drawSeq(time);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     if (p < 1) drawGlitter(time);
