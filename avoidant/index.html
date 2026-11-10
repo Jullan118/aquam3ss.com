@@ -759,15 +759,11 @@
   function onScroll(){
     const vh = window.innerHeight;
     let y = window.scrollY;
-    // the builds play on their own. When the page reaches them it holds there until the build has finished,
-    // so the illustrations do not disappear the moment you scroll
+    // the builds play on their own clock, started when the page reaches them. Scrolling is not held.
     const gate = vh * 11;
     if (!buildDone) {
       if (buildStart === null && y >= gate) buildStart = performance.now();
-      if (buildStart !== null) {
-        if (performance.now() - buildStart >= BUILD_DUR_MS) buildDone = true;
-        else if (y > gate) { window.scrollTo(0, gate); y = gate; }
-      }
+      if (buildStart !== null && performance.now() - buildStart >= BUILD_DUR_MS) buildDone = true;
     }
     pTarget = Math.min(1, Math.max(0, y / (vh * 3)));            // phase 1: glitter dissolves over 3 screens
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));            // phase 2a: 1 screen, the phrase moves to the middle
