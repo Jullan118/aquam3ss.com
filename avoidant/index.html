@@ -182,20 +182,22 @@
     pointer-events:none;
     z-index:11;
   }
+  /* the print series is as wide as the text above it (.print-text) */
   .print-trio{
     display:flex;
     align-items:flex-end;
-    justify-content:center;
-    gap:2%;
+    justify-content:space-between;
+    width:min(440px, 40vw);
   }
+  /* three prints of equal size that together fill that width: height = width / (sum of the three aspect ratios) */
   .print-trio img{
     display:block;
-    height:min(260px, 24vw);
+    height:calc(min(440px, 40vw) / 2.68);
     width:auto;
   }
   /* the v10 drawing fills more of its file than v8 and v12, so it is scaled down to show the same size */
   .print-trio #print-mid{
-    height:min(234px, 21.6vw);
+    height:calc(min(440px, 40vw) / 2.68 * 0.9);
   }
   /* the combined print series sits exactly where the three prints were */
   .print-combined{
@@ -203,8 +205,8 @@
     left:50%;
     top:50%;
     transform:translate(-50%, -50%);
-    height:min(260px, 24vw);
-    width:auto;
+    width:min(440px, 40vw);
+    height:auto;
     max-width:none;
     opacity:0;
     pointer-events:none;
