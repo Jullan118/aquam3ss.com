@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves and the screen sweeps to black */
   .glitter-track{
     position:relative;
-    height:800vh;
+    height:900vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -161,7 +161,7 @@
     <h1 class="p-hero-title">Avoidant</h1>
     <p class="p-hero-caption">Computational design research, 2026, voxel printing</p>
   </div>
-  <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
+  <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
 </section>
 </div>
 
@@ -187,6 +187,10 @@
   let running = false, visible = true, raf = null;
 
   const centerEl = document.getElementById('hero-center');
+  const phraseEl = document.getElementById('hero-phrase');
+  const restEls = document.querySelectorAll('.ph-rest');
+  let u2 = 0;                       // phase 2a: the phrase moves to the middle, the rest of the sentence fades
+  let phraseDX = 0, phraseDY = 0;
 
   function smooth(a, b, v){
     const x = Math.min(1, Math.max(0, (v - a) / (b - a)));
@@ -247,6 +251,15 @@
     return out;
   }
 
+  // Measure how far the phrase must travel to sit in the middle of the hero.
+  function measurePhrase(){
+    phraseEl.style.transform = 'none';
+    const hr = hero.getBoundingClientRect();
+    const pr = phraseEl.getBoundingClientRect();
+    phraseDX = hr.width / 2 - (pr.left + pr.width / 2 - hr.left);
+    phraseDY = hr.height / 2 - (pr.top + pr.height / 2 - hr.top);
+  }
+
   function build(){
     const rect = hero.getBoundingClientRect();
     W = Math.max(1, Math.round(rect.width));
@@ -273,10 +286,14 @@
     octx.fillRect(0, 0, W, H);
     octx.drawImage(src, (W - dw) / 2, (H - dh) / 2, dw, dh);
     items = buildGlitter(octx.getImageData(0, 0, W, H).data);
+    measurePhrase();
   }
 
   function updateText(){
     centerEl.style.opacity = smooth(0.85, 1, p);     // the sentence comes up once the glitter is gone
+    restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
+    const e = smooth(0, 1, u2);
+    phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
   }
 
   function drawGlitter(time){
@@ -390,7 +407,8 @@
     const vh = window.innerHeight;
     const y = window.scrollY;
     pTarget = Math.min(1, Math.max(0, y / (vh * 3)));            // phase 1: glitter dissolves over 3 screens
-    pix = Math.min(1, Math.max(0, (y - vh * 4) / (vh * 2)));     // phase 2: after the sentence rests one screen, 2 screens of glitter sweep it to black
+    u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));            // phase 2a: 1 screen, the phrase moves to the middle
+    pix = Math.min(1, Math.max(0, (y - vh * 5.5) / (vh * 2)));   // phase 2b: after a short rest, 2 screens of glitter sweep it to black
     if (reduce) {
       p = pTarget;
       draw(0);
