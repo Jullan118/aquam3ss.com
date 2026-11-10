@@ -36,7 +36,7 @@
   /* tall track so the hero stays pinned while the glitter dissolves and the screen sweeps to black */
   .glitter-track{
     position:relative;
-    height:1600vh;
+    height:1400vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -353,7 +353,9 @@
   const tileFront = dotPattern('#8c8c91', '#2e2e32');
   const tilePink = dotPattern('#ff1f8e', '#c4006c');
   const seqTiles = { top: tileTop, front: tileFront, pink: tilePink };
-  let buildP = 0;                   // progress of the two builds, follows the scroll: they stop when you stop
+  let buildStart = null;            // when the builds started playing; they run on their own clock
+  let buildDone = false;
+  const BUILD_DUR_MS = (16.8 + 0.6) * 1000;
   let u11 = 0;                      // phase 5: the text moves up, the printer animation steps aside, the two sequences come in under it
   let u10 = 0;                      // phase 4: the animation moves up to where the first text was, and the new text comes in under it
   let u9 = 0;                       // phase 3: on black, the text moves up and the printer slot comes in under it
@@ -641,7 +643,7 @@
 
   // the build: each reference print in turn, the next one wiped in from below
   // both sides finish their build at the same time; each side's step depends on how many prints it has
-  const SEQ_TOTAL = 12;
+  const SEQ_TOTAL = 16.8;            // 8 steps of 2.1 s, the pace of the first version
   const SEQ_END = 1.6, SEQ_FADE = 0.6, SEQ_GAP = 0.4;
   const SEQ_CYCLE = SEQ_TOTAL + SEQ_END + SEQ_FADE + SEQ_GAP;
 
@@ -665,8 +667,9 @@
   }
 
   function drawBuild(time){
-    const t = buildP * SEQ_TOTAL;
-    const fade = smooth(0, 0.5, t) * (1 - smooth(SEQ_TOTAL + SEQ_END, SEQ_TOTAL + SEQ_END + SEQ_FADE, t));
+    const elapsed = buildStart === null ? 0 : (performance.now() - buildStart) / 1000;
+    const t = Math.min(elapsed, SEQ_TOTAL);
+    const fade = smooth(0, 0.5, elapsed);
     seqSets.forEach(function(set){
       const c = set.ctx, w = set.canvas.width, h = set.canvas.height;
       const n = set.imgs.length;
@@ -719,7 +722,17 @@
 
   function onScroll(){
     const vh = window.innerHeight;
-    const y = window.scrollY;
+    let y = window.scrollY;
+    // the builds play on their own. When the page reaches them it holds there until the build has finished,
+    // so the illustrations do not disappear the moment you scroll
+    const gate = vh * 11;
+    if (!buildDone) {
+      if (buildStart === null && y >= gate) buildStart = performance.now();
+      if (buildStart !== null) {
+        if (performance.now() - buildStart >= BUILD_DUR_MS) buildDone = true;
+        else if (y > gate) { window.scrollTo(0, gate); y = gate; }
+      }
+    }
     pTarget = Math.min(1, Math.max(0, y / (vh * 3)));            // phase 1: glitter dissolves over 3 screens
     u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));            // phase 2a: 1 screen, the phrase moves to the middle
     pix = Math.min(1, Math.max(0, (y - vh * 5.5) / (vh * 2)));   // phase 2b: after a short rest, 2 screens of glitter sweep it to black
@@ -728,7 +741,6 @@
     u11 = Math.min(1, Math.max(0, (y - vh * 10) / vh));          // phase 5: 1 screen, the text moves up, the two sequences come in under it
     u12 = Math.min(1, Math.max(0, (y - vh * 11) / vh));          // phase 6: 1 screen, the left build fades, the right one moves left, the text comes in
     u13 = Math.min(1, Math.max(0, (y - vh * 12) / vh));          // phase 7: 1 screen, the text lifts and the print image comes in
-    buildP = Math.min(1, Math.max(0, (y - vh * 10) / (vh * 5))); // the builds play over five screens of scroll, so the page pauses on them
     if (reduce) {
       p = pTarget;
       draw(0);
