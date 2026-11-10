@@ -33,10 +33,10 @@
   }
 
   /* --- full-bleed intro hero --- */
-  /* tall track so the hero stays pinned while the glitter dissolves */
+  /* tall track so the hero stays pinned while the glitter dissolves and the screen pixelates to black */
   .glitter-track{
     position:relative;
-    height:1400vh;
+    height:800vh;
   }
   .sweep-canvas{
     position:absolute;
@@ -44,50 +44,7 @@
     width:100%;
     height:100%;
     pointer-events:none;
-  }
-  .black-stack{
-    position:absolute;
-    left:50%;
-    top:60px;
-    transform:translateX(-50%);
-    width:min(960px,92vw);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:128px;
-    pointer-events:none;
-    z-index:5;
-  }
-  .black-figure{
-    width:100%;
-    max-width:780px;
-    height:auto;
-    opacity:0;
-  }
-  .black-workflow{
-    max-width:900px;
-  }
-  .black-caption{
-    margin-bottom:-100px;
-  }
-  #black-figure{
-    max-width:960px;
-    margin-top:-70px;
-  }
-  #black-findings{
-    margin-top:128px;
-  }
-  #black-patterns{
-    margin-top:-40px;
-  }
-  .black-text{
-    width:100%;
-    text-align:center;
-    font-size:clamp(14px,1.45vw,19px);
-    line-height:1.4;
-    font-weight:300;
-    color:#fff;
-    opacity:0;
+    z-index:10;
   }
   .ph-logic{
     display:inline-block;
@@ -204,15 +161,7 @@
     <h1 class="p-hero-title">Avoidant</h1>
     <p class="p-hero-caption">Computational design research, 2026, voxel printing</p>
   </div>
-  <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
-  <div class="black-stack" id="black-stack">
-    <p class="black-text" id="black-text">Material jetting deposits photopolymer voxel by voxel; a missing layer would normally be a failure. This research treats that failure as a design variable, encoding void height and orientation parametrically built in a Grasshopper script.<br><br>The grasshopper script is exported to a bitmap stack and sent to a Stratasys J-series printer and printed in voxels.<br>Material leads, the script follows.</p>
-    <img class="black-figure" id="black-figure" src="avoidant-black-diagram.jpg" alt="diagram of the print stack in three axes, with void layers left empty between the printed layers">
-    <p class="black-text black-findings" id="black-findings">Findings:<br>~10 mm as a central value and void height as the primary diffuseness control.<br><br>Pattern depths of 1–4 mm all produced visible diffuseness, with 2 layers yielding the strongest spray effect.<br><br>Layer introduced a spatial gradient in spray intensity across the print, making inclination an effective tool<br>for modulating directional diffusion.<br>Printhead motion was found to amplify droplet drift.</p>
-    <img class="black-figure black-patterns" id="black-patterns" src="avoidant-black-patterns.jpg" alt="three panels of voxel test prints showing checkerboard and grid patterns with void layers">
-    <p class="black-text black-caption" id="black-caption">Proposed schematic workflow, where findings from exploratory print series inform controllable sliders for spray drift, surface diffuseness, pattern depth, and spray inclination.</p>
-    <img class="black-figure black-workflow" id="black-workflow" src="avoidant-black-workflow.jpg" alt="workflow diagram: spray drift angle, surface diffuseness, pattern depth and spray inclination sliders feed a spray geometry node above a void zone and a base body, leading to material, export to print and preview">
-  </div>
+  <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
 </section>
 </div>
 
@@ -229,34 +178,15 @@
 
   const src = new Image();          // the glitter source
   src.src = 'avoidant-hero.png';
-  const endImg = new Image();       // the drawing, sampled into streaks
-  endImg.src = 'avoidant-end.jpg';
-  let loaded = 0, isReady = false;
+  let isReady = false;
 
   let items = [];                   // phase 1 glitter
   let W = 0, H = 0, dpr = 1;
   let p = 0, pTarget = 0;           // phase 1: glitter dissolves to white
-  let u2 = 0;                       // phase 2: the phrase moves to the middle
-  let u3 = 0;                       // phase 3: the phrase fades out
-  let u4 = 0;                       // phase 4: black streaks sweep in, the drawing builds from them
-  let u6 = 0;                       // phase 6: more black streaks fill the screen, until it is black
-  let u7 = 0;                       // phase 7: the findings come up under the diagram
-  let u8 = 0;                       // phase 8: the stack pans up so the workflow can be read
-  let drawing = [];                 // phase 4 drawing, as streak dashes
-  let phraseDX = 0, phraseDY = 0;
+  let pix = 0;                      // phase 2: the screen pixelates into solid black
   let running = false, visible = true, raf = null;
 
-  const titleEl = document.getElementById('hero-title');
   const centerEl = document.getElementById('hero-center');
-  const blackText = document.getElementById('black-text');
-  const blackFig = document.getElementById('black-figure');
-  const blackFindings = document.getElementById('black-findings');
-  const blackPatterns = document.getElementById('black-patterns');
-  const blackCaption = document.getElementById('black-caption');
-  const blackWorkflow = document.getElementById('black-workflow');
-  const blackStack = document.getElementById('black-stack');
-  const phraseEl = document.getElementById('hero-phrase');
-  const restEls = document.querySelectorAll('.ph-rest');
 
   function smooth(a, b, v){
     const x = Math.min(1, Math.max(0, (v - a) / (b - a)));
@@ -317,15 +247,6 @@
     return out;
   }
 
-  // Measure how far the phrase must travel to sit in the middle of the hero.
-  function measurePhrase(){
-    phraseEl.style.transform = 'none';
-    const hr = hero.getBoundingClientRect();
-    const pr = phraseEl.getBoundingClientRect();
-    phraseDX = hr.width / 2 - (pr.left + pr.width / 2 - hr.left);
-    phraseDY = hr.height / 2 - (pr.top + pr.height / 2 - hr.top);
-  }
-
   function build(){
     const rect = hero.getBoundingClientRect();
     W = Math.max(1, Math.round(rect.width));
@@ -352,30 +273,10 @@
     octx.fillRect(0, 0, W, H);
     octx.drawImage(src, (W - dw) / 2, (H - dh) / 2, dw, dh);
     items = buildGlitter(octx.getImageData(0, 0, W, H).data);
-
-    measurePhrase();
-    buildDrawing();
   }
 
   function updateText(){
-    titleEl.style.opacity = 1 - smooth(0, 0.15, u2);  // the title stays until 'logic of omission' starts to move
-    centerEl.style.opacity = smooth(0.85, 1, p);
-    restEls.forEach(function(el){ el.style.opacity = 1 - smooth(0, 0.6, u2); });
-    const e = smooth(0, 1, u2);
-    phraseEl.style.transform = 'translate(' + (phraseDX * e) + 'px,' + (phraseDY * e) + 'px)';
-    blackText.style.opacity = smooth(0.8, 0.9, u6);  // once the screen is black, the text comes up
-    blackFig.style.opacity = smooth(0.9, 1, u6);     // then the diagram, centred below it
-    blackFindings.style.opacity = smooth(0, 0.6, u7); // then the findings, under the diagram
-    blackPatterns.style.opacity = smooth(0.6, 1, u7); // and the test prints last
-    blackCaption.style.opacity = smooth(0.8, 1, u7);  // their caption last of all
-    blackWorkflow.style.opacity = smooth(0, 0.5, u8);  // then the workflow, and the stack pans up to it
-    const h = blackStack.offsetHeight;
-    const th = blackText.offsetHeight;
-    const start = Math.max(0, H * 0.38 - 60 - th / 2); // the opening text comes up centred on the screen
-    const pan = Math.max(0, h - H + 100);           // the stack pans up as one piece, the text included
-    const y = start * (1 - u8) - pan * u8;
-    blackStack.style.transform = 'translate(-50%, ' + y + 'px)';
-    phraseEl.style.opacity = 1 - smooth(0, 1, u3);   // the phrase simply fades out
+    centerEl.style.opacity = smooth(0.85, 1, p);     // the sentence comes up once the glitter is gone
   }
 
   function drawGlitter(time){
@@ -408,89 +309,22 @@
     }
   }
 
-  // Phase 6: the same rows, filled in black, until the whole screen is black
-  function drawSweep(c){
+  // block size of the pixelation, scales with the screen width
+  function blockSize(){ return Math.max(10, Math.round(W / 60)); }
+
+  // Phase 2: the screen breaks into pixel blocks. Each block turns solid black
+  // at its own moment, scattered at random, until the whole screen is black.
+  function drawPixels(c){
     sctx.clearRect(0, 0, W, H);
     if (c <= 0) return;
-    const row = rowSize();
+    const b = blockSize();
+    const cols = Math.ceil(W / b), rows = Math.ceil(H / b);
     sctx.fillStyle = '#000000';
-    for (let y = 0; y < H; y += row) {
-      const band = Math.floor(y / (row * 9));
-      const rt = rowThreshold(y, row);
-      const k = smooth(rt, rt + 0.25, c);
-      if (k <= 0) continue;
-      const w = W * k;
-      const x = band % 2 ? W - w : 0;
-      sctx.fillRect(x, y, w, row + 0.5);   // full height, so no gaps show when black
-    }
-  }
-
-  function rowSize(){ return Math.max(2, Math.round(W / 500)); }
-
-  // each streak row turns black at its own moment, in bands, as in the header
-  function rowThreshold(y, row){
-    const band = Math.floor(y / (row * 9));
-    return (0.6 * hash(band) + 0.4 * hash(y + 1000)) * 0.75;
-  }
-
-  // Phase 4: the header's glitter run in reverse. Black horizontal streaks
-  // sweep in row by row, from alternating edges, until the white screen is black.
-  function drawStreaks(cov){
-    const row = rowSize();
-    ctx.fillStyle = '#111111';
-    for (let y = 0; y < H; y += row) {
-      const band = Math.floor(y / (row * 9));
-      const rt = rowThreshold(y, row);
-      const k = smooth(rt, rt + 0.25, cov);
-      if (k <= 0) continue;
-      const w = W * k;
-      const x = band % 2 ? W - w : 0;
-      ctx.fillRect(x, y, w, row * 0.9);
-    }
-  }
-
-  // The drawing is built the same way as the header's glitter: its white lines
-  // are read as the ink (inverted), into bars and dots that shift together.
-  function buildDrawing(){
-    drawing = [];
-    if (!endImg.naturalWidth) return;
-    const s = Math.max(W / endImg.naturalWidth, H / endImg.naturalHeight);
-    const dw = endImg.naturalWidth * s, dh = endImg.naturalHeight * s;
-    const off = document.createElement('canvas');
-    off.width = W; off.height = H;
-    const octx = off.getContext('2d', { willReadFrequently: true });
-    octx.fillStyle = '#000000';
-    octx.fillRect(0, 0, W, H);
-    octx.drawImage(endImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
-    const d = octx.getImageData(0, 0, W, H).data;
-    for (let i = 0; i < d.length; i += 4) {
-      d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2];
-    }
-    drawing = buildGlitter(d);
-  }
-
-  // the drawing appears in the order the header's glitter dissolved, but in reverse
-  function drawDrawing(time, cov){
-    const amp = 1.5 + 6 * cov;
-    ctx.fillStyle = '#ffffff';
-    const sparks = [];
-    for (let i = 0; i < drawing.length; i++) {
-      const q = drawing[i];
-      if (q.t > cov) continue;                       // not built (yet, or any more)
-      if (q.kind === 'bar') {
-        let dx = Math.sin(time * q.f + q.ph) * amp * 0.6;
-        if (Math.sin(time * 0.9 + q.band) > 0.985) dx += amp * 3;
-        ctx.fillRect(q.x + dx, q.y, q.w, q.h);
-        continue;
+    for (let r = 0; r < rows; r++) {
+      for (let k = 0; k < cols; k++) {
+        const t = hash(r * 57.3 + k * 113.9);     // 0..1, fixed per block
+        if (t < c) sctx.fillRect(k * b, r * b, b, b);
       }
-      const x = q.x + Math.sin(time * q.f1 + q.ph) * amp;
-      const y = q.y + Math.cos(time * q.f2 + q.ph * 1.3) * amp;
-      if (q.sparkle && Math.sin(time * 6 + q.ph) > 0.92) { sparks.push(x, y); continue; }
-      ctx.fillRect(x, y, 1.6, 1.6);
-    }
-    if (sparks.length) {
-      ctx.fillStyle = '#ff0000';
-      for (let i = 0; i < sparks.length; i += 2) ctx.fillRect(sparks[i], sparks[i + 1], 2.4, 2.4);
     }
   }
 
@@ -499,9 +333,7 @@
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     if (p < 1) drawGlitter(time);
-    const cov = u4;                                  // 0 = white, 1 = fully streaked
-    if (cov > 0) { drawStreaks(cov); drawDrawing(time, cov); }
-    drawSweep(u6);
+    drawPixels(pix);
   }
 
   function frame(now){
@@ -527,14 +359,8 @@
   function onScroll(){
     const vh = window.innerHeight;
     const y = window.scrollY;
-    pTarget = Math.min(1, Math.max(0, y / (vh * 3)));          // phase 1: 3 screens
-    // 3..4 screens: hold, the sentence stays still
-    u2 = Math.min(1, Math.max(0, (y - vh * 4) / vh));          // phase 2: 1 screen, phrase moves to the middle
-    u3 = Math.min(1, Math.max(0, (y - vh * 5) / vh));          // phase 3: 1 screen, the phrase fades out
-    u4 = Math.min(1, Math.max(0, (y - vh * 6) / (vh * 2)));    // phase 4: 2 screens, black streaks sweep in, the drawing builds
-    u6 = Math.min(1, Math.max(0, (y - vh * 8) / (vh * 2)));    // phase 6: 2 screens, more black streaks fill the screen until it is black
-    u7 = Math.min(1, Math.max(0, (y - vh * 10) / vh));         // phase 7: 1 screen, the findings come up
-    u8 = Math.min(1, Math.max(0, (y - vh * 11) / (vh * 2)));   // phase 8: 2 screens, the stack pans up to the workflow
+    pTarget = Math.min(1, Math.max(0, y / (vh * 3)));            // phase 1: glitter dissolves over 3 screens
+    pix = Math.min(1, Math.max(0, (y - vh * 4) / (vh * 2)));     // phase 2: after the sentence rests one screen, 2 screens pixelate it to black
     if (reduce) {
       p = pTarget;
       draw(0);
@@ -548,8 +374,7 @@
   }
 
   function onLoaded(){
-    loaded++;
-    if (loaded < 2 || isReady) return;
+    if (isReady) return;
     isReady = true;
     build();
     onScroll();
@@ -557,11 +382,6 @@
   }
 
   src.onload = onLoaded;  src.onerror = onLoaded;
-  endImg.onload = onLoaded; endImg.onerror = onLoaded;
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function(){ if (isReady) { measurePhrase(); updateText(); } });
-  }
 
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onResize);
