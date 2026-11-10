@@ -289,6 +289,11 @@
 
 
 <script>
+// every visit starts at the top, so the printer and the builds always start from zero
+// (the browser would otherwise restore an old scroll position on reload or on going back)
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 (function(){
   const hero = document.querySelector('.p-hero');
   const canvas = document.getElementById('glitter');
