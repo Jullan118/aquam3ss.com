@@ -285,23 +285,31 @@
   const sprayEl = document.getElementById('spray-text');
   const seq1El = document.getElementById('seq1-slot');
   const seq2El = document.getElementById('seq2-slot');
-  // the two layer sequences: nv1-nv5 on the left, v1-v5 on the right, played in step
-  const SEQ_HOLD = 1.0, SEQ_FADE = 0.35;
+  // the two build illustrations, side by side under the text: the left is solid, the right has void layers between the layers
   const seqSets = [
-    { el: seq1El, prefix: 'seq/nv' },
-    { el: seq2El, prefix: 'seq/v' },
+    { el: seq1El, void: false },
+    { el: seq2El, void: true },
   ];
   seqSets.forEach(function(set){
     set.canvas = document.createElement('canvas');
     set.el.appendChild(set.canvas);
     set.ctx = set.canvas.getContext('2d');
-    set.imgs = [];
-    for (let k = 1; k <= 5; k++) {
-      const im = new Image();
-      im.src = set.prefix + k + '.webp';
-      set.imgs.push(im);
-    }
   });
+
+  // the dotted surface of the layers, as in the illustrations
+  function dotPattern(color, bg){
+    const t = document.createElement('canvas');
+    t.width = 6; t.height = 6;
+    const c = t.getContext('2d');
+    c.fillStyle = bg; c.fillRect(0, 0, 6, 6);
+    c.fillStyle = color;
+    c.beginPath(); c.arc(3, 3, 1.1, 0, Math.PI * 2); c.fill();
+    return t;
+  }
+  const tileTop = dotPattern('#c9c9cd', '#5f5f64');
+  const tileFront = dotPattern('#8c8c91', '#2e2e32');
+  const tilePink = dotPattern('#ff1f8e', '#c4006c');
+  const seqTiles = { top: tileTop, front: tileFront, pink: tilePink };
   let u11 = 0;                      // phase 5: the text moves up, the printer animation steps aside, the two sequences come in under it
   let u10 = 0;                      // phase 4: the animation moves up to where the first text was, and the new text comes in under it
   let u9 = 0;                       // phase 3: on black, the text moves up and the printer slot comes in under it
@@ -574,30 +582,65 @@
     });
   }
 
-  // play the five frames in order, each crossfading into the next, then loop
-  function drawSeq(time){
-    const t = time % (SEQ_HOLD * 5);
-    const i = Math.floor(t / SEQ_HOLD);
-    const next = (i + 1) % 5;
-    const f = smooth(SEQ_HOLD - SEQ_FADE, SEQ_HOLD, t - i * SEQ_HOLD);
+  // the object is built one layer at a time: each layer drops in and settles, then the next one follows
+  const BUILD_STEP = 0.9, BUILD_LAND = 0.5, BUILD_HOLD = 1.6, BUILD_FADE = 0.6, BUILD_MAX = 6;
+  const BUILD_CYCLE = BUILD_STEP * (BUILD_MAX - 1) + BUILD_LAND + BUILD_HOLD + BUILD_FADE;
+  const DX = 300, DX2 = 1320, DEPTH = 150, BLD_H = 26, VOID_H = 22, BASE_Y = 640;
+
+  function drawLayer(c, k, y, pattern, lift){
+    // y is the front bottom edge of the layer; lift is how far it still has to drop
+    const yb = y - lift, yt = yb - BLD_H;
+    // front face
+    c.fillStyle = c.createPattern(pattern.front, 'repeat');
+    c.fillRect(DX, yt, DX2 - DX, BLD_H);
+    // top face, receding up and to the right
+    c.fillStyle = c.createPattern(pattern.top, 'repeat');
+    c.beginPath();
+    c.moveTo(DX, yt);
+    c.lineTo(DX2, yt);
+    c.lineTo(DX2 + DEPTH, yt - DEPTH * 0.5);
+    c.lineTo(DX + DEPTH, yt - DEPTH * 0.5);
+    c.closePath();
+    c.fill();
+  }
+
+  function drawBuild(time){
+    const t = time % BUILD_CYCLE;
+    const built = Math.min(BUILD_MAX, Math.floor(t / BUILD_STEP) + 1);
+    const newest = built - 1;
+    const sinceNewest = t - newest * BUILD_STEP;
+    const fade = 1 - smooth(BUILD_STEP * (BUILD_MAX - 1) + BUILD_LAND + BUILD_HOLD, BUILD_CYCLE, t);
     seqSets.forEach(function(set){
       const c = set.ctx, cw = set.canvas.width, ch = set.canvas.height;
-      const a = set.imgs[i], b = set.imgs[next];
-      c.globalAlpha = 1;
+      c.setTransform(1, 0, 0, 1, 0, 0);
       c.clearRect(0, 0, cw, ch);
-      if (a.complete && a.naturalWidth) c.drawImage(a, 0, 0, cw, ch);
-      if (f > 0 && b.complete && b.naturalWidth) {
-        c.globalAlpha = f;
-        c.drawImage(b, 0, 0, cw, ch);
-        c.globalAlpha = 1;
+      c.setTransform(cw / 1618, 0, 0, ch / 776, 0, 0);
+      c.globalAlpha = fade;
+      const step = set.void ? BLD_H + VOID_H : BLD_H;
+      for (let k = 0; k < built; k++) {
+        const landed = k < newest ? 1 : smooth(0, BUILD_LAND, sinceNewest);
+        const lift = (1 - landed) * 70;               // the newest layer drops in from above
+        const y = BASE_Y - k * step;
+        drawLayer(c, k, y, seqTiles, lift);
+        // on the right, the spray leaves pink droplets on the layer that was just deposited
+        if (set.void && k === newest && landed > 0.3) {
+          c.fillStyle = c.createPattern(seqTiles.pink, 'repeat');
+          const seed = k * 37.1;
+          for (let j = 0; j < 4; j++) {
+            const px = DX + 180 + ((Math.sin(seed + j * 5.3) + 1) / 2) * (DX2 - DX - 480);
+            const pw = 90 + ((Math.cos(seed + j) + 1) / 2) * 60;
+            c.fillRect(px, BASE_Y - k * step - BLD_H - 4 - j * 3, pw, 8);
+          }
+        }
       }
+      c.globalAlpha = 1;
     });
   }
 
   function draw(time){
     updateText();
     drawPrinter(time);
-    drawSeq(time);
+    drawBuild(time);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
     if (p < 1) drawGlitter(time);
