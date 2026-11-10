@@ -178,11 +178,15 @@
     left:72%;
     top:64%;
     transform:translate(-50%, -50%);
-    width:min(440px, 40vw);
-    aspect-ratio:4 / 3;
+    width:min(720px, 56vw);
     opacity:0;
     pointer-events:none;
     z-index:11;
+  }
+  .print-image-slot img{
+    display:block;
+    width:100%;
+    height:auto;
   }
   .printer-slot canvas{
     display:block;
@@ -261,7 +265,7 @@
   <p class="p-hero-center" id="hero-center"><span class="ph-rest">What happens when you intentionally leave?<br>And what happens when that </span><span class="ph-logic" id="hero-phrase">logic of omission</span><span class="ph-rest"> becomes a material operation, when layers are deliberately left empty inside a voxel print?</span></p>
   <p class="spray-text" id="spray-text">By introducing void layers, droplets spread before reaching the next surface, creating a diffuse, spray-like texture instead of a precise voxel pattern.</p>
   <p class="print-text" id="print-text">A series of prints were produced to isolate the void parameters influencing the spray-like effect. Void height, pattern depth, and inclination were investigated as independent variables.</p>
-  <div class="print-image-slot" id="print-image" aria-hidden="true"></div>
+  <div class="print-image-slot" id="print-image"><img src="prints.webp" alt="Print series: void prints with varying void height, pattern depth and inclination" loading="eager"></div>
   <div class="seq-slot" id="seq1-slot" aria-hidden="true"></div>
   <div class="seq-slot" id="seq2-slot" aria-hidden="true"></div>
   <div class="printer-slot" id="printer-slot" aria-hidden="true"><canvas id="printer-canvas"></canvas></div>
